@@ -108,7 +108,7 @@ Error formatting
 Flask integration
 =================
 
-Marshmallow-jsonapi has built-in support Flask. See `here <https://github.com/marshmallow-code/marshmallow-jsonapi/blob/master/examples/flask_example.py>`_ for example usage.
+Marshmallow-jsonapi has optional support for Flask. See `here <https://github.com/marshmallow-code/marshmallow-jsonapi/blob/master/examples/flask_example.py>`_ for example usage.
 
 Documentation
 =============
