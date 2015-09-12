@@ -126,4 +126,5 @@ Links
 =====
 
 - `marshmallow-jsonapi @ GitHub <https://github.com/marshmallow-code/marshmallow-jsonapi>`_
+- `marshmallow-jsonapi @ PyPI <https://pypi.python.org/pypi/marshmallow-jsonapi>`_
 - `Issue Tracker <https://github.com/marshmallow-code/marshmallow-jsonapi/issues>`_

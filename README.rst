@@ -2,10 +2,9 @@
 marshmallow-jsonapi
 *******************
 
-..
-    .. image:: https://img.shields.io/pypi/v/marshmallow-jsonapi.svg
-        :target: https://pypi.python.org/pypi/marshmallow-jsonapi
-        :alt: Latest version
+.. image:: https://img.shields.io/pypi/v/marshmallow-jsonapi.svg
+    :target: https://pypi.python.org/pypi/marshmallow-jsonapi
+    :alt: Latest version
 
 .. image:: https://img.shields.io/travis/marshmallow-code/marshmallow-jsonapi.svg
     :target: https://travis-ci.org/marshmallow-code/marshmallow-jsonapi
@@ -126,9 +125,9 @@ Project Links
 
 - Docs: http://marshmallow-jsonapi.rtfd.org/
 - Changelog: http://marshmallow-jsonapi.readthedocs.org/en/latest/changelog.html
+- PyPI: https://pypi.python.org/pypi/marshmallow-jsonapi
 - Issues: https://github.com/marshmallow-code/marshmallow-jsonapi/issues
 
-.. - PyPI: https://pypi.python.org/pypi/marshmallow-jsonapi
 
 License
 =======
