@@ -1,0 +1,12 @@
+# Build tasks
+invoke
+
+# Testing
+pytest
+tox>=1.5.0
+
+# Packaging
+wheel
+
+# Syntax checking
+flake8==2.4.1

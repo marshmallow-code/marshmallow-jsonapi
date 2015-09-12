@@ -1,0 +1,18 @@
+# Config file for automatic testing at travis-ci.org
+
+language: python
+
+python:
+  - "3.4"
+  - "3.3"
+  - "2.7"
+  - "pypy"
+
+install:
+  - pip install -U -r dev-requirements.txt
+  - pip install -U .
+
+before_script:
+    - flake8 .
+
+script: py.test
