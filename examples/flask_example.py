@@ -113,9 +113,12 @@ def posts_detail(post_id):
     data, errs = PostSchema().dump(post)
     return J(data)
 
-@app.route('/posts/<post_id>/comments/')
+@app.route('/posts/<int:post_id>/comments/')
 def posts_comments(post_id):
-    return 'Comments list'
+    post = db['posts'][post_id - 1]
+    comments = post.comments
+    data, errs = CommentSchema(many=True).dump(comments)
+    return J(data)
 
 @app.route('/authors/')
 def authors_list():

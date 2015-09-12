@@ -1,0 +1,4 @@
+marshmallow>=2.0.0b5
+sphinx
+sphinx-rtd-theme
+sphinx-issues>=0.2.0

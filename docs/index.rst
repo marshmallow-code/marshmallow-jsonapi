@@ -2,18 +2,9 @@
 marshmallow-jsonapi: simple JSON API formatting
 ***********************************************
 
-..
-    .. image:: https://img.shields.io/pypi/v/marshmallow-jsonapi.svg
-        :target: https://pypi.python.org/pypi/marshmallow-jsonapi
-        :alt: Latest version
-    .. image:: https://img.shields.io/travis/sloria/marshmallow-jsonapi.svg
-        :target: https://travis-ci.org/sloria/marshmallow-jsonapi
-        :alt: Travis-CI
-
-Homepage: http://marshmallow-jsonapi.rtfd.org/
+Release v\ |version|. (:ref:`Changelog <changelog>`)
 
 JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with marshmallow.
-
 
 .. code-block:: python
 
@@ -106,26 +97,21 @@ Error formatting
     #     ]
     # }
 
-Documentation
-=============
+Guide
+-----
 
-Full documentation is available at https://marshmallow-jsonapi.readthedocs.org/.
+.. toctree::
+   :maxdepth: 2
 
-Requirements
-============
+   .. install
+   .. quickstart
+   api_reference
 
-- Python >= 2.7 or >= 3.3
+Project info
+------------
 
-Project Links
-=============
+.. toctree::
+   :maxdepth: 1
 
-- Docs: http://marshmallow-jsonapi.rtfd.org/
-- Changelog: http://marshmallow-jsonapi.readthedocs.org/en/latest/changelog.html
-- Issues: https://github.com/sloria/marshmallow-jsonapi/issues
-
-.. - PyPI: https://pypi.python.org/pypi/marshmallow-jsonapi
-
-License
-=======
-
-MIT licensed. See the bundled `LICENSE <https://github.com/sloria/marshmallow-jsonapi/blob/master/LICENSE>`_ file for more details.
+   .. changelog
+   license

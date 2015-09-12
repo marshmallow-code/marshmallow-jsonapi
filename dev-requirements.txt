@@ -4,6 +4,7 @@ invoke
 # Testing
 pytest
 tox>=1.5.0
+fake-factory
 
 # Packaging
 wheel
