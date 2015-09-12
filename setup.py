@@ -22,7 +22,7 @@ def find_version(fname):
         raise RuntimeError('Cannot find version information')
     return version
 
-__version__ = find_version('marshmallow-jsonapi/__init__.py')
+__version__ = find_version('marshmallow_jsonapi/__init__.py')
 
 
 def read(fname):
@@ -33,7 +33,7 @@ def read(fname):
 setup(
     name='marshmallow-jsonapi',
     version=__version__,
-    description='JSON API formatting with marshmallow',
+    description='JSON API 1.0 (https://jsonapi.org) formatting with marshmallow',
     long_description=read('README.rst'),
     author='Steven Loria',
     author_email='sloria1@gmail.com',
@@ -44,7 +44,8 @@ setup(
     install_requires=REQUIRES,
     license=read('LICENSE'),
     zip_safe=False,
-    keywords='marshmallow-jsonapi',
+    keywords=('marshmallow-jsonapi marshmallow marshalling serialization '
+            'jsonapi deserialization validation'),
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
