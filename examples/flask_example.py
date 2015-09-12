@@ -132,12 +132,15 @@ def author_detail(author_id):
 @app.route('/authors/', methods=['POST'])
 def author_create():
     schema = AuthorSchema()
-    id_ = len(db['authors'])
     input_data = request.get_json() or {}
     data, errs = schema.load(input_data)
     if errs:
         return J(errs), 422
-    return J(data)
+    id_ = len(db['authors'])
+    author = Author(id=id_, **data)
+    db['authors'].append(author)
+    result = schema.dump(author)
+    return J(result.data)
 
 if __name__ == "__main__":
     # from pprint import pprint

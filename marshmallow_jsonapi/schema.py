@@ -50,6 +50,8 @@ class Schema(ma.Schema):
 
     def format_errors(self, errors):
         """Format validation errors as JSON Error objects."""
+        if not errors:
+            return {}
         formatted_errors = []
         for field_name, field_errors in iteritems(errors):
             formatted_errors.extend([
