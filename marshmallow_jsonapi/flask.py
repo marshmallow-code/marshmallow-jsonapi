@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Flask integration, including a field for linking to related resources."""
+from __future__ import absolute_import
 
 import flask
 from .fields import BaseHyperlink
