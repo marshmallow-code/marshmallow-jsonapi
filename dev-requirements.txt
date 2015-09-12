@@ -1,6 +1,9 @@
 # Build tasks
 invoke
 
+# soft deps
+Flask
+
 # Testing
 pytest
 tox>=1.5.0
