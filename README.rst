@@ -1,19 +1,19 @@
-***********************************************
-marshmallow-jsonapi: simple JSON API formatting
-***********************************************
+*******************
+marshmallow-jsonapi
+*******************
 
 ..
     .. image:: https://img.shields.io/pypi/v/marshmallow-jsonapi.svg
         :target: https://pypi.python.org/pypi/marshmallow-jsonapi
         :alt: Latest version
-    .. image:: https://img.shields.io/travis/sloria/marshmallow-jsonapi.svg
-        :target: https://travis-ci.org/sloria/marshmallow-jsonapi
-        :alt: Travis-CI
+
+.. image:: https://img.shields.io/travis/sloria/marshmallow-jsonapi.svg
+    :target: https://travis-ci.org/sloria/marshmallow-jsonapi
+    :alt: Travis-CI
 
 Homepage: http://marshmallow-jsonapi.rtfd.org/
 
 JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with marshmallow.
-
 
 .. code-block:: python
 
@@ -105,6 +105,11 @@ Error formatting
     #         }
     #     ]
     # }
+
+Flask integration
+=================
+
+Marshmallow-jsonapi has built-in support Flask. See `here <https://github.com/sloria/marshmallow-jsonapi/blob/master/examples/flask_example.py>`_ for example usage.
 
 Documentation
 =============

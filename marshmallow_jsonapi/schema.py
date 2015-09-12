@@ -15,7 +15,7 @@ class SchemaOpts(ma.SchemaOpts):
 
 class Schema(ma.Schema):
     """Schema class that formats data according to JSON API 1.0.
-    Must define the type_ `class Meta` option.
+    Must define the ``type_`` `class Meta` option.
 
     Example: ::
 

@@ -1,10 +1,11 @@
-***********************************************
-marshmallow-jsonapi: simple JSON API formatting
-***********************************************
+*******************
+marshmallow-jsonapi
+*******************
 
 Release v\ |version|. (:ref:`Changelog <changelog>`)
 
-JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with marshmallow.
+JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with marshmallow
+
 
 .. code-block:: python
 
@@ -97,21 +98,32 @@ Error formatting
     #     ]
     # }
 
+
+Flask integration
+=================
+
+Marshmallow-jsonapi has built-in support Flask. See `here <https://github.com/sloria/marshmallow-jsonapi/blob/master/examples/flask_example.py>`_ for example usage.
+
 Guide
------
+=====
 
 .. toctree::
    :maxdepth: 2
 
    .. install
-   .. quickstart
    api_reference
 
 Project info
-------------
+============
 
 .. toctree::
    :maxdepth: 1
 
-   .. changelog
+   changelog
    license
+
+Links
+=====
+
+- `marshmallow-jsonapi @ GitHub <https://github.com/sloria/marshmallow-jsonapi>`_
+- `Issue Tracker <https://github.com/sloria/marshmallow-jsonapi/issues>`_

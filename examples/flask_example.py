@@ -146,9 +146,4 @@ def author_create():
     return J(result.data)
 
 if __name__ == "__main__":
-    # from pprint import pprint
-    # posts = db['posts']
-    # with app.test_request_context():
-    #     pprint(PostSchema(many=True).dump(posts).data)
-
-    app.run(debug=True)
+    app.run()
