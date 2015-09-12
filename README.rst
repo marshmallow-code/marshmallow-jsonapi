@@ -7,8 +7,8 @@ marshmallow-jsonapi
         :target: https://pypi.python.org/pypi/marshmallow-jsonapi
         :alt: Latest version
 
-.. image:: https://img.shields.io/travis/sloria/marshmallow-jsonapi.svg
-    :target: https://travis-ci.org/sloria/marshmallow-jsonapi
+.. image:: https://img.shields.io/travis/marshmallow-code/marshmallow-jsonapi.svg
+    :target: https://travis-ci.org/marshmallow-code/marshmallow-jsonapi
     :alt: Travis-CI
 
 Homepage: http://marshmallow-jsonapi.rtfd.org/
@@ -109,7 +109,7 @@ Error formatting
 Flask integration
 =================
 
-Marshmallow-jsonapi has built-in support Flask. See `here <https://github.com/sloria/marshmallow-jsonapi/blob/master/examples/flask_example.py>`_ for example usage.
+Marshmallow-jsonapi has built-in support Flask. See `here <https://github.com/marshmallow-code/marshmallow-jsonapi/blob/master/examples/flask_example.py>`_ for example usage.
 
 Documentation
 =============
@@ -126,11 +126,11 @@ Project Links
 
 - Docs: http://marshmallow-jsonapi.rtfd.org/
 - Changelog: http://marshmallow-jsonapi.readthedocs.org/en/latest/changelog.html
-- Issues: https://github.com/sloria/marshmallow-jsonapi/issues
+- Issues: https://github.com/marshmallow-code/marshmallow-jsonapi/issues
 
 .. - PyPI: https://pypi.python.org/pypi/marshmallow-jsonapi
 
 License
 =======
 
-MIT licensed. See the bundled `LICENSE <https://github.com/sloria/marshmallow-jsonapi/blob/master/LICENSE>`_ file for more details.
+MIT licensed. See the bundled `LICENSE <https://github.com/marshmallow-code/marshmallow-jsonapi/blob/master/LICENSE>`_ file for more details.

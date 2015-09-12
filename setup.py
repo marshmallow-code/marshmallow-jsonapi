@@ -37,7 +37,7 @@ setup(
     long_description=read('README.rst'),
     author='Steven Loria',
     author_email='sloria1@gmail.com',
-    url='https://github.com/sloria/marshmallow-jsonapi',
+    url='https://github.com/marshmallow-code/marshmallow-jsonapi',
     packages=find_packages(exclude=("test*", )),
     package_dir={'marshmallow-jsonapi': 'marshmallow-jsonapi'},
     include_package_data=True,

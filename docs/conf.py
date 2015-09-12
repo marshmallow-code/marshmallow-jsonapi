@@ -22,7 +22,7 @@ intersphinx_mapping = {
     'python': ('http://python.readthedocs.org/en/latest/', None),
 }
 
-issues_github_path = 'sloria/marshmallow-jsonapi'
+issues_github_path = 'marshmallow-code/marshmallow-jsonapi'
 
 source_suffix = '.rst'
 master_doc = 'index'
