@@ -15,19 +15,19 @@ JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with mars
 .. code-block:: python
 
     from marshmallow_jsonapi import Schema, fields
-    from marshmallow_jsonapi.flask import Hyperlink
+    from marshmallow_jsonapi.flask import HyperlinkRelated
 
     class PostSchema(Schema):
         id = fields.Str(dump_only=True)
         title = fields.Str()
 
-        author = Hyperlink(
+        author = HyperlinkRelated(
             # Flask endpoint name, passed to url_for
             endpoint='author_detail',
             url_kwargs={'author_id': '<author.id>'},
         )
 
-        comments = Hyperlink(
+        comments = HyperlinkRelated(
             endpoint='posts_comments',
             url_kwargs={'post_id': '<id>'},
             # Include resource linkage

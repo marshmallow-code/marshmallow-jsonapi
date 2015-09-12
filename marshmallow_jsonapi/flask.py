@@ -5,7 +5,7 @@ import flask
 from .fields import BaseHyperlink
 from .utils import resolve_params, get_value_or_raise
 
-class Hyperlink(BaseHyperlink):
+class HyperlinkRelated(BaseHyperlink):
     """Read-only field which serializes to a "relationship object"
     with a "related resource link".
 
@@ -13,12 +13,12 @@ class Hyperlink(BaseHyperlink):
 
     Examples: ::
 
-        author = Hyperlink(
+        author = HyperlinkRelated(
             endpoint='author_detail',
             url_kwargs={'author_id': '<author.id>'},
         )
 
-        comments = Hyperlink(
+        comments = HyperlinkRelated(
             endpoint='posts_comments',
             url_kwargs={'post_id': '<id>'},
             many=True, include_data=True,
