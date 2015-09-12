@@ -41,4 +41,3 @@ def get_value_or_raise(attr, obj):
     if value is missing:
         raise AttributeError('{0!r} has no attribute {1!r}'.format(obj, attr))
     return value
-

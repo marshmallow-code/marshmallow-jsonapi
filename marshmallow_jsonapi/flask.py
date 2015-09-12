@@ -44,7 +44,7 @@ class HyperlinkRelated(BaseHyperlink):
         self.type_ = type_
         self.id_field = id_field or self.id_field
         self.dump_only = kwargs.pop('dump_only', True)
-        super(Hyperlink, self).__init__(**kwargs)
+        super(HyperlinkRelated, self).__init__(**kwargs)
 
     def get_url(self, obj):
         kwargs = resolve_params(obj, self.url_kwargs)
