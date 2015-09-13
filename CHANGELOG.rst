@@ -2,6 +2,12 @@
 Changelog
 *********
 
+0.2.0 (unreleased)
+==================
+
+* Add framework-independent ``HyperlinkRelated`` field.
+* Fix for making ``HyperlinkRelated`` read-only by defualt.
+
 0.1.0 (2015-09-15)
 ==================
 

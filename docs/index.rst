@@ -4,26 +4,23 @@ marshmallow-jsonapi
 
 Release v\ |version|. (:ref:`Changelog <changelog>`)
 
-JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with marshmallow
-
+JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with marshmallow.
 
 .. code-block:: python
 
     from marshmallow_jsonapi import Schema, fields
-    from marshmallow_jsonapi.flask import HyperlinkRelated
 
     class PostSchema(Schema):
         id = fields.Str(dump_only=True)
         title = fields.Str()
 
-        author = HyperlinkRelated(
-            # Flask endpoint name, passed to url_for
-            endpoint='author_detail',
+        author = fields.HyperlinkRelated(
+            '/authors/{author_id}',
             url_kwargs={'author_id': '<author.id>'},
         )
 
-        comments = HyperlinkRelated(
-            endpoint='posts_comments',
+        comments = fields.HyperlinkRelated(
+            '/posts/{post_id}/comments',
             url_kwargs={'post_id': '<id>'},
             # Include resource linkage
             many=True, include_data=True,
@@ -102,7 +99,39 @@ Error formatting
 Flask integration
 =================
 
-Marshmallow-jsonapi has optional support for Flask. See `here <https://github.com/marshmallow-code/marshmallow-jsonapi/blob/master/examples/flask_example.py>`_ for example usage.
+Marshmallow-jsonapi includes optional utilities to integrate with Flask.
+
+For example, the ``HyperlinkRelated`` field in the ``marshmallow_jsonapi.flask`` module allows you to pass an endpoint name instead of a path template.
+
+The above schema could be rewritten in a Flask application like so:
+
+.. code-block:: python
+
+    from marshmallow_jsonapi import Schema, fields
+    from marshmallow_jsonapi.flask import HyperlinkRelated
+
+    class PostSchema(Schema):
+        id = fields.Str(dump_only=True)
+        title = fields.Str()
+
+        author = HyperlinkRelated(
+            # Flask endpoint name, passed to url_for
+            endpoint='author_detail',
+            url_kwargs={'author_id': '<author.id>'},
+        )
+
+        comments = HyperlinkRelated(
+            endpoint='posts_comments',
+            url_kwargs={'post_id': '<id>'},
+            # Include resource linkage
+            many=True, include_data=True,
+            type_='comments'
+        )
+
+        class Meta:
+            type_ = 'posts'
+
+See `here <https://github.com/marshmallow-code/marshmallow-jsonapi/blob/master/examples/flask_example.py>`_ for a full example.
 
 Guide
 =====
