@@ -14,6 +14,8 @@ Homepage: http://marshmallow-jsonapi.rtfd.org/
 
 JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with marshmallow.
 
+marshmallow-jsonapi provides a simple way to produce JSON API-compliant data in any Python web framework.
+
 .. code-block:: python
 
     from marshmallow_jsonapi import Schema, fields
