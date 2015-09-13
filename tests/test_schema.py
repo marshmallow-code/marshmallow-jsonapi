@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import pytest
 from marshmallow import validate
 from marshmallow_jsonapi import Schema, fields
 
@@ -97,3 +98,56 @@ class TestErrorFormatting:
         errors = AuthorSchema().validate(
             {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'})
         assert errors == {}
+
+def dasherize(text):
+    return text.replace('_', '-')
+
+
+class TestInflection:
+
+    class AuthorSchemaWithInflection(Schema):
+        id = fields.Int(dump_only=True)
+        first_name = fields.Str(required=True, validate=validate.Length(min=2))
+        last_name = fields.Str(required=True)
+
+        class Meta:
+            type_ = 'people'
+            inflect = dasherize
+
+    @pytest.fixture()
+    def schema(self):
+        return self.AuthorSchemaWithInflection()
+
+    def test_dump(self, schema, author):
+        data = schema.dump(author).data
+
+        assert data['data']['id'] == author.id
+        assert data['data']['type'] == 'people'
+        attribs = data['data']['attributes']
+
+        assert 'first-name' in attribs
+        assert 'last-name' in attribs
+
+        assert attribs['first-name'] == author.first_name
+        assert attribs['last-name'] == author.last_name
+
+    def test_validate(self, schema):
+        errors = schema.validate({'first-name': 'd'})
+        lname_err = get_error_by_field(errors, 'last-name')
+        assert lname_err
+        assert lname_err['detail'] == 'Missing data for required field.'
+
+        fname_err = get_error_by_field(errors, 'first-name')
+        assert fname_err
+        assert fname_err['detail'] == 'Shorter than minimum length 2.'
+
+    def test_load_with_inflection(self, schema):
+        # invalid
+        data, errors = schema.load({'first-name': 'd'})
+        fname_err = get_error_by_field(errors, 'first-name')
+        assert fname_err
+        assert fname_err['detail'] == 'Shorter than minimum length 2.'
+
+        # valid
+        data, errors = schema.load({'first-name': 'Dan'})
+        assert data['first_name'] == 'Dan'

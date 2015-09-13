@@ -20,6 +20,7 @@ default_role = 'py:obj'
 
 intersphinx_mapping = {
     'python': ('http://python.readthedocs.org/en/latest/', None),
+    'marshmallow': ('http://marshmallow.readthedocs.org/en/latest/', None),
 }
 
 issues_github_path = 'marshmallow-code/marshmallow-jsonapi'

@@ -105,6 +105,39 @@ Error formatting
     #     ]
     # }
 
+
+Inflection
+==========
+
+.. code-block:: python
+
+    from marshmallow_jsonapi import Schema, fields
+
+    def dasherize(text):
+        return text.replace('_', '-')
+
+    class AuthorSchema(Schema):
+        id = fields.Str(dump_only=True)
+        first_name = fields.Str(required=True)
+        last_name = fields.Str(required=True)
+
+        class Meta:
+            type_ = 'people'
+            inflect = dasherize
+
+    result = AuthorSchema().dump(author)
+    result.data
+    # {
+    #     'data': {
+    #         'id': '9',
+    #         'type': 'people',
+    #         'attributes': {
+    #             'first-name': 'Dan',
+    #             'last-name': 'Gebhardt'
+    #         }
+    #     }
+    # }
+
 Flask integration
 =================
 

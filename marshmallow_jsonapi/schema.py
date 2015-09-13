@@ -12,6 +12,7 @@ class SchemaOpts(ma.SchemaOpts):
     def __init__(self, meta):
         super(SchemaOpts, self).__init__(meta)
         self.type_ = getattr(meta, 'type_', None)
+        self.inflect = getattr(meta, 'inflect', None)
 
 class Schema(ma.Schema):
     """Schema class that formats data according to JSON API 1.0.
@@ -45,10 +46,24 @@ class Schema(ma.Schema):
         ret = self.wrap_response(ret, many)
         return ret
 
+    def bind_field(self, field_name, field_obj):
+        """Schema hook override. When binding fields, set load_from to the
+        inflected form of field_name.
+        """
+        if not field_obj.load_from:
+            field_obj.load_from = self.inflect(field_name)
+        return None
+
     # overrides ma.Schema._do_load so that we can format errors as JSON API Error objects.
     def _do_load(self, *args, **kwargs):
         data, errors = super(Schema, self)._do_load(*args, **kwargs)
         return data, self.format_errors(errors)
+
+    def inflect(self, text):
+        """Inflect ``text`` if the ``inflect`` class Meta option is defined, otherwise
+        do nothing.
+        """
+        return self.opts.inflect(text) if self.opts.inflect else text
 
     ### Overridable hooks ###
 
@@ -72,7 +87,8 @@ class Schema(ma.Schema):
         return {
             'detail': message,
             'source': {
-                'pointer': '/data/attributes/{field_name}'.format(field_name=field_name)
+                'pointer': '/data/attributes/{field_name}'.format(
+                    field_name=self.inflect(field_name))
             }
         }
 
@@ -94,7 +110,7 @@ class Schema(ma.Schema):
             else:
                 if 'attributes' not in ret:
                     ret['attributes'] = self.dict_class()
-                ret['attributes'][field_name] = value
+                ret['attributes'][self.inflect(field_name)] = value
         return ret
 
     def format_items(self, data, many):
