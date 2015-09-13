@@ -6,7 +6,7 @@ from .utils import resolve_params, get_value_or_raise
 
 class BaseHyperlink(Field):
     """Base hyperlink field. This is used by `marshmallow_jsonapi.Schema` to determine
-    Which fields should be formatted as relationship objects.
+    which fields should be formatted as relationship objects.
     """
     pass
 

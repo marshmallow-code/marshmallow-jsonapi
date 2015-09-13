@@ -37,6 +37,10 @@ class Schema(ma.Schema):
 
     @ma.post_dump(raw=True)
     def format_json_api_response(self, data, many):
+        """Post-dump hoook that formats serialized data as a top-level JSON API object.
+
+        See: http://jsonapi.org/format/#document-top-level
+        """
         ret = self.format_items(data, many)
         ret = self.wrap_response(ret, many)
         return ret
@@ -94,7 +98,10 @@ class Schema(ma.Schema):
         return ret
 
     def format_items(self, data, many):
-        """Format data as a Resource object or list of Resource objects."""
+        """Format data as a Resource object or list of Resource objects.
+
+        See: http://jsonapi.org/format/#document-resource-objects
+        """
         if many:
             return [self.format_item(item) for item in data]
         else:

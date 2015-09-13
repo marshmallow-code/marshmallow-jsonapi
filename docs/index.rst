@@ -133,6 +133,13 @@ The above schema could be rewritten in a Flask application like so:
 
 See `here <https://github.com/marshmallow-code/marshmallow-jsonapi/blob/master/examples/flask_example.py>`_ for a full example.
 
+
+Installation
+============
+::
+
+    pip install marshmallow-jsonapi
+
 Guide
 =====
 
