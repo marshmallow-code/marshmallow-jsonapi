@@ -46,7 +46,7 @@ class Schema(ma.Schema):
         ret = self.wrap_response(ret, many)
         return ret
 
-    def bind_field(self, field_name, field_obj):
+    def on_bind_field(self, field_name, field_obj):
         """Schema hook override. When binding fields, set load_from to the
         inflected form of field_name.
         """

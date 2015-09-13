@@ -131,7 +131,7 @@ class TestInflection:
         assert attribs['first-name'] == author.first_name
         assert attribs['last-name'] == author.last_name
 
-    def test_validate(self, schema):
+    def test_validate_with_inflection(self, schema):
         errors = schema.validate({'first-name': 'd'})
         lname_err = get_error_by_field(errors, 'last-name')
         assert lname_err
@@ -151,3 +151,21 @@ class TestInflection:
         # valid
         data, errors = schema.load({'first-name': 'Dan'})
         assert data['first_name'] == 'Dan'
+
+    def test_load_with_inflection_and_load_from_override(self):
+        class AuthorSchemaWithInflection2(Schema):
+            id = fields.Str(dump_only=True)
+            # load_from takes precedence over inflected attribute
+            first_name = fields.Str(load_from='firstName')
+            last_name = fields.Str()
+
+            class Meta:
+                inflect = dasherize
+
+        sch = AuthorSchemaWithInflection2()
+
+        data, errs = sch.load({'firstName': 'Steve', 'last-name': 'Loria'})
+        assert not errs
+        assert data['first_name'] == 'Steve'
+        assert data['last_name'] == 'Loria'
+
