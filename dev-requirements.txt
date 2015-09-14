@@ -1,7 +1,7 @@
 # Build tasks
 invoke
 
-# soft deps
+# Soft deps
 Flask
 
 # Testing

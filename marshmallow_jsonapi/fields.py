@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""Includes all the fields classes from `marshmallow.fields` as well as
+fields for serializing JSON API-formatted hyperlinks.
+"""
 # Make core fields importable from marshmallow_jsonapi
 from marshmallow.fields import *  # noqa
 
