@@ -13,12 +13,8 @@ class SchemaOpts(ma.SchemaOpts):
     def __init__(self, meta):
         super(SchemaOpts, self).__init__(meta)
         self.type_ = getattr(meta, 'type_', None)
-        inflect = getattr(meta, 'inflect', None)
-        if PY2 and inflect:
-            # in Python2 inflect will be an unbound function;
-            # we just want the plain function
-            inflect = inflect.im_func
-        self.inflect = inflect
+        self.inflect = plain_function(getattr(meta, 'inflect', None))
+
 
 class Schema(ma.Schema):
     """Schema class that formats data according to JSON API 1.0.
