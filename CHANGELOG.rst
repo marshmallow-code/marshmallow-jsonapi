@@ -2,7 +2,7 @@
 Changelog
 *********
 
-0.2.0 (unreleased)
+0.2.0 (2014-09-13)
 ==================
 
 Features:
@@ -14,7 +14,12 @@ Bug fixes:
 
 * Fix for making ``HyperlinkRelated`` read-only by defualt.
 
-0.1.0 (2015-09-15)
+Support:
+
+* Docs updates.
+* Tested on Python 3.5.
+
+0.1.0 (2015-09-12)
 ==================
 
 * First PyPI release.
