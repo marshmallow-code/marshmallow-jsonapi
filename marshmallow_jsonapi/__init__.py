@@ -4,8 +4,9 @@ __version__ = '0.2.0dev'
 __author__ = 'Steven Loria'
 __license__ = 'MIT'
 
-from .schema import Schema
+from .schema import Schema, SchemaOpts
 
 __all__ = (
     'Schema',
+    'SchemaOpts',
 )

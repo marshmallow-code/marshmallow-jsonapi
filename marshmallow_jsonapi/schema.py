@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import marshmallow as ma
-from marshmallow.compat import iteritems, PY2
+from marshmallow.compat import iteritems, plain_function
 
 from .fields import BaseHyperlink
 
@@ -22,20 +22,40 @@ class Schema(ma.Schema):
 
     Example: ::
 
-        from marshmallow import validate
         from marshmallow_jsonapi import Schema, fields
 
-        class AuthorSchema(Schema):
-            id = fields.Str(dump_only=True)
-            first_name = fields.Str(required=True)
-            last_name = fields.Str(required=True)
-            password = fields.Str(load_only=True, validate=validate.Length(6))
-            twitter = fields.Str()
+        def dasherize(text):
+            return text.replace('_', '-')
+
+        class PostSchema(Schema):
+            id = fields.Str(dump_only=True)  # Required
+            title = fields.Str()
+
+            author = fields.HyperlinkRelated(
+                '/authors/{author_id}',
+                url_kwargs={'author_id': '<author.id>'},
+            )
+
+            comments = fields.HyperlinkRelated(
+                '/posts/{post_id}/comments',
+                url_kwargs={'post_id': '<id>'},
+                # Include resource linkage
+                many=True, include_data=True,
+                type_='comments'
+            )
 
             class Meta:
-                type_ = 'people'
+                type_ = 'posts'  # Required
+                inflect = dasherize
 
     """
+    class Meta:
+        """Options object for `Schema`. Takes the same options as `marshmallow.Schema.Meta` with
+        the addition of ``type_`` (required, the JSON API resource type as a string) and
+        ``inflect`` (optional, an inflection function to modify attribute names).
+        """
+        pass
+
     OPTIONS_CLASS = SchemaOpts
 
     @ma.post_dump(raw=True)
