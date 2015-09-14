@@ -37,10 +37,10 @@ class HyperlinkRelated(BaseHyperlink):
     This field is read-only by default.
 
     :param str template: Format string for the URL.
-    :param dict url_kwargs: Replacement fields for `template`. String arguments enclodes in `< >`
+    :param dict url_kwargs: Replacement fields for `template`. String arguments enclosed in `< >`
         will be interpreted as attributes to pull from the target object.
     :param bool include_data: Whether to include a resource linkage
-        (http://jsonapi.org/format/#document-resource-object-linkage) in the serialized resuult.
+        (http://jsonapi.org/format/#document-resource-object-linkage) in the serialized result.
     :param bool many: Whether the relationship represents a many-to-one or many-to-many
         relationship.
     :param str type_: The type of resource.
