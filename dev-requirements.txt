@@ -1,11 +1,7 @@
 # Build tasks
 invoke
 
-# marshmallow
-# inflection requires development version
-git+https://github.com/marshmallow-code/marshmallow.git@dev
-
-# soft deps
+# Soft deps
 Flask
 
 # Testing
