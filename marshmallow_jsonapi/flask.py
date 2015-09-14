@@ -29,15 +29,7 @@ class HyperlinkRelated(BaseHyperlinkRelated):
     This field is read-only by default.
 
     :param str endpoint: Name of the Flask endpoint for the related resource.
-    :param dict url_kwargs: Dictionary of keyword arguments passed to `url_for` when
-        serializing this field. String arguments enclosed in `< >` will be
-        interpreted as attributes to pull from the target object.
-    :param bool include_data: Whether to include a resource linkage
-        (http://jsonapi.org/format/#document-resource-object-linkage) in the serialized resuult.
-    :param bool many: Whether the relationship represents a many-to-one or many-to-many
-        relationship.
-    :param str type_: The type of resource.
-    :param str id_field: Attribute name to pull ids from if a resource linkage is included.
+    :param **kwargs: Same keyword arguments as `marshmallow_jsonapi.fields.HyperlinkRelated`.
     """
     def __init__(self, endpoint, **kwargs):
         self.endpoint = endpoint

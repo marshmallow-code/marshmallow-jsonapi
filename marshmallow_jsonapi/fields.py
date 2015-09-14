@@ -42,7 +42,7 @@ class HyperlinkRelated(BaseHyperlink):
     :param bool include_data: Whether to include a resource linkage
         (http://jsonapi.org/format/#document-resource-object-linkage) in the serialized result.
     :param bool many: Whether the relationship represents a many-to-one or many-to-many
-        relationship.
+        relationship. Only affects serialization of the resource linkage.
     :param str type_: The type of resource.
     :param str id_field: Attribute name to pull ids from if a resource linkage is included.
     """

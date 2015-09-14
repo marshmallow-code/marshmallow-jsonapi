@@ -4,7 +4,7 @@ marshmallow-jsonapi
 
 Release v\ |version|. (:ref:`Changelog <changelog>`)
 
-JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with marshmallow.
+JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with `marshmallow <https://marshmallow.readthedocs.org>`_.
 
 marshmallow-jsonapi provides a simple way to produce JSON API-compliant data in any Python web framework.
 

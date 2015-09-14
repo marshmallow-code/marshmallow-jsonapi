@@ -1,4 +1,4 @@
-marshmallow>=2.0.0b5
+marshmallow>=2.0.0rc1
 Flask
 sphinx
 sphinx-rtd-theme
