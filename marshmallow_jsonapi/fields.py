@@ -15,7 +15,7 @@ class BaseHyperlink(Field):
 
 
 class HyperlinkRelated(BaseHyperlink):
-    """Generic read-only field which serializes to a "relationship object" with a
+    """Framework-independent field which serializes to a "relationship object" with a
     "related resource link".
 
     See: http://jsonapi.org/format/#document-resource-object-relationships
@@ -33,6 +33,8 @@ class HyperlinkRelated(BaseHyperlink):
             many=True, include_data=True,
             type_='comments'
         )
+
+    This field is read-only by default.
 
     :param str template: Format string for the URL.
     :param dict url_kwargs: Replacement fields for `template`. String arguments enclodes in `< >`

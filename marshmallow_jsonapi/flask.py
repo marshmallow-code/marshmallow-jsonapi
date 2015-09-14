@@ -7,7 +7,7 @@ from .fields import HyperlinkRelated as BaseHyperlinkRelated
 from .utils import resolve_params
 
 class HyperlinkRelated(BaseHyperlinkRelated):
-    """Read-only field which serializes to a "relationship object"
+    """Field which serializes to a "relationship object"
     with a "related resource link".
 
     See: http://jsonapi.org/format/#document-resource-object-relationships
@@ -25,6 +25,8 @@ class HyperlinkRelated(BaseHyperlinkRelated):
             many=True, include_data=True,
             type_='comments'
         )
+
+    This field is read-only by default.
 
     :param str endpoint: Name of the Flask endpoint for the related resource.
     :param dict url_kwargs: Dictionary of keyword arguments passed to `url_for` when

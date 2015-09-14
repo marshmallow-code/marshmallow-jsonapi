@@ -100,6 +100,8 @@ Error formatting
 Inflection
 ==========
 
+You can optionally specify a function to transform attribute names. For example, you may decide to follow JSON API's `recommendation <http://jsonapi.org/recommendations/#naming>`_ to use "dasherized" names.
+
 .. code-block:: python
 
     from marshmallow_jsonapi import Schema, fields
@@ -180,7 +182,6 @@ Guide
 .. toctree::
    :maxdepth: 2
 
-   .. install
    api_reference
 
 Project info
