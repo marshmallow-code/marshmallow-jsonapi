@@ -58,7 +58,7 @@ class Schema(ma.Schema):
 
     OPTIONS_CLASS = SchemaOpts
 
-    @ma.post_dump(raw=True)
+    @ma.post_dump(pass_many=True)
     def format_json_api_response(self, data, many):
         """Post-dump hoook that formats serialized data as a top-level JSON API object.
 
