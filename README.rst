@@ -2,11 +2,11 @@
 marshmallow-jsonapi
 *******************
 
-.. image:: https://img.shields.io/pypi/v/marshmallow-jsonapi.svg
-    :target: https://pypi.python.org/pypi/marshmallow-jsonapi
+.. image:: https://badge.fury.io/py/marshmallow-jsonapi.png
+    :target: http://badge.fury.io/py/marshmallow-jsonapi
     :alt: Latest version
 
-.. image:: https://img.shields.io/travis/marshmallow-code/marshmallow-jsonapi.svg
+.. image:: https://travis-ci.org/marshmallow-code/marshmallow-jsonapi.png
     :target: https://travis-ci.org/marshmallow-code/marshmallow-jsonapi
     :alt: Travis-CI
 
