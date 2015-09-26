@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import marshmallow as ma
-from marshmallow.compat import iteritems, plain_function
+from marshmallow.compat import iteritems, PY2
 
 from .fields import BaseHyperlink
 
 TYPE = 'type'
 ID = 'id'
+
+def plain_function(f):
+    """Ensure that ``callable`` is a plain function rather than an unbound method."""
+    if PY2 and f:
+        return f.im_func
+    # Python 3 doesn't have bound/unbound methods, so don't need to do anything
+    return f
 
 class SchemaOpts(ma.SchemaOpts):
 
