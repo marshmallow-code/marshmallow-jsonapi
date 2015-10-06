@@ -4,6 +4,7 @@ import marshmallow as ma
 from marshmallow.compat import iteritems, PY2
 
 from .fields import BaseHyperlink
+from .exceptions import IncorrectTypeError
 
 TYPE = 'type'
 ID = 'id'
@@ -87,6 +88,10 @@ class Schema(ma.Schema):
     @ma.pre_load(pass_many=True)
     def unwrap_request(self, data, many):
         # TODO: Validate type_
+        if 'type' not in data:
+            raise ma.ValidationError('Object must include `type` key.')
+        if data['type'] != self.opts.type_:
+            raise IncorrectTypeError(actual=data['type'], expected=self.opts.type_)
         if many:
             ret = []
             for each in data:

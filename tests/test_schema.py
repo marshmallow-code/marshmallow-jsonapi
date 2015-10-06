@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import pytest
-from marshmallow import validate
+from marshmallow import validate, ValidationError
 from marshmallow_jsonapi import Schema, fields
+from marshmallow_jsonapi.exceptions import IncorrectTypeError
 
 class AuthorSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -109,6 +110,18 @@ class TestErrorFormatting:
         lname_err = get_error_by_field(errors, 'last_name')
         assert lname_err
         assert lname_err['detail'] == 'Missing data for required field.'
+
+    def test_validate_no_type_raises_error(self):
+        author = {'attributes': {'first_name': 'Dan', 'password': 'supersecure'}}
+        with pytest.raises(ValidationError) as excinfo:
+            AuthorSchema().validate(author)
+        assert excinfo.value.args[0] == 'Object must include `type` key.'
+
+    def test_validate_type(self):
+        author = {'type': 'invalid', 'attributes': {'first_name': 'Dan', 'password': 'supersecure'}}
+        with pytest.raises(IncorrectTypeError) as excinfo:
+            AuthorSchema().validate(author)
+        assert excinfo.value.args[0] == 'Invalid type. Expected "people".'
 
     def test_load(self):
         _, errors = AuthorSchema().load(make_author({'first_name': 'Dan', 'password': 'short'}))
