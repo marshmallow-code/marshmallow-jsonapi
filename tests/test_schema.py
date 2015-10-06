@@ -91,8 +91,17 @@ def get_error_by_field(errors, field):
 
 def make_author(attributes, type_='people'):
     return {
-        'type': type_,
-        'attributes': attributes,
+        'data': {
+            'type': type_,
+            'attributes': attributes,
+        }
+    }
+
+def make_authors(items, type_='people'):
+    return {
+        'data': [
+            {'type': type_, 'attributes': each} for each in items
+        ]
     }
 
 class TestErrorFormatting:
@@ -112,13 +121,14 @@ class TestErrorFormatting:
         assert lname_err['detail'] == 'Missing data for required field.'
 
     def test_validate_no_type_raises_error(self):
-        author = {'attributes': {'first_name': 'Dan', 'password': 'supersecure'}}
+        author = {'data': {'attributes': {'first_name': 'Dan', 'password': 'supersecure'}}}
         with pytest.raises(ValidationError) as excinfo:
             AuthorSchema().validate(author)
-        assert excinfo.value.args[0] == 'Object must include `type` key.'
+        assert excinfo.value.args[0] == '`data` object must include `type` key.'
 
     def test_validate_type(self):
-        author = {'type': 'invalid', 'attributes': {'first_name': 'Dan', 'password': 'supersecure'}}
+        author = {'data':
+                {'type': 'invalid', 'attributes': {'first_name': 'Dan', 'password': 'supersecure'}}}
         with pytest.raises(IncorrectTypeError) as excinfo:
             AuthorSchema().validate(author)
         assert excinfo.value.args[0] == 'Invalid type. Expected "people".'
@@ -142,10 +152,11 @@ class TestErrorFormatting:
         assert errors == {}
 
     def test_errors_many(self):
-        errors = AuthorSchema(many=True).validate([
-            make_author({'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'}),
-            make_author({'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'bad'}),
-        ])['errors']
+        authors = make_authors([
+            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'},
+            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'bad'},
+        ])
+        errors = AuthorSchema(many=True).validate(authors)['errors']
 
         assert len(errors) == 1
 
@@ -214,7 +225,7 @@ class TestInflection:
             last_name = fields.Str()
 
             class Meta:
-                type_ = 'authors'
+                type_ = 'people'
                 inflect = dasherize
 
         sch = AuthorSchemaWithInflection2()

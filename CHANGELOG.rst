@@ -6,6 +6,7 @@ Changelog
 ==================
 
 * Fix error formatting when ``many=True``.
+* Validate and deserialize JSON API-formatted request payloads.
 
 0.2.2 (2015-09-26)
 ==================

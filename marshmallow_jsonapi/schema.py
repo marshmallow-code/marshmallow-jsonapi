@@ -85,25 +85,24 @@ class Schema(ma.Schema):
         ret = self.wrap_response(ret, many)
         return ret
 
+    def unwrap_item(self, item):
+        if 'type' not in item:
+            raise ma.ValidationError('`data` object must include `type` key.')
+        if item['type'] != self.opts.type_:
+            raise IncorrectTypeError(actual=item['type'], expected=self.opts.type_)
+        if 'attributes' not in item:
+            raise ma.ValidationError('Object must include `attributes` key.')
+        return item['attributes']
+
     @ma.pre_load(pass_many=True)
     def unwrap_request(self, data, many):
-        # TODO: Validate type_
-        if 'type' not in data:
-            raise ma.ValidationError('Object must include `type` key.')
-        if data['type'] != self.opts.type_:
-            raise IncorrectTypeError(actual=data['type'], expected=self.opts.type_)
+        if 'data' not in data:
+            raise ma.ValidationError('Object must include `data` key.')
+        data = data['data']
         if many:
-            ret = []
-            for each in data:
-                if 'attributes' not in each:
-                    raise ma.ValidationError('Object must include `attributes` key.')
-                else:
-                    ret.append(each['attributes'])
-            return ret
+            return [self.unwrap_item(each) for each in data]
         else:
-            if 'attributes' not in data:
-                raise ma.ValidationError('Object must include `attributes` key.')
-            return data['attributes']
+            return self.unwrap_item(data)
 
     def on_bind_field(self, field_name, field_obj):
         """Schema hook override. When binding fields, set load_from to the
