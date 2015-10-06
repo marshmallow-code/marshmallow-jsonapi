@@ -84,6 +84,22 @@ class Schema(ma.Schema):
         ret = self.wrap_response(ret, many)
         return ret
 
+    @ma.pre_load(pass_many=True)
+    def unwrap_request(self, data, many):
+        # TODO: Validate type_
+        if many:
+            ret = []
+            for each in data:
+                if 'attributes' not in each:
+                    raise ma.ValidationError('Object must include `attributes` key.')
+                else:
+                    ret.append(each['attributes'])
+            return ret
+        else:
+            if 'attributes' not in data:
+                raise ma.ValidationError('Object must include `attributes` key.')
+            return data['attributes']
+
     def on_bind_field(self, field_name, field_obj):
         """Schema hook override. When binding fields, set load_from to the
         inflected form of field_name.

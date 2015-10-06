@@ -88,10 +88,17 @@ def get_error_by_field(errors, field):
             return err
     return None
 
+def make_author(attributes, type_='people'):
+    return {
+        'type': type_,
+        'attributes': attributes,
+    }
+
 class TestErrorFormatting:
 
     def test_validate(self):
-        errors = AuthorSchema().validate({'first_name': 'Dan', 'password': 'short'})
+        author = make_author({'first_name': 'Dan', 'password': 'short'})
+        errors = AuthorSchema().validate(author)
         assert 'errors' in errors
         assert len(errors['errors']) == 2
 
@@ -104,7 +111,7 @@ class TestErrorFormatting:
         assert lname_err['detail'] == 'Missing data for required field.'
 
     def test_load(self):
-        _, errors = AuthorSchema().load({'first_name': 'Dan', 'password': 'short'})
+        _, errors = AuthorSchema().load(make_author({'first_name': 'Dan', 'password': 'short'}))
         assert 'errors' in errors
         assert len(errors['errors']) == 2
 
@@ -118,13 +125,13 @@ class TestErrorFormatting:
 
     def test_errors_is_empty_if_valid(self):
         errors = AuthorSchema().validate(
-            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'})
+            make_author({'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'}))
         assert errors == {}
 
     def test_errors_many(self):
         errors = AuthorSchema(many=True).validate([
-            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'},
-            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'bad'}
+            make_author({'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'}),
+            make_author({'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'bad'}),
         ])['errors']
 
         assert len(errors) == 1
@@ -166,7 +173,7 @@ class TestInflection:
         assert attribs['last-name'] == author.last_name
 
     def test_validate_with_inflection(self, schema):
-        errors = schema.validate({'first-name': 'd'})
+        errors = schema.validate(make_author({'first-name': 'd'}))
         lname_err = get_error_by_field(errors, 'last-name')
         assert lname_err
         assert lname_err['detail'] == 'Missing data for required field.'
@@ -177,13 +184,13 @@ class TestInflection:
 
     def test_load_with_inflection(self, schema):
         # invalid
-        data, errors = schema.load({'first-name': 'd'})
+        data, errors = schema.load(make_author({'first-name': 'd'}))
         fname_err = get_error_by_field(errors, 'first-name')
         assert fname_err
         assert fname_err['detail'] == 'Shorter than minimum length 2.'
 
         # valid
-        data, errors = schema.load({'first-name': 'Dan'})
+        data, errors = schema.load(make_author({'first-name': 'Dan'}))
         assert data['first_name'] == 'Dan'
 
     def test_load_with_inflection_and_load_from_override(self):
@@ -199,7 +206,7 @@ class TestInflection:
 
         sch = AuthorSchemaWithInflection2()
 
-        data, errs = sch.load({'firstName': 'Steve', 'last-name': 'Loria'})
+        data, errs = sch.load(make_author({'firstName': 'Steve', 'last-name': 'Loria'}))
         assert not errs
         assert data['first_name'] == 'Steve'
         assert data['last_name'] == 'Loria'
