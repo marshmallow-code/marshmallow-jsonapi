@@ -21,6 +21,28 @@ class AuthorSchema(Schema):
     class Meta:
         type_ = 'people'
 
+
+def test_type_is_required():
+    class BadSchema(Schema):
+        id = fields.Str()
+
+        class Meta:
+            pass
+
+    with pytest.raises(ValueError) as excinfo:
+        BadSchema()
+    assert excinfo.value.args[0] == 'Must specify type_ class Meta option'
+
+def test_id_field_is_required():
+    class BadSchema(Schema):
+
+        class Meta:
+            type_ = 'users'
+
+    with pytest.raises(ValueError) as excinfo:
+        BadSchema()
+    assert excinfo.value.args[0] == 'Must have an `id` field'
+
 class TestResponseFormatting:
 
     def test_dump_single(self, author):
@@ -172,6 +194,7 @@ class TestInflection:
             last_name = fields.Str()
 
             class Meta:
+                type_ = 'authors'
                 inflect = dasherize
 
         sch = AuthorSchemaWithInflection2()
@@ -180,4 +203,3 @@ class TestInflection:
         assert not errs
         assert data['first_name'] == 'Steve'
         assert data['last_name'] == 'Loria'
-

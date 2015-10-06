@@ -63,6 +63,15 @@ class Schema(ma.Schema):
         """
         pass
 
+    def __init__(self, *args, **kwargs):
+        super(Schema, self).__init__(*args, **kwargs)
+
+        if not self.opts.type_:
+            raise ValueError('Must specify type_ class Meta option')
+
+        if 'id' not in self.fields:
+            raise ValueError('Must have an `id` field')
+
     OPTIONS_CLASS = SchemaOpts
 
     @ma.post_dump(pass_many=True)
