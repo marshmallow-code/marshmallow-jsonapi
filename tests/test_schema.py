@@ -99,6 +99,18 @@ class TestErrorFormatting:
             {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'})
         assert errors == {}
 
+    def test_errors_many(self):
+        errors = AuthorSchema(many=True).validate([
+            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'},
+            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'bad'}
+        ])['errors']
+
+        assert len(errors) == 1
+
+        err = errors[0]
+        assert 'source' in err
+        assert err['source']['pointer'] == '/data/1/attributes/password'
+
 def dasherize(text):
     return text.replace('_', '-')
 

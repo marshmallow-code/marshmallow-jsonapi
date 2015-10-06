@@ -2,6 +2,11 @@
 Changelog
 *********
 
+0.3.0 (unreleased)
+==================
+
+* Fix error formatting when ``many=True``.
+
 0.2.2 (2015-09-26)
 ==================
 

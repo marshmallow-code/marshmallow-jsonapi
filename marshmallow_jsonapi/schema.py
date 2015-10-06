@@ -84,9 +84,10 @@ class Schema(ma.Schema):
         return None
 
     # overrides ma.Schema._do_load so that we can format errors as JSON API Error objects.
-    def _do_load(self, *args, **kwargs):
-        data, errors = super(Schema, self)._do_load(*args, **kwargs)
-        return data, self.format_errors(errors)
+    def _do_load(self, data, many=None, **kwargs):
+        result, errors = super(Schema, self)._do_load(data, many, **kwargs)
+        many = self.many if many is None else bool(many)
+        return result, self.format_errors(errors, many=many)
 
     def inflect(self, text):
         """Inflect ``text`` if the ``inflect`` class Meta option is defined, otherwise
@@ -96,28 +97,44 @@ class Schema(ma.Schema):
 
     ### Overridable hooks ###
 
-    def format_errors(self, errors):
+    def format_errors(self, errors, many):
         """Format validation errors as JSON Error objects."""
         if not errors:
             return {}
+
         formatted_errors = []
-        for field_name, field_errors in iteritems(errors):
-            formatted_errors.extend([
-                self.format_error(field_name, message)
-                for message in field_errors
-            ])
+        if many:
+            for index, errors in iteritems(errors):
+                for field_name, field_errors in iteritems(errors):
+                    formatted_errors.extend([
+                        self.format_error(field_name, message, index=index)
+                        for message in field_errors
+                    ])
+        else:
+            for field_name, field_errors in iteritems(errors):
+                formatted_errors.extend([
+                    self.format_error(field_name, message)
+                    for message in field_errors
+                ])
         return {'errors': formatted_errors}
 
-    def format_error(self, field_name, message):
+    def format_error(self, field_name, message, index=None):
         """Override-able hook to format a single error message as an Error object.
 
         See: http://jsonapi.org/format/#error-objects
         """
+        if index:
+            pointer = '/data/{index}/attributes/{field_name}'.format(
+                index=index, field_name=self.inflect(field_name)
+            )
+        else:
+            pointer = '/data/attributes/{field_name}'.format(
+                field_name=self.inflect(field_name)
+            )
         return {
             'detail': message,
             'source': {
-                'pointer': '/data/attributes/{field_name}'.format(
-                    field_name=self.inflect(field_name))
+                'pointer': pointer
             }
         }
 
