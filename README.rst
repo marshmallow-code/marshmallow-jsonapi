@@ -91,7 +91,9 @@ Error formatting
             type_ = 'people'
 
     schema = AuthorSchema()
-    schema.validate({'first_name': 'Dan', 'password': 'short'})
+    schema.validate(
+        {'data': {'type': 'people', 'attributes': {'first_name': 'Dan', 'password': 'short'}}
+    )
     # {
     #     "errors": [
     #         {
