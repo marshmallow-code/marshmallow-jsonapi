@@ -3,7 +3,7 @@
 import marshmallow as ma
 from marshmallow.compat import iteritems, PY2
 
-from .fields import BaseHyperlink
+from .fields import BaseRelationship
 from .exceptions import IncorrectTypeError
 
 TYPE = 'type'
@@ -178,7 +178,7 @@ class Schema(ma.Schema):
         for field_name, value in iteritems(item):
             if field_name == ID:
                 ret[ID] = value
-            elif isinstance(self.fields[field_name], BaseHyperlink):
+            elif isinstance(self.fields[field_name], BaseRelationship):
                 if 'relationships' not in ret:
                     ret['relationships'] = self.dict_class()
                 ret['relationships'].update(value)
