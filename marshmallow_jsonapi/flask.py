@@ -3,10 +3,10 @@
 from __future__ import absolute_import
 
 import flask
-from .fields import HyperlinkRelated as BaseHyperlinkRelated
+from .fields import Relationship as GenericRelationship
 from .utils import resolve_params
 
-class HyperlinkRelated(BaseHyperlinkRelated):
+class Relationship(GenericRelationship):
     """Field which serializes to a "relationship object"
     with a "related resource link".
 
@@ -14,28 +14,49 @@ class HyperlinkRelated(BaseHyperlinkRelated):
 
     Examples: ::
 
-        author = HyperlinkRelated(
-            endpoint='author_detail',
-            url_kwargs={'author_id': '<author.id>'},
+        author = Relationship(
+            related_view='author_detail',
+            related_view_kwargs={'author_id': '<author.id>'},
         )
 
-        comments = HyperlinkRelated(
-            endpoint='posts_comments',
-            url_kwargs={'post_id': '<id>'},
+        comments = Relationship(
+            related_view='posts_comments',
+            related_view_kwargs={'post_id': '<id>'},
             many=True, include_data=True,
             type_='comments'
         )
 
     This field is read-only by default.
 
-    :param str endpoint: Name of the Flask endpoint for the related resource.
-    :param **kwargs: Same keyword arguments as `marshmallow_jsonapi.fields.HyperlinkRelated`.
+    :param str related_view: View name for related resource link.
+    :param dict related_view_kwargs: Path kwargs fields for `related_view`. String arguments
+        enclosed in `< >` will be interpreted as attributes to pull from the target object.
+    :param str self_view: View name for self relationship link.
+    :param dict self_view_kwargs: Path kwargs for `self_view`. String arguments
+        enclosed in `< >` will be interpreted as attributes to pull from the target object.
+    :param **kwargs: Same keyword arguments as `marshmallow_jsonapi.fields.Relationship`.
     """
-    def __init__(self, endpoint, **kwargs):
-        self.endpoint = endpoint
-        super(HyperlinkRelated, self).__init__(**kwargs)
+    def __init__(
+        self,
+        related_view=None, related_view_kwargs=None,
+        self_view=None, self_view_kwargs=None,
+        **kwargs
+    ):
+        self.related_view = related_view
+        self.related_view_kwargs = related_view_kwargs or {}
+        self.self_view = self_view
+        self.self_view_kwargs = self_view_kwargs or {}
+        super(Relationship, self).__init__(**kwargs)
 
-    def get_url(self, obj):
-        kwargs = resolve_params(obj, self.url_kwargs)
-        kwargs['endpoint'] = self.endpoint
-        return flask.url_for(**kwargs)
+    def get_url(self, obj, view_name, view_kwargs):
+        if view_name:
+            kwargs = resolve_params(obj, view_kwargs)
+            kwargs['endpoint'] = view_name
+            return flask.url_for(**kwargs)
+        return None
+
+    def get_related_url(self, obj):
+        return self.get_url(obj, self.related_view, self.related_view_kwargs)
+
+    def get_self_url(self, obj):
+        return self.get_url(obj, self.self_view, self.self_view_kwargs)

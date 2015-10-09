@@ -2,7 +2,7 @@
 from flask import Flask, url_for
 import pytest
 
-from marshmallow_jsonapi.flask import HyperlinkRelated
+from marshmallow_jsonapi.flask import Relationship
 
 @pytest.yield_fixture()
 def app():
@@ -23,12 +23,12 @@ def app():
     yield app_
     ctx.pop()
 
-class TestHyperlinkRelated:
+class TestRelationshipField:
 
     def test_serialize_basic(self, app, post):
-        field = HyperlinkRelated(
-            endpoint='posts_comments',
-            url_kwargs={'post_id': '<id>'},
+        field = Relationship(
+            related_view='posts_comments',
+            related_view_kwargs={'post_id': '<id>'},
         )
         result = field.serialize('comments', post)
         assert 'comments' in result
@@ -36,9 +36,9 @@ class TestHyperlinkRelated:
         assert related == url_for('posts_comments', post_id=post.id)
 
     def test_serialize_external(self, app, post):
-        field = HyperlinkRelated(
-            endpoint='posts_comments',
-            url_kwargs={'post_id': '<id>', '_external': True},
+        field = Relationship(
+            related_view='posts_comments',
+            related_view_kwargs={'post_id': '<id>', '_external': True},
         )
         result = field.serialize('comments', post)
         related = result['comments']['links']['related']
@@ -46,16 +46,26 @@ class TestHyperlinkRelated:
 
     def test_include_data_requires_type(self, app, post):
         with pytest.raises(ValueError) as excinfo:
-            HyperlinkRelated(
-                endpoint='posts_comments',
-                url_kwargs={'post_id': '<id>'},
+            Relationship(
+                related_view='posts_comments',
+                related_view_kwargs={'post_id': '<id>'},
                 include_data=True
             )
         assert excinfo.value.args[0] == 'include_data=True requires the type_ argument.'
 
     def test_is_dump_only_by_default(self):
-        field = HyperlinkRelated(
-            'author_detail',
-            url_kwargs={'author_id': '<id>'}
+        field = Relationship(
+            related_view='author_detail',
+            related_view_kwargs={'author_id': '<id>'}
         )
         assert field.dump_only is True
+
+    def test_serialize_self_link(self, app, post):
+        field = Relationship(
+            self_view='posts_comments',
+            self_view_kwargs={'post_id': '<id>'},
+        )
+        result = field.serialize('comments', post)
+        assert 'comments' in result
+        related = result['comments']['links']['self']
+        assert related == url_for('posts_comments', post_id=post.id)

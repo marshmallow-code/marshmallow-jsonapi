@@ -16,14 +16,14 @@ marshmallow-jsonapi provides a simple way to produce JSON API-compliant data in 
         id = fields.Str(dump_only=True)
         title = fields.Str()
 
-        author = fields.HyperlinkRelated(
+        author = fields.Relationship(
             '/authors/{author_id}',
-            url_kwargs={'author_id': '<author.id>'},
+            related_url_kwargs={'author_id': '<author.id>'},
         )
 
-        comments = fields.HyperlinkRelated(
+        comments = fields.Relationship(
             '/posts/{post_id}/comments',
-            url_kwargs={'post_id': '<id>'},
+            related_url_kwargs={'post_id': '<id>'},
             # Include resource linkage
             many=True, include_data=True,
             type_='comments'
@@ -99,6 +99,7 @@ Error formatting
     #     ]
     # }
 
+
 Inflection
 ==========
 
@@ -138,28 +139,28 @@ Flask integration
 
 Marshmallow-jsonapi includes optional utilities to integrate with Flask.
 
-For example, the ``HyperlinkRelated`` field in the ``marshmallow_jsonapi.flask`` module allows you to pass an endpoint name instead of a path template.
+For example, the ``Relationship`` field in the ``marshmallow_jsonapi.flask`` module allows you to pass view names instead of path templates.
 
 The above schema could be rewritten in a Flask application like so:
 
 .. code-block:: python
 
     from marshmallow_jsonapi import Schema, fields
-    from marshmallow_jsonapi.flask import HyperlinkRelated
+    from marshmallow_jsonapi.flask import Relationship
 
     class PostSchema(Schema):
         id = fields.Str(dump_only=True)
         title = fields.Str()
 
-        author = HyperlinkRelated(
+        author = Relationship(
             # Flask endpoint name, passed to url_for
-            endpoint='author_detail',
-            url_kwargs={'author_id': '<author.id>'},
+            'author_detail',
+            related_view_kwargs={'author_id': '<author.id>'},
         )
 
-        comments = HyperlinkRelated(
-            endpoint='posts_comments',
-            url_kwargs={'post_id': '<id>'},
+        comments = Relationship(
+            'posts_comments',
+            related_view_kwargs={'post_id': '<id>'},
             # Include resource linkage
             many=True, include_data=True,
             type_='comments'
@@ -171,15 +172,14 @@ The above schema could be rewritten in a Flask application like so:
 See `here <https://github.com/marshmallow-code/marshmallow-jsonapi/blob/master/examples/flask_example.py>`_ for a full example.
 
 
-
 Installation
 ============
 ::
 
     pip install marshmallow-jsonapi
 
-Guide
-=====
+API Reference
+=============
 
 .. toctree::
    :maxdepth: 2
