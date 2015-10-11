@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Exception classes."""
 
 class JSONAPIError(Exception):
     """Base class for all exceptions in this package."""

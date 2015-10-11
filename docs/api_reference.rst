@@ -22,6 +22,12 @@ Flask
 .. automodule:: marshmallow_jsonapi.flask
     :members:
 
+Exceptions
+==========
+
+.. automodule:: marshmallow_jsonapi.exceptions
+    :members:
+
 Utilities
 =========
 
