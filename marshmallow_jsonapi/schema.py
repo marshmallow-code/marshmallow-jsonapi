@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import marshmallow as ma
+from marshmallow.exceptions import ValidationError
 from marshmallow.compat import iteritems, PY2
 
 from .fields import BaseRelationship
@@ -114,9 +115,16 @@ class Schema(ma.Schema):
 
     # overrides ma.Schema._do_load so that we can format errors as JSON API Error objects.
     def _do_load(self, data, many=None, **kwargs):
-        result, errors = super(Schema, self)._do_load(data, many, **kwargs)
         many = self.many if many is None else bool(many)
-        return result, self.format_errors(errors, many=many)
+        try:
+            result, errors = super(Schema, self)._do_load(data, many, **kwargs)
+        except ValidationError as err:  # strict mode
+            formatted_messages = self.format_errors(err.messages, many=many)
+            err.messages = formatted_messages
+            raise err
+        else:
+            formatted_messages = self.format_errors(errors, many=many)
+        return result, formatted_messages
 
     def inflect(self, text):
         """Inflect ``text`` if the ``inflect`` class Meta option is defined, otherwise
@@ -130,6 +138,8 @@ class Schema(ma.Schema):
         """Format validation errors as JSON Error objects."""
         if not errors:
             return {}
+        if isinstance(errors, (list, tuple)):
+            return {'errors': errors}
 
         formatted_errors = []
         if many:

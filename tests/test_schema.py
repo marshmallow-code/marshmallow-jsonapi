@@ -120,6 +120,24 @@ class TestErrorFormatting:
         assert lname_err
         assert lname_err['detail'] == 'Missing data for required field.'
 
+    def test_validate_in_strict_mode(self):
+        author = make_author({'first_name': 'Dan', 'password': 'short'})
+        try:
+            AuthorSchema(strict=True).validate(author)
+        except ValidationError as err:
+            errors = err.messages
+            assert 'errors' in errors
+            assert len(errors['errors']) == 2
+            password_err = get_error_by_field(errors, 'password')
+            assert password_err
+            assert password_err['detail'] == 'Shorter than minimum length 6.'
+
+            lname_err = get_error_by_field(errors, 'last_name')
+            assert lname_err
+            assert lname_err['detail'] == 'Missing data for required field.'
+        else:
+            assert False, 'No validation error raised'
+
     def test_validate_no_type_raises_error(self):
         author = {'data': {'attributes': {'first_name': 'Dan', 'password': 'supersecure'}}}
         with pytest.raises(ValidationError) as excinfo:

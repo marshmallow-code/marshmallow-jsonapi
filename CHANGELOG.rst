@@ -8,6 +8,7 @@ Changelog
 * *Backwards-incompatible*: Replace ``HyperlinkRelated`` with ``Relationship`` field. Supports related links (``related``), relationship links (``self``), and resource linkages.
 * *Backwards-incompatible*: Validate and deserialize JSON API-formatted request payloads.
 * Fix error formatting when ``many=True``.
+* Fix error formatting in strict mode.
 
 0.2.2 (2015-09-26)
 ==================

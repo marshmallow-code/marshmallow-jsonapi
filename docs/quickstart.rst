@@ -14,6 +14,8 @@ A `Schema` **MUST** define:
 - An ``id`` field
 - The ``type_`` class Meta option
 
+It is **RECOMMENDED** to set strict mode to ``True``.
+
 .. code-block:: python
 
     from marshmallow_jsonapi import Schema, fields
@@ -24,6 +26,7 @@ A `Schema` **MUST** define:
 
         class Meta:
             type_ = 'articles'
+            strict = True
 
 
 Serialization
@@ -65,6 +68,7 @@ To serialize links, pass a URL format string and a dictionary of keyword argumen
 
         class Meta:
             type_ = 'articles'
+            strict = True
 
     ArticleSchema().dump(article).data
     # {
@@ -104,6 +108,7 @@ You can serialize `resource linkages <http://jsonapi.org/format/#document-resour
         )
         class Meta:
             type_ = 'articles'
+            strict = True
 
     ArticleSchema().dump(article).data
     # {
@@ -132,8 +137,11 @@ Errors
 
 .. code-block:: python
 
-    from marshmallow_jsonapi import Schema
+    from pprint import pprint
+
+    from marshmallow_jsonapi import Schema, fields
     from marshmallow import validate, ValidationError
+
 
     class AuthorSchema(Schema):
         id = fields.Str(dump_only=True)
@@ -144,6 +152,7 @@ Errors
 
         class Meta:
             type_ = 'people'
+            strict = True
 
     schema = AuthorSchema()
     input_data = {
@@ -156,19 +165,14 @@ Errors
         }
     }
 
-    schema.validate(input_data)
-    # {
-    #     'errors': [
-    #         {
-    #             'detail': 'Missing data for required field.',
-    #             'source': {'pointer': '/data/attributes/last_name'}
-    #         },
-    #         {
-    #             'detail': 'Shorter than minimum length 6.',
-    #             'source': {'pointer': '/data/attributes/password'}
-    #         }
-    #     ]
-    # }
+    try:
+        schema.validate(input_data)
+    except ValidationError as err:
+        pprint(err.messages)
+    # {'errors': [{'detail': 'Shorter than minimum length 6.',
+    #              'source': {'pointer': '/data/attributes/password'}},
+    #             {'detail': 'Missing data for required field.',
+    #              'source': {'pointer': '/data/attributes/last_name'}}]}
 
 Validating ``type``
 -------------------
