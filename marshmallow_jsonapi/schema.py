@@ -92,7 +92,7 @@ class Schema(ma.Schema):
         if item['type'] != self.opts.type_:
             raise IncorrectTypeError(actual=item['type'], expected=self.opts.type_)
         if 'attributes' not in item:
-            raise ma.ValidationError('Object must include `attributes` key.')
+            raise ma.ValidationError('`data` object must include `attributes` key.')
         return item['attributes']
 
     @ma.pre_load(pass_many=True)
