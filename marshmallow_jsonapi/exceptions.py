@@ -7,6 +7,7 @@ class JSONAPIError(Exception):
 
 class IncorrectTypeError(JSONAPIError, ValueError):
     """Raised when client provides an invalid `type` in a request."""
+    pointer = '/data/type'
     default_message = 'Invalid type. Expected "{expected}".'
 
     def __init__(self, message=None, actual=None, expected=None):
@@ -16,4 +17,14 @@ class IncorrectTypeError(JSONAPIError, ValueError):
             format_kwargs['actual'] = actual
         if expected:
             format_kwargs['expected'] = expected
-        super(IncorrectTypeError, self).__init__(message.format(**format_kwargs))
+        self.detail = message.format(**format_kwargs)
+        super(IncorrectTypeError, self).__init__(self.detail)
+
+    @property
+    def messages(self):
+        """JSON API-formatted error representation."""
+        return {
+            'errors': [
+                {'detail': self.detail, 'pointer': self.pointer}
+            ]
+        }

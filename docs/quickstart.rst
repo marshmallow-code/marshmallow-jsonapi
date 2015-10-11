@@ -14,7 +14,7 @@ A `Schema` **MUST** define:
 - An ``id`` field
 - The ``type_`` class Meta option
 
-It is **RECOMMENDED** to set strict mode to ``True``.
+It is **RECOMMENDED** to set strict mode to `True`.
 
 .. code-block:: python
 
@@ -32,7 +32,7 @@ It is **RECOMMENDED** to set strict mode to ``True``.
 Serialization
 =============
 
-Objects will be serialized to `JSON API documents <http://jsonapi.org/format/#document-structure>` with primary data.
+Objects will be serialized to `JSON API documents <http://jsonapi.org/format/#document-structure>`_ with primary data.
 
 .. code-block:: python
 
@@ -182,6 +182,8 @@ If an invalid "type" is passed in the input data, an `IncorrectTypeError <marshm
 
 .. code-block:: python
 
+    from marshmallow_jsonapi.exceptions import IncorrectTypeError
+
     input_data = {
         'data': {
             'type': 'invalid-type',
@@ -192,8 +194,12 @@ If an invalid "type" is passed in the input data, an `IncorrectTypeError <marshm
             }
         }
     }
-    schema.validate(input_data)
-    # IncorrectTypeError: Invalid type. Expected "people".
+    try:
+        schema.validate(input_data)
+    except IncorrectTypeError as err:
+        pprint(err.messages)
+    # {'errors': [{'detail': 'Invalid type. Expected "people".',
+    #              'pointer': '/data/type'}]}
 
 Inflection
 ==========

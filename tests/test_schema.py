@@ -150,6 +150,14 @@ class TestErrorFormatting:
         with pytest.raises(IncorrectTypeError) as excinfo:
             AuthorSchema().validate(author)
         assert excinfo.value.args[0] == 'Invalid type. Expected "people".'
+        assert excinfo.value.messages == {
+            'errors': [
+                {
+                    'detail': 'Invalid type. Expected "people".',
+                    'pointer': '/data/type'
+                }
+            ]
+        }
 
     def test_load(self):
         _, errors = AuthorSchema().load(make_author({'first_name': 'Dan', 'password': 'short'}))
