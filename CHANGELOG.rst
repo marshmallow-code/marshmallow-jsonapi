@@ -2,7 +2,7 @@
 Changelog
 *********
 
-0.3.0 (unreleased)
+0.3.0 (2015-10-18)
 ==================
 
 * *Backwards-incompatible*: Replace ``HyperlinkRelated`` with ``Relationship`` field. Supports related links (``related``), relationship links (``self``), and resource linkages.
