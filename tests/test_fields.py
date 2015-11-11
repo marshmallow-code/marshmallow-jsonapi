@@ -60,6 +60,24 @@ class TestGenericRelationshipField:
         ids = [each['id'] for each in result['comments']['data']]
         assert ids == [each.id for each in post.comments]
 
+    def test_include_null_data_single(self, post_with_null_author):
+        field = Relationship(
+            related_url='/authors/{author_id}',
+            related_url_kwargs={'author_id': '<author.id>'},
+            include_data=True, type_='people'
+        )
+        result = field.serialize('author', post_with_null_author)
+        assert result['author'] == None
+
+    def test_include_null_data_many(self, post_with_null_comment):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'},
+            many=True, include_data=True, type_='comments'
+        )
+        result = field.serialize('comments', post_with_null_comment)
+        assert result['comments'] == []
+
     def test_is_dump_only_by_default(self):
         field = Relationship(
             'http://example.com/posts/{id}/comments',
