@@ -102,9 +102,6 @@ class Relationship(BaseRelationship):
         dict_class = self.parent.dict_class if self.parent else dict
         ret = dict_class()
         ret[attr] = dict_class()
-        if value is None:
-            ret[attr] = [] if self.many else None
-            return ret
         ret[attr]['links'] = dict_class()
         self_url = self.get_self_url(obj)
         if self_url:
@@ -113,6 +110,10 @@ class Relationship(BaseRelationship):
         if related_url:
             ret[attr]['links']['related'] = related_url
         if self.include_data:
-            ret[attr]['data'] = self.add_resource_linkage(value)
+            if value is None:
+                ret[attr]['data'] = [] if self.many else None
+            else:
+                ret[attr]['data'] = self.add_resource_linkage(value)
+        return ret
 
         return ret
