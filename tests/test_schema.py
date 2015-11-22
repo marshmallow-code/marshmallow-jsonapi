@@ -260,3 +260,42 @@ class TestInflection:
         assert not errs
         assert data['first_name'] == 'Steve'
         assert data['last_name'] == 'Loria'
+
+
+class TestAutpSelfUrls:
+    class AuthorAutoSelfLinkSchema(Schema):
+        id = fields.Int(dump_only=True)
+        first_name = fields.Str(required=True)
+        last_name = fields.Str(required=True)
+        password = fields.Str(load_only=True, validate=validate.Length(6))
+        twitter = fields.Str()
+
+        class Meta:
+            type_ = 'people'
+            self_url = '/authors/{id}'
+            self_url_kwargs = {'id': '<id>'}
+            self_url_many = '/authors/'
+
+    def test_self_url_kwargs_requires_self_url(self, author):
+        class InvalidSelfLinkSchema(Schema):
+            id = fields.Int()
+
+            class Meta:
+                type_ = 'people'
+                self_url_kwargs = {'id': '<id>'}
+
+        with pytest.raises(ValueError):
+            InvalidSelfLinkSchema().dump(author).data
+
+    def test_self_link_single(self, author):
+        data = self.AuthorAutoSelfLinkSchema().dump(author).data
+        assert 'links' in data
+        assert data['links']['self'] == '/authors/{}'.format(author.id)
+
+    def test_self_link_many(self, authors):
+        data = self.AuthorAutoSelfLinkSchema(many=True).dump(authors).data
+        assert 'links' in data
+        assert data['links']['self'] == '/authors/'
+
+        assert 'links' in data['data'][0]
+        assert data['data'][0]['links']['self'] == '/authors/{}'.format(authors[0].id)
