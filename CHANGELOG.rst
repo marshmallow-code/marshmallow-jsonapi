@@ -2,6 +2,11 @@
 Changelog
 *********
 
+0.4.0 (unreleased)
+==================
+
+- Correctly serialize null and empty relationships (:issue:`10`). Thanks :user:`jo-tham` for the PR.
+
 0.3.0 (2015-10-18)
 ==================
 
