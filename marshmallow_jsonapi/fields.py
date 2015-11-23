@@ -110,5 +110,10 @@ class Relationship(BaseRelationship):
         if related_url:
             ret[attr]['links']['related'] = related_url
         if self.include_data:
-            ret[attr]['data'] = self.add_resource_linkage(value)
+            if value is None:
+                ret[attr]['data'] = [] if self.many else None
+            else:
+                ret[attr]['data'] = self.add_resource_linkage(value)
+        return ret
+
         return ret

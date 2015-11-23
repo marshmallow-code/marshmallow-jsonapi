@@ -5,11 +5,11 @@ from tests.base import Author, Post, Comment, fake
 
 def make_author():
     return Author(id=fake.random_int(), first_name=fake.first_name(),
-                    last_name=fake.last_name(), twitter=fake.domain_word())
+                  last_name=fake.last_name(), twitter=fake.domain_word())
 
-def make_post():
-    comments = [make_comment() for _ in range(2)]
-    author = make_author()
+def make_post(with_comments=True, with_author=True):
+    comments = [make_comment() for _ in range(2)] if with_comments else []
+    author = make_author() if with_author else None
     return Post(
         id=fake.random_int(),
         title=fake.catch_phrase(),
@@ -30,3 +30,11 @@ def authors():
 @pytest.fixture()
 def post():
     return make_post()
+
+@pytest.fixture()
+def post_with_null_comment():
+    return make_post(with_comments=False)
+
+@pytest.fixture()
+def post_with_null_author():
+    return make_post(with_author=False)
