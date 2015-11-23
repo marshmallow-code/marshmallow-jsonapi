@@ -90,6 +90,7 @@ Project info
    :maxdepth: 1
 
    changelog
+   authors
    contributing
    license
 
