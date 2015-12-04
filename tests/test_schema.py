@@ -262,7 +262,7 @@ class TestInflection:
         assert data['last_name'] == 'Loria'
 
 
-class TestAutpSelfUrls:
+class TestAutoSelfUrls:
     class AuthorAutoSelfLinkSchema(Schema):
         id = fields.Int(dump_only=True)
         first_name = fields.Str(required=True)
