@@ -16,6 +16,13 @@ A `Schema` **MUST** define:
 
 It is **RECOMMENDED** to set strict mode to `True`.
 
+Automatic self-linking is supported through these Meta options:
+
+- ``self_url`` specifies the URL to the resource itself
+- ``self_url_kwargs`` specifies replacement fields for `self_url`
+- ``self_url_many`` specifies the URL the resource when a collection (many) are
+  serialized
+
 .. code-block:: python
 
     from marshmallow_jsonapi import Schema, fields
@@ -26,6 +33,9 @@ It is **RECOMMENDED** to set strict mode to `True`.
 
         class Meta:
             type_ = 'articles'
+            self_url = '/articles/{id}'
+            self_url_kwargs = {'id': '<id>'}
+            self_url_many = '/articles/'
             strict = True
 
 

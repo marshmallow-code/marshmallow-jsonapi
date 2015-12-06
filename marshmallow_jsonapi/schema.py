@@ -6,6 +6,7 @@ from marshmallow.compat import iteritems, PY2
 
 from .fields import BaseRelationship
 from .exceptions import IncorrectTypeError
+from .utils import resolve_params
 
 TYPE = 'type'
 ID = 'id'
@@ -23,7 +24,9 @@ class SchemaOpts(ma.SchemaOpts):
         super(SchemaOpts, self).__init__(meta)
         self.type_ = getattr(meta, 'type_', None)
         self.inflect = plain_function(getattr(meta, 'inflect', None))
-
+        self.self_url = getattr(meta, 'self_url', None)
+        self.self_url_kwargs = getattr(meta, 'self_url_kwargs', None)
+        self.self_url_many = getattr(meta, 'self_url_many', None)
 
 class Schema(ma.Schema):
     """Schema class that formats data according to JSON API 1.0.
@@ -60,8 +63,15 @@ class Schema(ma.Schema):
     """
     class Meta:
         """Options object for `Schema`. Takes the same options as `marshmallow.Schema.Meta` with
-        the addition of ``type_`` (required, the JSON API resource type as a string) and
-        ``inflect`` (optional, an inflection function to modify attribute names).
+        the addition of:
+        - ``type_`` (required, the JSON API resource type as a string)
+        - ``inflect`` (optional, an inflection function to modify attribute names)
+        - ``self_url`` (optional, URL to use to `self` in links)
+        - ``self_url_kwargs`` (optional, replacement fields for `self_url`.
+          String arguments enclosed in `< >` will be interpreted as attributes
+          to pull from the schema data.)
+        - ``self_url_many`` (optional, URL to use to `self` in top-level `links`
+            when a collection of resources is returned)
         """
         pass
 
@@ -73,6 +83,10 @@ class Schema(ma.Schema):
 
         if 'id' not in self.fields:
             raise ValueError('Must have an `id` field')
+
+        if self.opts.self_url_kwargs and not self.opts.self_url:
+            raise ValueError('Must specify `self_url` Meta option when '
+                             '`self_url_kwargs` is specified')
 
     OPTIONS_CLASS = SchemaOpts
 
@@ -196,6 +210,10 @@ class Schema(ma.Schema):
                 if 'attributes' not in ret:
                     ret['attributes'] = self.dict_class()
                 ret['attributes'][self.inflect(field_name)] = value
+
+        links = self.get_resource_links(item)
+        if links:
+            ret['links'] = links
         return ret
 
     def format_items(self, data, many):
@@ -210,6 +228,23 @@ class Schema(ma.Schema):
 
     def get_top_level_links(self, data, many):
         """Hook for adding links to the root of the response data."""
+        if many:
+            if self.opts.self_url_many:
+                return {'self': self.opts.self_url_many}
+        else:
+            if self.opts.self_url:
+                self_link = data.get('links', {}).get('self', None)
+                return {'self': self_link}
+
+        return None
+
+    def get_resource_links(self, item):
+        """Hook for adding links to a resource object."""
+        if self.opts.self_url:
+            ret = self.dict_class()
+            kwargs = resolve_params(item, self.opts.self_url_kwargs or {})
+            ret['self'] = self.opts.self_url.format(**kwargs)
+            return ret
         return None
 
     def wrap_response(self, data, many):
