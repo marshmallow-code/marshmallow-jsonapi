@@ -2,10 +2,11 @@
 Changelog
 *********
 
-0.4.0 (unreleased)
+0.4.0 (2015-12-06)
 ==================
 
 - Correctly serialize null and empty relationships (:issue:`10`). Thanks :user:`jo-tham` for the PR.
+- Add ``self_url``, ``self_url_kwargs``, and ``self_url_many`` class Meta options for adding ``self`` links. Thanks :user:`asteinlein` for the PR.
 
 0.3.0 (2015-10-18)
 ==================
