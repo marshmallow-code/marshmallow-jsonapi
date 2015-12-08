@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import pytest
-from marshmallow import validate, ValidationError
-from marshmallow_jsonapi import Schema, fields
+from marshmallow import validate as ma_validate, ValidationError
+from marshmallow_jsonapi import Schema, fields, validate
 from marshmallow_jsonapi.exceptions import IncorrectTypeError
+
 
 class AuthorSchema(Schema):
     id = fields.Int(dump_only=True)
     first_name = fields.Str(required=True)
     last_name = fields.Str(required=True)
-    password = fields.Str(load_only=True, validate=validate.Length(6))
+    password = fields.Str(load_only=True, validate=ma_validate.Length(6))
     twitter = fields.Str()
 
     def get_top_level_links(self, data, many):
@@ -21,6 +22,17 @@ class AuthorSchema(Schema):
 
     class Meta:
         type_ = 'people'
+
+class PostSchema(Schema):
+    id = fields.Int(dump_only=True)
+    title = fields.Str(required=True)
+    author = fields.Relationship(dump_only=False,
+                                 required=True, validate=validate.ForeignKey())
+    comments = fields.Relationship(
+        dump_only=True, many=True)
+
+    class Meta:
+        type_ = 'posts'
 
 
 def test_type_is_required():
@@ -198,7 +210,7 @@ class TestInflection:
 
     class AuthorSchemaWithInflection(Schema):
         id = fields.Int(dump_only=True)
-        first_name = fields.Str(required=True, validate=validate.Length(min=2))
+        first_name = fields.Str(required=True, validate=ma_validate.Length(min=2))
         last_name = fields.Str(required=True)
 
         class Meta:
@@ -261,6 +273,7 @@ class TestInflection:
         assert data['first_name'] == 'Steve'
         assert data['last_name'] == 'Loria'
 
+
     def test_relationship_keys_get_inflected(self, post):
         class PostSchema(Schema):
             id = fields.Int()
@@ -289,7 +302,7 @@ class TestAutoSelfUrls:
         id = fields.Int(dump_only=True)
         first_name = fields.Str(required=True)
         last_name = fields.Str(required=True)
-        password = fields.Str(load_only=True, validate=validate.Length(6))
+        password = fields.Str(load_only=True, validate=ma_validate.Length(6))
         twitter = fields.Str()
 
         class Meta:
@@ -321,3 +334,26 @@ class TestAutoSelfUrls:
 
         assert 'links' in data['data'][0]
         assert data['data'][0]['links']['self'] == '/authors/{}'.format(authors[0].id)
+
+
+class TestLoadRelationship:
+
+    def test_data_includes_relationship_field(self, post_document):
+        data = PostSchema().load(post_document).data
+        assert 'author' in data
+        assert data['author'] == post_document['data']['relationships']['author']['data']['id']
+
+    # may need to replace this with schema level validator; better than
+    # handling exception
+    def test_missing_data_key_raises_error(self, post_document):
+        post_document['data']['relationships']['author'] = {}
+        with pytest.raises(ValidationError) as excinfo:
+            PostSchema().load(post_document)
+        assert excinfo.value.args[0] == 'Relationship members must include \'data\' key'
+
+    def test_foreign_key_validator_type(self, post_document):
+        post_document['data']['relationships']['author']['data']['id'] = 1.1
+        data, errs = PostSchema().load(post_document)
+        author_err = get_error_by_field(errs, 'author')
+        assert author_err
+        assert author_err['detail'] == 'Must be and integer and greater than 0.'

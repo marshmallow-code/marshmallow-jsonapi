@@ -16,6 +16,26 @@ def make_post(with_comments=True, with_author=True):
         author=author,
         comments=comments)
 
+def make_post_document(with_comments=True, with_author=True):
+    doc = {
+        'type': 'posts',
+        'id': fake.random_int(),
+        'attributes': {
+            'title': fake.catch_phrase()
+        },
+        'relationships': {}
+    }
+    if with_comments:
+        doc['relationships']['comments'] = [
+          { 'type': 'comments', 'id': '5' },
+          { 'type': 'comments', 'id': '12' }
+        ]
+    if with_author:
+        doc['relationships']['author'] = {
+                'data': { 'type': 'people', 'id': 9 }
+            }
+    return {'data': doc}
+
 def make_comment():
     return Comment(id=fake.random_int(), body=fake.bs())
 
@@ -38,3 +58,7 @@ def post_with_null_comment():
 @pytest.fixture()
 def post_with_null_author():
     return make_post(with_author=False)
+
+@pytest.fixture()
+def post_document():
+    return make_post_document(with_comments=False)

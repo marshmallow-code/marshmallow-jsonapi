@@ -107,6 +107,14 @@ class Schema(ma.Schema):
             raise IncorrectTypeError(actual=item['type'], expected=self.opts.type_)
         if 'attributes' not in item:
             raise ma.ValidationError('`data` object must include `attributes` key.')
+        relationships = item.get('relationships')
+        if not relationships:
+            return item['attributes']
+        # TODO: python2?
+        for field, relationship_obj in relationships.items():
+            if 'data' not in relationship_obj:
+                raise ma.ValidationError('Relationship members must include \'data\' key')
+            item['attributes'][field] = relationship_obj['data']['id']
         return item['attributes']
 
     @ma.pre_load(pass_many=True)
