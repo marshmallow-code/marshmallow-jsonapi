@@ -78,7 +78,7 @@ class TestRelationshipField:
         )
         result = field.serialize('author', post_with_null_author)
 
-        assert not result['author']['links']
+        assert not result['author']
 
     def test_non_existing_view(self, app, post):
         field = Relationship(
