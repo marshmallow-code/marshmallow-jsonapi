@@ -115,5 +115,3 @@ class Relationship(BaseRelationship):
             else:
                 ret[attr]['data'] = self.add_resource_linkage(value)
         return ret
-
-        return ret
