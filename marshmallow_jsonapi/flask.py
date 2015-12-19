@@ -3,6 +3,8 @@
 from __future__ import absolute_import
 
 import flask
+from werkzeug.routing import BuildError
+
 from .fields import Relationship as GenericRelationship
 from .utils import resolve_params
 
@@ -52,7 +54,12 @@ class Relationship(GenericRelationship):
         if view_name:
             kwargs = resolve_params(obj, view_kwargs)
             kwargs['endpoint'] = view_name
-            return flask.url_for(**kwargs)
+            try:
+                return flask.url_for(**kwargs)
+            except BuildError:
+                if None in kwargs.values():  # most likely to be caused by empty relationship
+                    return None
+                raise
         return None
 
     def get_related_url(self, obj):

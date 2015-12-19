@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, url_for
 import pytest
+from werkzeug.routing import BuildError
 
 from marshmallow_jsonapi.flask import Relationship
 
@@ -69,3 +70,20 @@ class TestRelationshipField:
         assert 'comments' in result
         related = result['comments']['links']['self']
         assert related == url_for('posts_comments', post_id=post.id)
+
+    def test_empty_relationship(self, app, post_with_null_author):
+        field = Relationship(
+            related_view='author_detail',
+            related_view_kwargs={'author_id': '<author>'}
+        )
+        result = field.serialize('author', post_with_null_author)
+
+        assert not result['author']
+
+    def test_non_existing_view(self, app, post):
+        field = Relationship(
+            related_view='non_existing_view',
+            related_view_kwargs={'author_id': '<author>'}
+        )
+        with pytest.raises(BuildError):
+            field.serialize('author', post)
