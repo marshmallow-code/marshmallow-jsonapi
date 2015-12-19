@@ -2,6 +2,11 @@
 Changelog
 *********
 
+0.4.1 (2015-12-19)
+==================
+
+- Fix serializing null and empty relationships with ``flask.Relationship`` (:issue:`24`). Thanks :user:`floqqi` for the catch and patch.
+
 0.4.0 (2015-12-06)
 ==================
 

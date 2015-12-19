@@ -12,3 +12,4 @@ Contributors (chronological)
 
 - Jotham Apaloo `@jo-tham <https://github.com/jo-tham>`_
 - Anders Steinlein `@asteinlein <https://github.com/asteinlein>`_
+- `@floqqi <https://github.com/floqqi>`_
