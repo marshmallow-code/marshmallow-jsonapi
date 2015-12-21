@@ -261,6 +261,28 @@ class TestInflection:
         assert data['first_name'] == 'Steve'
         assert data['last_name'] == 'Loria'
 
+    def test_relationship_keys_get_inflected(self, post):
+        class PostSchema(Schema):
+            id = fields.Int()
+            post_title = fields.Str(attribute='title')
+
+            post_comments = fields.Relationship(
+                'http://test.test/posts/{id}/comments/',
+                related_url_kwargs={'id': '<id>'},
+                attribute='comments'
+            )
+
+            class Meta:
+                type_ = 'posts'
+                inflect = dasherize
+
+        data, errs = PostSchema().dump(post)
+        assert not errs
+        assert 'post-title' in data['data']['attributes']
+        assert 'post-comments' in data['data']['relationships']
+        related_href = data['data']['relationships']['post-comments']['links']['related']
+        assert related_href == 'http://test.test/posts/{}/comments/'.format(post.id)
+
 
 class TestAutoSelfUrls:
     class AuthorAutoSelfLinkSchema(Schema):

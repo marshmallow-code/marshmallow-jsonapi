@@ -101,6 +101,8 @@ class Relationship(BaseRelationship):
     def _serialize(self, value, attr, obj):
         dict_class = self.parent.dict_class if self.parent else dict
         ret = dict_class()
+        if hasattr(self.root, 'inflect'):
+            attr = self.root.inflect(attr)
         ret[attr] = dict_class()
 
         self_url = self.get_self_url(obj)
