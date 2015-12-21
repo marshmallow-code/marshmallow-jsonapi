@@ -2,16 +2,25 @@
 Changelog
 *********
 
+0.4.2 (unreleased)
+==================
+
+Bug fixes:
+
+* Relationship names are inflected when appropriate (:issue:`22`). Thanks :user:`angelosarto` for reporting.
+
 0.4.1 (2015-12-19)
 ==================
 
-- Fix serializing null and empty relationships with ``flask.Relationship`` (:issue:`24`). Thanks :user:`floqqi` for the catch and patch.
+Bug fixes:
+
+* Fix serializing null and empty relationships with ``flask.Relationship`` (:issue:`24`). Thanks :user:`floqqi` for the catch and patch.
 
 0.4.0 (2015-12-06)
 ==================
 
-- Correctly serialize null and empty relationships (:issue:`10`). Thanks :user:`jo-tham` for the PR.
-- Add ``self_url``, ``self_url_kwargs``, and ``self_url_many`` class Meta options for adding ``self`` links. Thanks :user:`asteinlein` for the PR.
+* Correctly serialize null and empty relationships (:issue:`10`). Thanks :user:`jo-tham` for the PR.
+* Add ``self_url``, ``self_url_kwargs``, and ``self_url_many`` class Meta options for adding ``self`` links. Thanks :user:`asteinlein` for the PR.
 
 0.3.0 (2015-10-18)
 ==================

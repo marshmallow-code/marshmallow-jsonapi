@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__version__ = '0.4.1'
+__version__ = '0.4.2.dev0'
 __author__ = 'Steven Loria'
 __license__ = 'MIT'
 
