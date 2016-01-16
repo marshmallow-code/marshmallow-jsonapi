@@ -38,9 +38,9 @@ db = {
 
 ### SCHEMAS ###
 
-from marshmallow import validate
-from marshmallow_jsonapi import Schema, fields
-from marshmallow_jsonapi.flask import Relationship
+from marshmallow import validate  # flake8: noqa
+from marshmallow_jsonapi import Schema, fields  # flake8: noqa
+from marshmallow_jsonapi.flask import Relationship  # flake8: noqa
 
 class CommentSchema(Schema):
     id = fields.Str(dump_only=True)
