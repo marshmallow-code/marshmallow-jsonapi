@@ -92,7 +92,37 @@ class TestGenericRelationshipField:
 
     def test_is_dump_only_by_default(self):
         field = Relationship(
-            'http://example.com/posts/{id}/comments',
+            related_url='http://example.com/posts/{id}/comments',
             related_url_kwargs={'id': '<id>'}
         )
         assert field.dump_only is True
+
+    def test_deserialize_relationship_single(self):
+        field = Relationship(
+            related_url='/posts/{post_id}/author/',
+            related_url_kwargs={'post_id': '<id>'},
+            include_data=True, type_='people'
+        )
+        val = 1
+        result = field.deserialize(val)
+        assert result == val
+
+    def test_deserialize_relationship_many(self):
+        with pytest.raises(ValueError) as excinfo:
+            Relationship(
+                related_url='/posts/{post_id}/comments',
+                related_url_kwargs={'post_id': '<id>'},
+                many=True, include_data=False, type_='comments',
+                dump_only=False
+            )
+        assert excinfo.value.args[0] == 'Loading is not supported for many=True.'
+
+    def test_deserialize_null_relationship(self):
+        field = Relationship(
+            related_url='/posts/{post_id}/author/',
+            related_url_kwargs={'post_id': '<id>'},
+            include_data=True, type_='people', missing=None,
+        )
+        val = None
+        result = field.deserialize(val)
+        assert result == val

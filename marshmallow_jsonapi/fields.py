@@ -71,6 +71,8 @@ class Relationship(BaseRelationship):
         self.id_field = id_field or self.id_field
         super(Relationship, self).__init__(**kwargs)
         self.dump_only = kwargs.pop('dump_only', True)
+        if many and not self.dump_only:
+            raise ValueError('Loading is not supported for many=True.')
 
     def get_related_url(self, obj):
         if self.related_url:
