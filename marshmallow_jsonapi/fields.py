@@ -100,7 +100,7 @@ class Relationship(BaseRelationship):
             }
         return included_data
 
-    def validate_type(self, relationship):
+    def validate_data_object(self, relationship):
         errors = []
         if 'id' not in relationship:
             errors.append('Must have an `id` field')
@@ -116,10 +116,10 @@ class Relationship(BaseRelationship):
         if self.many:
             data = value.get('data', [])
             for item in data:
-                self.validate_type(item)
+                self.validate_data_object(item)
         else:
             data = value.get('data', {})
-            self.validate_type(data)
+            self.validate_data_object(data)
 
         if self.many:
             return [item.get('id') for item in data]
