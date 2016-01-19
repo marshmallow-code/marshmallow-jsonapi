@@ -321,3 +321,43 @@ class TestAutoSelfUrls:
 
         assert 'links' in data['data'][0]
         assert data['data'][0]['links']['self'] == '/authors/{}'.format(authors[0].id)
+
+
+class RelationshipSchema(Schema):
+    id = fields.Integer()
+    body = fields.String()
+    author = fields.Relationship(
+        include_data=True, many=False, type_='people')
+    comments = fields.Relationship(
+        include_data=True, many=True, type_='comments')
+
+    class Meta:
+        type_ = 'articles'
+
+
+class TestRelationshipLoading(object):
+
+    def make_article(self, with_comments=True, with_author=True):
+        data = {
+            "id": "1",
+            "type": "articles",
+            "attributes": {
+                "body": "Test"
+            },
+            "relationships": {}
+        }
+        if with_comments:
+            data['relationships']['author'] = {
+                "data": {"type": "people", "id": "1"}
+            }
+        if with_author:
+            data['relationships']['comments'] = {
+                "data": [{"type": "comments", "id": "1"}]
+            }
+        return {"data": data}
+
+    def test_relationships_included(self):
+        data = RelationshipSchema().load(self.make_article()).data
+        assert data['body'] == "Test"
+        assert data['author'] == "1"
+        assert data['comments'] == ["1"]
