@@ -100,6 +100,8 @@ class Relationship(BaseRelationship):
         return included_data
 
     def validate_type(self, relationship):
+        if 'id' not in relationship:
+            raise ValueError('Must have an `id` field')
         if 'type' not in relationship:
             raise ValueError('Must have a `type` field')
         if relationship['type'] != self.type_:
