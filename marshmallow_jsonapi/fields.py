@@ -100,28 +100,27 @@ class Relationship(BaseRelationship):
             }
         return included_data
 
-    def validate_data_object(self, relationship):
+    def validate_data_object(self, data):
         errors = []
-        if 'id' not in relationship:
+        if 'id' not in data:
             errors.append('Must have an `id` field')
-        if 'type' not in relationship:
+        if 'type' not in data:
             errors.append('Must have a `type` field')
-        elif relationship['type'] != self.type_:
+        elif data['type'] != self.type_:
             errors.append('Invalid `type` specified')
 
         if errors:
             raise ValidationError(errors)
 
     def _deserialize(self, value, attr, obj):
-        if 'data' not in value:
-            return None
+        data = value.get('data')
+        if not data:
+            return data
 
         if self.many:
-            data = value.get('data', [])
             for item in data:
                 self.validate_data_object(item)
         else:
-            data = value.get('data', {})
             self.validate_data_object(data)
 
         if self.many:
