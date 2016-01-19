@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
+from marshmallow import ValidationError
 from marshmallow_jsonapi.fields import Relationship
 
 
@@ -86,10 +87,10 @@ class TestGenericRelationshipField:
             related_url_kwargs={'post_id': '<id>'},
             many=False, include_data=True, type_='comments'
         )
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(ValidationError) as excinfo:
             value = {'data': {'type': 'comments'}}
             field.deserialize(value)
-        assert excinfo.value.args[0] == 'Must have an `id` field'
+        assert excinfo.value.args[0] == ['Must have an `id` field']
 
     def test_deserialize_data_missing_type(self, post):
         field = Relationship(
@@ -97,10 +98,10 @@ class TestGenericRelationshipField:
             related_url_kwargs={'post_id': '<id>'},
             many=False, include_data=True, type_='comments'
         )
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(ValidationError) as excinfo:
             value = {'data': {'id': '1'}}
             field.deserialize(value)
-        assert excinfo.value.args[0] == 'Must have a `type` field'
+        assert excinfo.value.args[0] == ['Must have a `type` field']
 
     def test_deserialize_data_incorrect_type(self, post):
         field = Relationship(
@@ -108,10 +109,10 @@ class TestGenericRelationshipField:
             related_url_kwargs={'post_id': '<id>'},
             many=False, include_data=True, type_='comments'
         )
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(ValidationError) as excinfo:
             value = {'data': {'type': 'posts', 'id': '1'}}
             field.deserialize(value)
-        assert excinfo.value.args[0] == 'Invalid `type` specified'
+        assert excinfo.value.args[0] == ['Invalid `type` specified']
 
     def test_include_null_data_single(self, post_with_null_author):
         field = Relationship(
