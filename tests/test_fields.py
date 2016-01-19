@@ -80,6 +80,17 @@ class TestGenericRelationshipField:
         result = field.deserialize(value)
         assert result == ['1']
 
+    def test_deserialize_data_missing_id(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'},
+            many=False, include_data=True, type_='comments'
+        )
+        with pytest.raises(ValueError) as excinfo:
+            value = {'data': {'type': 'comments'}}
+            field.deserialize(value)
+        assert excinfo.value.args[0] == 'Must have an `id` field'
+
     def test_deserialize_data_missing_type(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
