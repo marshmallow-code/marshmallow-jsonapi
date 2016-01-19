@@ -7,6 +7,7 @@ from marshmallow.fields import *  # noqa
 
 from .utils import resolve_params, get_value_or_raise
 
+
 class BaseRelationship(Field):
     """Base relationship field. This is used by `marshmallow_jsonapi.Schema` to determine
     which fields should be formatted as relationship objects.
@@ -97,6 +98,25 @@ class Relationship(BaseRelationship):
                 'id': get_value_or_raise(self.id_field, value)
             }
         return included_data
+
+    def validate_type(self, relationship):
+        if 'type' not in relationship:
+            raise ValueError('Must have a `type` field')
+        if relationship['type'] != self.type_:
+            raise ValueError('Invalid `type` specified')
+
+    def _deserialize(self, value, attr, obj):
+        if self.many:
+            data = value.get('data', [])
+            for item in data:
+                self.validate_type(item)
+        else:
+            data = value.get('data', {})
+            self.validate_type(data)
+
+        if self.many:
+            return [item.get('id') for item in data]
+        return data.get('id')
 
     def _serialize(self, value, attr, obj):
         dict_class = self.parent.dict_class if self.parent else dict
