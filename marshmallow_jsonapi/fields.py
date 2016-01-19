@@ -113,6 +113,9 @@ class Relationship(BaseRelationship):
             raise ValidationError(errors)
 
     def _deserialize(self, value, attr, obj):
+        if 'data' not in value:
+            return None
+
         if self.many:
             data = value.get('data', [])
             for item in data:
