@@ -109,9 +109,9 @@ class Schema(ma.Schema):
             raise ma.ValidationError('`data` object must include `attributes` key.')
 
         payload = self.dict_class()
-        for key, value in item.get('attributes', {}).iteritems():
+        for key, value in iteritems(item.get('attributes', {})):
             payload[key] = value
-        for key, value in item.get('relationships', {}).iteritems():
+        for key, value in iteritems(item.get('relationships', {})):
             payload[key] = value
         return payload
 
