@@ -2,6 +2,7 @@
 """Includes all the fields classes from `marshmallow.fields` as well as
 fields for serializing JSON API-formatted hyperlinks.
 """
+from marshmallow import ValidationError
 # Make core fields importable from marshmallow_jsonapi
 from marshmallow.fields import *  # noqa
 
@@ -100,12 +101,16 @@ class Relationship(BaseRelationship):
         return included_data
 
     def validate_type(self, relationship):
+        errors = []
         if 'id' not in relationship:
-            raise ValueError('Must have an `id` field')
+            errors.append('Must have an `id` field')
         if 'type' not in relationship:
-            raise ValueError('Must have a `type` field')
-        if relationship['type'] != self.type_:
-            raise ValueError('Invalid `type` specified')
+            errors.append('Must have a `type` field')
+        elif relationship['type'] != self.type_:
+            errors.append('Invalid `type` specified')
+
+        if errors:
+            raise ValidationError(errors)
 
     def _deserialize(self, value, attr, obj):
         if self.many:
