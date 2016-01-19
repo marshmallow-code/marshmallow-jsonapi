@@ -114,7 +114,7 @@ class Relationship(BaseRelationship):
 
     def _deserialize(self, value, attr, obj):
         data = value.get('data')
-        if not data:
+        if data is None or data == []:
             return data
 
         if self.many:

@@ -114,7 +114,7 @@ class TestGenericRelationshipField:
             field.deserialize(value)
         assert excinfo.value.args[0] == ['Invalid `type` specified']
 
-    def test_deserialize_null_data_node(self, post):
+    def test_deserialize_null_data_value(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
@@ -123,7 +123,7 @@ class TestGenericRelationshipField:
         result = field.deserialize({'data': None})
         assert result is None
 
-    def test_deserialize_empty_data_node(self, post):
+    def test_deserialize_empty_data_list(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
@@ -131,6 +131,17 @@ class TestGenericRelationshipField:
         )
         result = field.deserialize({'data': []})
         assert result == []
+
+    def test_deserialize_empty_data_node(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'},
+            many=False, include_data=False, type_='comments'
+        )
+        with pytest.raises(ValidationError) as excinfo:
+            field.deserialize({'data': {}})
+        assert excinfo.value.args[0] == [
+            'Must have an `id` field', 'Must have a `type` field']
 
     def test_include_null_data_single(self, post_with_null_author):
         field = Relationship(
