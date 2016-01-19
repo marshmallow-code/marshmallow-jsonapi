@@ -114,14 +114,23 @@ class TestGenericRelationshipField:
             field.deserialize(value)
         assert excinfo.value.args[0] == ['Invalid `type` specified']
 
-    def test_deserialize_missing_data_node(self, post):
+    def test_deserialize_null_data_node(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
             many=False, include_data=False, type_='comments'
         )
-        result = field.deserialize({})
+        result = field.deserialize({'data': None})
         assert result is None
+
+    def test_deserialize_empty_data_node(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'},
+            many=False, include_data=False, type_='comments'
+        )
+        result = field.deserialize({'data': []})
+        assert result == []
 
     def test_include_null_data_single(self, post_with_null_author):
         field = Relationship(
