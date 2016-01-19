@@ -107,17 +107,23 @@ class Schema(ma.Schema):
             raise IncorrectTypeError(actual=item['type'], expected=self.opts.type_)
         if 'attributes' not in item:
             raise ma.ValidationError('`data` object must include `attributes` key.')
-        return item['attributes']
+
+        payload = self.dict_class()
+        for key, value in item.get('attributes', {}).iteritems():
+            payload[key] = value
+        for key, value in item.get('relationships', {}).iteritems():
+            payload[key] = value
+        return payload
 
     @ma.pre_load(pass_many=True)
     def unwrap_request(self, data, many):
         if 'data' not in data:
             raise ma.ValidationError('Object must include `data` key.')
+
         data = data['data']
         if many:
             return [self.unwrap_item(each) for each in data]
-        else:
-            return self.unwrap_item(data)
+        return self.unwrap_item(data)
 
     def on_bind_field(self, field_name, field_obj):
         """Schema hook override. When binding fields, set load_from to the
