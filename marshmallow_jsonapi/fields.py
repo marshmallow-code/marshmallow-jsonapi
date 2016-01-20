@@ -72,7 +72,6 @@ class Relationship(BaseRelationship):
         self.type_ = type_
         self.id_field = id_field or self.id_field
         super(Relationship, self).__init__(**kwargs)
-        self.dump_only = kwargs.pop('dump_only', True)
 
     def get_related_url(self, obj):
         if self.related_url:

@@ -182,10 +182,3 @@ class TestGenericRelationshipField:
         result = field.serialize('comments', post_with_null_comment)
         assert result['comments'] and result['comments']['links']['related']
         assert 'data' not in result['comments']
-
-    def test_is_dump_only_by_default(self):
-        field = Relationship(
-            'http://example.com/posts/{id}/comments',
-            related_url_kwargs={'id': '<id>'}
-        )
-        assert field.dump_only is True

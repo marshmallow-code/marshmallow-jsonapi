@@ -54,13 +54,6 @@ class TestRelationshipField:
             )
         assert excinfo.value.args[0] == 'include_data=True requires the type_ argument.'
 
-    def test_is_dump_only_by_default(self):
-        field = Relationship(
-            related_view='author_detail',
-            related_view_kwargs={'author_id': '<id>'}
-        )
-        assert field.dump_only is True
-
     def test_serialize_self_link(self, app, post):
         field = Relationship(
             self_view='posts_comments',
