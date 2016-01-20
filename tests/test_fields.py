@@ -143,6 +143,16 @@ class TestGenericRelationshipField:
         assert excinfo.value.args[0] == [
             'Must have an `id` field', 'Must have a `type` field']
 
+    def test_deserialize_empty_relationship_node(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'},
+            many=False, include_data=False, type_='comments'
+        )
+        with pytest.raises(ValidationError) as excinfo:
+            field.deserialize({})
+        assert excinfo.value.args[0] == 'Must include a `data` key'
+
     def test_include_null_data_single(self, post_with_null_author):
         field = Relationship(
             related_url='posts/{post_id}/author',
