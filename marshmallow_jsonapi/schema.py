@@ -182,14 +182,16 @@ class Schema(ma.Schema):
 
         See: http://jsonapi.org/format/#error-objects
         """
-        if index:
-            pointer = '/data/{index}/attributes/{field_name}'.format(
-                index=index, field_name=self.inflect(field_name)
-            )
+        if isinstance(self.declared_fields.get(field_name), BaseRelationship):
+            container = 'relationships'
         else:
-            pointer = '/data/attributes/{field_name}'.format(
-                field_name=self.inflect(field_name)
-            )
+            container = 'attributes'
+
+        inflected_name = self.inflect(field_name)
+        if index:
+            pointer = '/data/{}/{}/{}'.format(index, container, inflected_name)
+        else:
+            pointer = '/data/{}/{}'.format(container, inflected_name)
         return {
             'detail': message,
             'source': {
