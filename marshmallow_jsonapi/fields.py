@@ -113,8 +113,11 @@ class Relationship(BaseRelationship):
             raise ValidationError(errors)
 
     def _deserialize(self, value, attr, obj):
+        if 'data' not in value:
+            raise ValidationError('Must include a `data` key')
+
         data = value.get('data')
-        if data is None or data == []:
+        if data is None or value['data'] == []:
             return data
 
         if self.many:
