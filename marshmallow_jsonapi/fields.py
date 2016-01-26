@@ -4,8 +4,10 @@ fields for serializing JSON API-formatted hyperlinks.
 """
 # Make core fields importable from marshmallow_jsonapi
 from marshmallow.fields import *  # noqa
+from marshmallow.utils import get_value
 
-from .utils import resolve_params, get_value_or_raise
+from .utils import resolve_params
+
 
 class BaseRelationship(Field):
     """Base relationship field. This is used by `marshmallow_jsonapi.Schema` to determine
@@ -86,15 +88,14 @@ class Relationship(BaseRelationship):
 
     def add_resource_linkage(self, value):
         if self.many:
-            included_data = [
-                {'type': self.type_,
-                    'id': get_value_or_raise(self.id_field, each)}
-                for each in value
-            ]
+            included_data = [{
+                'type': self.type_,
+                'id': get_value(self.id_field, each, each)
+            } for each in value]
         else:
             included_data = {
                 'type': self.type_,
-                'id': get_value_or_raise(self.id_field, value)
+                'id': get_value(self.id_field, value, value)
             }
         return included_data
 
