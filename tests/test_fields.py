@@ -48,6 +48,15 @@ class TestGenericRelationshipField:
 
         assert result['author']['data']['id'] == post.author.id
 
+    def test_include_data_single_foreign_key(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/author/',
+            related_url_kwargs={'post_id': '<id>'},
+            include_data=True, type_='people'
+        )
+        result = field.serialize('author_id', post)
+        assert result['author_id']['data']['id'] == post.author.id
+
     def test_include_data_many(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
