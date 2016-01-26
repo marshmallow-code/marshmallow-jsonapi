@@ -55,7 +55,7 @@ class TestGenericRelationshipField:
             include_data=True, type_='people'
         )
         result = field.serialize('author_id', post)
-        assert result['author_id']['data']['id'] == post.author.id
+        assert result['author_id']['data']['id'] == post.author_id
 
     def test_include_data_many(self, post):
         field = Relationship(
