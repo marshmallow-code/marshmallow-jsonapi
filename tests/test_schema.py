@@ -26,7 +26,7 @@ class AuthorSchema(Schema):
 
 class PostSchema(Schema):
     id = fields.Int()
-    post_title = fields.Str(attribute='title')
+    post_title = fields.Str(attribute='title', dump_to='title')
 
     post_comments = fields.Relationship(
         'http://test.test/posts/{id}/comments/',
@@ -101,6 +101,8 @@ class TestResponseFormatting:
     def test_dump_to(self, post):
         data = PostSchema().dump(post).data
         assert 'data' in data
+        assert 'attributes' in data['data']
+        assert 'title' in data['data']['attributes']
         assert 'relationships' in data['data']
         assert 'post-comments' in data['data']['relationships']
 
