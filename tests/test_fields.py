@@ -13,7 +13,7 @@ class TestGenericRelationshipField:
         )
         result = field.serialize('comments', post)
         assert field.serialize('comments', post)
-        related = result['comments']['links']['related']
+        related = result['links']['related']
         assert related == 'http://example.com/posts/{id}/comments'.format(id=post.id)
 
     def test_serialize_self_link(self, post):
@@ -22,9 +22,8 @@ class TestGenericRelationshipField:
             self_url_kwargs={'id': '<id>'}
         )
         result = field.serialize('comments', post)
-        assert field.serialize('comments', post)
-        related = result['comments']['links']['self']
-        assert 'related' not in result['comments']['links']
+        related = result['links']['self']
+        assert 'related' not in result['links']
         assert related == 'http://example.com/posts/{id}/relationships/comments'.format(id=post.id)
 
     def test_include_data_requires_type(self, post):
@@ -43,10 +42,10 @@ class TestGenericRelationshipField:
             include_data=True, type_='people'
         )
         result = field.serialize('author', post)
-        assert 'data' in result['author']
-        assert result['author']['data']
+        assert 'data' in result
+        assert result['data']
 
-        assert result['author']['data']['id'] == post.author.id
+        assert result['data']['id'] == post.author.id
 
     def test_include_data_many(self, post):
         field = Relationship(
@@ -55,9 +54,8 @@ class TestGenericRelationshipField:
             many=True, include_data=True, type_='comments'
         )
         result = field.serialize('comments', post)
-        assert 'data' in result['comments']
-        assert result['comments']['data']
-        ids = [each['id'] for each in result['comments']['data']]
+        assert 'data' in result
+        ids = [each['id'] for each in result['data']]
         assert ids == [each.id for each in post.comments]
 
     def test_include_null_data_single(self, post_with_null_author):
@@ -67,8 +65,8 @@ class TestGenericRelationshipField:
             include_data=True, type_='people'
         )
         result = field.serialize('author', post_with_null_author)
-        assert result['author'] and result['author']['links']['related']
-        assert result['author']['data'] == None
+        assert result and result['links']['related']
+        assert result['data'] == None
 
     def test_include_null_data_many(self, post_with_null_comment):
         field = Relationship(
@@ -77,8 +75,8 @@ class TestGenericRelationshipField:
             many=True, include_data=True, type_='comments'
         )
         result = field.serialize('comments', post_with_null_comment)
-        assert result['comments'] and result['comments']['links']['related']
-        assert result['comments']['data'] == []
+        assert result and result['links']['related']
+        assert result['data'] == []
 
     def test_exclude_data(self, post_with_null_comment):
         field = Relationship(
@@ -87,8 +85,8 @@ class TestGenericRelationshipField:
             many=True, include_data=False, type_='comments'
         )
         result = field.serialize('comments', post_with_null_comment)
-        assert result['comments'] and result['comments']['links']['related']
-        assert 'data' not in result['comments']
+        assert result and result['links']['related']
+        assert 'data' not in result
 
     def test_is_dump_only_by_default(self):
         field = Relationship(
