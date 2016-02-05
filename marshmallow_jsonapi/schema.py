@@ -197,15 +197,21 @@ class Schema(ma.Schema):
         See: http://jsonapi.org/format/#document-resource-objects
         """
         ret = self.dict_class()
-        type_ = self.opts.type_
-        ret[TYPE] = type_
+        ret[TYPE] = self.opts.type_
+
+        # Get the schema attributes so we can confirm `dump-to` values exist
+        attributes = {}
+        for field in self.fields:
+            attributes[self.fields[field].dump_to or field] = field
+
         for field_name, value in iteritems(item):
-            if field_name == ID:
+            attribute = attributes[field_name]
+            if attribute == ID:
                 ret[ID] = value
-            elif isinstance(self.fields[field_name], BaseRelationship):
+            elif isinstance(self.fields[attribute], BaseRelationship):
                 if 'relationships' not in ret:
                     ret['relationships'] = self.dict_class()
-                ret['relationships'].update(value)
+                ret['relationships'][self.inflect(field_name)] = value
             else:
                 if 'attributes' not in ret:
                     ret['attributes'] = self.dict_class()
