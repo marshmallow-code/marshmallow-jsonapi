@@ -10,6 +10,42 @@ from marshmallow.utils import get_value
 from .utils import resolve_params
 
 
+class Metadata(Field):
+    """Framework-independent field which serializes to a "metadata object".
+
+    Examples: ::
+
+        from marshmallow_jsonapi import Schema, fields
+
+        class ProductSchema(Schema):
+            id = fields.String()
+            meta = fields.Metadata()
+
+            class Meta:
+                type_ = 'product'
+                strict = True
+
+    See: http://jsonapi.org/format/#document-meta
+    """
+
+    id_field = 'id'
+
+    def __init__(self, **kwargs):
+        super(Metadata, self).__init__(**kwargs)
+        self.load_from = "meta"
+        #self.dump_only = kwargs.pop('dump_only', True)
+
+    def _deserialize(self, value, attr, data):
+        pass
+
+    def _serialize(self, value, attr, obj):
+        dict_class = self.parent.dict_class if self.parent else dict
+        ret = dict_class()
+
+        if value:
+            ret = value
+        return ret
+
 class BaseRelationship(Field):
     """Base relationship field. This is used by `marshmallow_jsonapi.Schema` to determine
     which fields should be formatted as relationship objects.
