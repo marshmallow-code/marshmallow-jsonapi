@@ -321,3 +321,64 @@ class TestAutoSelfUrls:
 
         assert 'links' in data['data'][0]
         assert data['data'][0]['links']['self'] == '/authors/{}'.format(authors[0].id)
+
+
+class ArticleSchema(Schema):
+    id = fields.Integer()
+    body = fields.String()
+    author = fields.Relationship(
+        dump_only=False, include_data=True, many=False, type_='people')
+    comments = fields.Relationship(
+        dump_only=False, include_data=True, many=True, type_='comments')
+
+    class Meta:
+        type_ = 'articles'
+
+
+class TestRelationshipLoading(object):
+
+    article = {
+        'data': {
+            "id": "1",
+            "type": "articles",
+            "attributes": {
+                "body": "Test"
+            },
+            "relationships": {
+                'author': {
+                    "data": {"type": "people", "id": "1"}
+                },
+                'comments': {
+                    "data": [{"type": "comments", "id": "1"}]
+                }
+            }
+        }
+    }
+
+    def _assert_relationship_error(self, pointer, errors):
+        """Walk through the dictionary and determine if a specific
+        relationship pointer exists
+        """
+        pointer = '/data/relationships/{}'.format(pointer)
+        for error in errors:
+            if pointer in error['source']['pointer']:
+                return True
+        return False
+
+    def test_deserializing_relationship_fields(self):
+        data = ArticleSchema().load(self.article).data
+        assert data['body'] == "Test"
+        assert data['author'] == "1"
+        assert data['comments'] == ["1"]
+
+    def test_deserializing_relationship_errors(self):
+        data = self.article
+        data['data']['relationships']['author']['data'] = {}
+        data['data']['relationships']['comments']['data'] = [{}]
+        result, errors = ArticleSchema().load(data)
+
+        assert \
+            self._assert_relationship_error('author', errors['errors']) is True
+        assert \
+            self._assert_relationship_error('comments', errors['errors']) is \
+            True
