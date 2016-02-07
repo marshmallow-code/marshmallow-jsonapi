@@ -86,16 +86,20 @@ class Relationship(BaseRelationship):
         return None
 
     def add_resource_linkage(self, value):
+        def stringify(value):
+            if value is not None:
+                return str(value)
+            return value
+
         if self.many:
-            included_data = [
-                {'type': self.type_,
-                    'id': get_value_or_raise(self.id_field, each)}
-                for each in value
-            ]
+            included_data = [{
+                'type': self.type_,
+                'id': stringify(get_value_or_raise(self.id_field, each))
+            } for each in value]
         else:
             included_data = {
                 'type': self.type_,
-                'id': get_value_or_raise(self.id_field, value)
+                'id': stringify(get_value_or_raise(self.id_field, value))
             }
         return included_data
 
