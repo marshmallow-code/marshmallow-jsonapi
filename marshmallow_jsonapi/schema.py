@@ -208,9 +208,10 @@ class Schema(ma.Schema):
         ret[TYPE] = self.opts.type_
 
         # Get the schema attributes so we can confirm `dump-to` values exist
-        attributes = {}
-        for field in self.fields:
-            attributes[self.fields[field].dump_to or field] = field
+        attributes = {
+            (self.fields[field].dump_to or field): field
+            for field in self.fields
+        }
 
         for field_name, value in iteritems(item):
             attribute = attributes[field_name]
