@@ -2,10 +2,13 @@
 """Includes all the fields classes from `marshmallow.fields` as well as
 fields for serializing JSON API-formatted hyperlinks.
 """
+from marshmallow import ValidationError
 # Make core fields importable from marshmallow_jsonapi
 from marshmallow.fields import *  # noqa
+from marshmallow.utils import get_value
 
-from .utils import resolve_params, get_value_or_raise
+from .utils import resolve_params
+
 
 class BaseRelationship(Field):
     """Base relationship field. This is used by `marshmallow_jsonapi.Schema` to determine
@@ -70,7 +73,6 @@ class Relationship(BaseRelationship):
         self.type_ = type_
         self.id_field = id_field or self.id_field
         super(Relationship, self).__init__(**kwargs)
-        self.dump_only = kwargs.pop('dump_only', True)
 
     def get_related_url(self, obj):
         if self.related_url:
@@ -85,18 +87,52 @@ class Relationship(BaseRelationship):
         return None
 
     def add_resource_linkage(self, value):
+        def stringify(value):
+            if value is not None:
+                return str(value)
+            return value
+
         if self.many:
-            included_data = [
-                {'type': self.type_,
-                    'id': get_value_or_raise(self.id_field, each)}
-                for each in value
-            ]
+            included_data = [{
+                'type': self.type_,
+                'id': stringify(get_value(self.id_field, each, each))
+            } for each in value]
         else:
             included_data = {
                 'type': self.type_,
-                'id': get_value_or_raise(self.id_field, value)
+                'id': stringify(get_value(self.id_field, value, value))
             }
         return included_data
+
+    def validate_data_object(self, data):
+        errors = []
+        if 'id' not in data:
+            errors.append('Must have an `id` field')
+        if 'type' not in data:
+            errors.append('Must have a `type` field')
+        elif data['type'] != self.type_:
+            errors.append('Invalid `type` specified')
+
+        if errors:
+            raise ValidationError(errors)
+
+    def _deserialize(self, value, attr, obj):
+        if 'data' not in value:
+            raise ValidationError('Must include a `data` key')
+
+        data = value.get('data')
+        if data is None or value['data'] == []:
+            return data
+
+        if self.many:
+            for item in data:
+                self.validate_data_object(item)
+        else:
+            self.validate_data_object(data)
+
+        if self.many:
+            return [item.get('id') for item in data]
+        return data.get('id')
 
     def _serialize(self, value, attr, obj):
         dict_class = self.parent.dict_class if self.parent else dict

@@ -107,17 +107,23 @@ class Schema(ma.Schema):
             raise IncorrectTypeError(actual=item['type'], expected=self.opts.type_)
         if 'attributes' not in item:
             raise ma.ValidationError('`data` object must include `attributes` key.')
-        return item['attributes']
+
+        payload = self.dict_class()
+        for key, value in iteritems(item.get('attributes', {})):
+            payload[key] = value
+        for key, value in iteritems(item.get('relationships', {})):
+            payload[key] = value
+        return payload
 
     @ma.pre_load(pass_many=True)
     def unwrap_request(self, data, many):
         if 'data' not in data:
             raise ma.ValidationError('Object must include `data` key.')
+
         data = data['data']
         if many:
             return [self.unwrap_item(each) for each in data]
-        else:
-            return self.unwrap_item(data)
+        return self.unwrap_item(data)
 
     def on_bind_field(self, field_name, field_obj):
         """Schema hook override. When binding fields, set load_from to the
@@ -176,14 +182,16 @@ class Schema(ma.Schema):
 
         See: http://jsonapi.org/format/#error-objects
         """
-        if index:
-            pointer = '/data/{index}/attributes/{field_name}'.format(
-                index=index, field_name=self.inflect(field_name)
-            )
+        if isinstance(self.declared_fields.get(field_name), BaseRelationship):
+            container = 'relationships'
         else:
-            pointer = '/data/attributes/{field_name}'.format(
-                field_name=self.inflect(field_name)
-            )
+            container = 'attributes'
+
+        inflected_name = self.inflect(field_name)
+        if index:
+            pointer = '/data/{}/{}/{}'.format(index, container, inflected_name)
+        else:
+            pointer = '/data/{}/{}'.format(container, inflected_name)
         return {
             'detail': message,
             'source': {

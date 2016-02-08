@@ -14,6 +14,7 @@ def make_post(with_comments=True, with_author=True):
         id=fake.random_int(),
         title=fake.catch_phrase(),
         author=author,
+        author_id=author.id if with_author else None,
         comments=comments)
 
 def make_comment():
