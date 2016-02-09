@@ -2,6 +2,22 @@
 Changelog
 *********
 
+0.5.0 (unreleased)
+==================
+
+Features:
+
+* Add relationship deserialization (:issue:`15`).
+* Allow serialization of foreign key attributes (:issue:`32`).
+* Relationship IDs serialize to strings, as is required by JSON-API (:issue:`31`).
+* ``Relationship`` field respects ``dump_to`` parameter (:issue:`33`).
+
+Thanks :user:`cmanallen` for all of these changes.
+
+Other changes:
+
+* The minimum supported marshmallow version is 2.3.0.
+
 0.4.2 (2015-12-21)
 ==================
 
