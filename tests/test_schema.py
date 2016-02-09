@@ -5,6 +5,7 @@ from marshmallow import validate, ValidationError
 from marshmallow_jsonapi import Schema, fields
 from marshmallow_jsonapi.exceptions import IncorrectTypeError
 
+
 class AuthorSchema(Schema):
     id = fields.Int(dump_only=True)
     first_name = fields.Str(required=True)
@@ -21,6 +22,20 @@ class AuthorSchema(Schema):
 
     class Meta:
         type_ = 'people'
+
+
+class PostSchema(Schema):
+    id = fields.Int()
+    post_title = fields.Str(attribute='title', dump_to='title')
+
+    post_comments = fields.Relationship(
+        'http://test.test/posts/{id}/comments/',
+        related_url_kwargs={'id': '<id>'},
+        attribute='comments', dump_to='post-comments'
+    )
+
+    class Meta:
+        type_ = 'posts'
 
 
 def test_type_is_required():
@@ -82,6 +97,14 @@ class TestResponseFormatting:
         data = AuthorSchema(many=True).dump(authors).data
         assert 'links' in data
         assert data['links']['self'] == '/authors/'
+
+    def test_dump_to(self, post):
+        data = PostSchema().dump(post).data
+        assert 'data' in data
+        assert 'attributes' in data['data']
+        assert 'title' in data['data']['attributes']
+        assert 'relationships' in data['data']
+        assert 'post-comments' in data['data']['relationships']
 
 def get_error_by_field(errors, field):
     for err in errors['errors']:

@@ -3,7 +3,7 @@ import re
 from setuptools import setup, find_packages
 
 REQUIRES = [
-    'marshmallow>=2.0.0rc2'
+    'marshmallow>=2.3.0'
 ]
 
 def find_version(fname):

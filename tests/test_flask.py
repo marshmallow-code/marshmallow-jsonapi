@@ -32,8 +32,9 @@ class TestRelationshipField:
             related_view_kwargs={'post_id': '<id>'},
         )
         result = field.serialize('comments', post)
-        assert 'comments' in result
-        related = result['comments']['links']['related']
+        assert 'links' in result
+        assert 'related' in result['links']
+        related = result['links']['related']
         assert related == url_for('posts_comments', post_id=post.id)
 
     def test_serialize_external(self, app, post):
@@ -42,7 +43,7 @@ class TestRelationshipField:
             related_view_kwargs={'post_id': '<id>', '_external': True},
         )
         result = field.serialize('comments', post)
-        related = result['comments']['links']['related']
+        related = result['links']['related']
         assert related == url_for('posts_comments', post_id=post.id, _external=True)
 
     def test_include_data_requires_type(self, app, post):
@@ -60,8 +61,9 @@ class TestRelationshipField:
             self_view_kwargs={'post_id': '<id>'},
         )
         result = field.serialize('comments', post)
-        assert 'comments' in result
-        related = result['comments']['links']['self']
+        assert 'links' in result
+        assert 'self' in result['links']
+        related = result['links']['self']
         assert related == url_for('posts_comments', post_id=post.id)
 
     def test_empty_relationship(self, app, post_with_null_author):
@@ -71,7 +73,7 @@ class TestRelationshipField:
         )
         result = field.serialize('author', post_with_null_author)
 
-        assert not result['author']
+        assert not result
 
     def test_non_existing_view(self, app, post):
         field = Relationship(

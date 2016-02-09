@@ -136,23 +136,20 @@ class Relationship(BaseRelationship):
 
     def _serialize(self, value, attr, obj):
         dict_class = self.parent.dict_class if self.parent else dict
-        ret = dict_class()
-        if hasattr(self.root, 'inflect'):
-            attr = self.root.inflect(attr)
-        ret[attr] = dict_class()
 
+        ret = dict_class()
         self_url = self.get_self_url(obj)
         related_url = self.get_related_url(obj)
         if self_url or related_url:
-            ret[attr]['links'] = dict_class()
+            ret['links'] = dict_class()
             if self_url:
-                ret[attr]['links']['self'] = self_url
+                ret['links']['self'] = self_url
             if related_url:
-                ret[attr]['links']['related'] = related_url
+                ret['links']['related'] = related_url
 
         if self.include_data:
             if value is None:
-                ret[attr]['data'] = [] if self.many else None
+                ret['data'] = [] if self.many else None
             else:
-                ret[attr]['data'] = self.add_resource_linkage(value)
+                ret['data'] = self.add_resource_linkage(value)
         return ret
