@@ -1,4 +1,4 @@
-from flask import Flask, url_for, jsonify as J, request
+from flask import Flask, url_for, request, jsonify
 
 ### MODELS ###
 
@@ -100,6 +100,14 @@ class PostSchema(Schema):
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
+
+def J(*args, **kwargs):
+    """Wrapper around jsonify that sets the Content-Type of the response to
+    application/vnd.api+json.
+    """
+    response = jsonify(*args, **kwargs)
+    response.mimetype = 'application/vnd.api+json'
+    return response
 
 @app.route('/posts/', methods=['GET'])
 def posts_list():
