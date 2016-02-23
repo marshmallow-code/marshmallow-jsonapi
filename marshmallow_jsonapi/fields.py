@@ -131,14 +131,7 @@ class Relationship(BaseRelationship):
         """
         if not isinstance(value, dict) or 'data' not in value:
             raise ValidationError('Must include a `data` key')
-        value = value['data']
-
-        self._validate_missing(value)
-        if getattr(self, 'allow_none', False) is True and value is None:
-            return None
-        output = self._deserialize(value, attr, data)
-        self._validate(output)
-        return output
+        return super(Relationship, self).deserialize(value['data'], attr, data)
 
     def _deserialize(self, value, attr, obj):
         if self.many:
