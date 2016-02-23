@@ -129,6 +129,16 @@ class TestGenericRelationshipField:
         result = field.deserialize({'data': None})
         assert result is None
 
+    def test_deserialize_null_value_disallow_none(self):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'}, allow_none=False,
+            many=False, include_data=False, type_='comments'
+        )
+        with pytest.raises(ValidationError) as excinfo:
+            field.deserialize({'data': None})
+        assert excinfo.value.args[0] == 'Field may not be null.'
+
     def test_deserialize_empty_data_list(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
