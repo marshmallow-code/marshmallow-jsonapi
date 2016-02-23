@@ -123,7 +123,7 @@ class TestGenericRelationshipField:
     def test_deserialize_null_data_value(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
-            related_url_kwargs={'post_id': '<id>'},
+            related_url_kwargs={'post_id': '<id>'}, allow_none=True,
             many=False, include_data=False, type_='comments'
         )
         result = field.deserialize({'data': None})
@@ -133,7 +133,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=False, include_data=False, type_='comments'
+            many=True, include_data=False, type_='comments'
         )
         result = field.deserialize({'data': []})
         assert result == []

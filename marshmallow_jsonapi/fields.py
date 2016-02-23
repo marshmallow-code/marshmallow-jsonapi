@@ -11,11 +11,14 @@ from .utils import resolve_params
 
 
 class BaseRelationship(Field):
-    """Base relationship field. This is used by `marshmallow_jsonapi.Schema` to determine
-    which fields should be formatted as relationship objects.
+    """Base relationship field.
+
+    This is used by `marshmallow_jsonapi.Schema` to determine which
+    fields should be formatted as relationship objects.
 
     See: http://jsonapi.org/format/#document-resource-object-relationships
     """
+
     pass
 
 
@@ -104,10 +107,12 @@ class Relationship(BaseRelationship):
             }
         return included_data
 
-    def validate_data_object(self, data):
+    def extract_value(self, data):
+        """Extract the id key and validate the request structure."""
         errors = []
         if 'id' not in data:
             errors.append('Must have an `id` field')
+
         if 'type' not in data:
             errors.append('Must have a `type` field')
         elif data['type'] != self.type_:
@@ -115,24 +120,35 @@ class Relationship(BaseRelationship):
 
         if errors:
             raise ValidationError(errors)
+        return data.get('id')
+
+    def deserialize(self, value, attr=None, data=None):
+        """Deserialize ``value``.
+
+        :raise ValidationError: If the value is not type `dict`, if the
+            value does not contain a `data` key, and if the value is
+            required but unspecified.
+        """
+        if not isinstance(value, dict) or 'data' not in value:
+            raise ValidationError('Must include a `data` key')
+        value = value['data']
+
+        self._validate_missing(value)
+        if getattr(self, 'allow_none', False) is True and value is None:
+            return None
+        output = self._deserialize(value, attr, data)
+        self._validate(output)
+        return output
 
     def _deserialize(self, value, attr, obj):
-        if 'data' not in value:
-            raise ValidationError('Must include a `data` key')
-
-        data = value.get('data')
-        if data is None or value['data'] == []:
-            return data
-
         if self.many:
-            for item in data:
-                self.validate_data_object(item)
-        else:
-            self.validate_data_object(data)
+            if not isinstance(value, list):
+                raise ValidationError('Relationship is list-like.')
+            return [self.extract_value(item) for item in value]
 
-        if self.many:
-            return [item.get('id') for item in data]
-        return data.get('id')
+        if isinstance(value, list):
+            raise ValidationError('Relationship is not list-like.')
+        return self.extract_value(value)
 
     def _serialize(self, value, attr, obj):
         dict_class = self.parent.dict_class if self.parent else dict
