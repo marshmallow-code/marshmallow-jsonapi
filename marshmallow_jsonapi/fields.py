@@ -143,11 +143,11 @@ class Relationship(BaseRelationship):
     def _deserialize(self, value, attr, obj):
         if self.many:
             if not isinstance(value, list):
-                raise ValidationError('Relationship is list-like.')
+                raise ValidationError('Relationship is list-like')
             return [self.extract_value(item) for item in value]
 
         if isinstance(value, list):
-            raise ValidationError('Relationship is not list-like.')
+            raise ValidationError('Relationship is not list-like')
         return self.extract_value(value)
 
     def _serialize(self, value, attr, obj):
