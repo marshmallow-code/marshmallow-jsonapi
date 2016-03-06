@@ -170,14 +170,12 @@ class TestGenericRelationshipField:
         assert excinfo.value.args[0] == 'Must include a `data` key'
 
     def test_deserialize_many_non_list_relationship(self):
-        """Test deserializing many-to-one field with a non-list value."""
         field = Relationship(many=True, include_data=True, type_='comments')
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize({'data': '1'})
         assert excinfo.value.args[0] == 'Relationship is list-like'
 
     def test_deserialize_non_many_list_relationship(self):
-        """Test deserializing one-to-one field with a list value."""
         field = Relationship(many=False, include_data=True, type_='comments')
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize({'data': ['1']})

@@ -5,7 +5,7 @@ fields for serializing JSON API-formatted hyperlinks.
 from marshmallow import ValidationError
 # Make core fields importable from marshmallow_jsonapi
 from marshmallow.fields import *  # noqa
-from marshmallow.utils import get_value
+from marshmallow.utils import get_value, is_collection
 
 from .utils import resolve_params
 
@@ -135,11 +135,11 @@ class Relationship(BaseRelationship):
 
     def _deserialize(self, value, attr, obj):
         if self.many:
-            if not isinstance(value, list):
+            if not is_collection(value):
                 raise ValidationError('Relationship is list-like')
             return [self.extract_value(item) for item in value]
 
-        if isinstance(value, list):
+        if is_collection(value):
             raise ValidationError('Relationship is not list-like')
         return self.extract_value(value)
 
