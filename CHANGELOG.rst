@@ -2,6 +2,13 @@
 Changelog
 *********
 
+0.6.0 (unreleased)
+==================
+
+Features:
+
+* ``Relationship`` deserialization improvements: properly validate to-one and to-many relatinoships and validate the presense of the ``data`` key (:issue:`37`). Thanks :user:`cmanallen` for the PR.
+
 0.5.0 (2015-02-08)
 ==================
 
