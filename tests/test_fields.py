@@ -123,17 +123,27 @@ class TestGenericRelationshipField:
     def test_deserialize_null_data_value(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
-            related_url_kwargs={'post_id': '<id>'},
+            related_url_kwargs={'post_id': '<id>'}, allow_none=True,
             many=False, include_data=False, type_='comments'
         )
         result = field.deserialize({'data': None})
         assert result is None
 
+    def test_deserialize_null_value_disallow_none(self):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'}, allow_none=False,
+            many=False, include_data=False, type_='comments'
+        )
+        with pytest.raises(ValidationError) as excinfo:
+            field.deserialize({'data': None})
+        assert excinfo.value.args[0] == 'Field may not be null.'
+
     def test_deserialize_empty_data_list(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=False, include_data=False, type_='comments'
+            many=True, include_data=False, type_='comments'
         )
         result = field.deserialize({'data': []})
         assert result == []
@@ -158,6 +168,18 @@ class TestGenericRelationshipField:
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize({})
         assert excinfo.value.args[0] == 'Must include a `data` key'
+
+    def test_deserialize_many_non_list_relationship(self):
+        field = Relationship(many=True, include_data=True, type_='comments')
+        with pytest.raises(ValidationError) as excinfo:
+            field.deserialize({'data': '1'})
+        assert excinfo.value.args[0] == 'Relationship is list-like'
+
+    def test_deserialize_non_many_list_relationship(self):
+        field = Relationship(many=False, include_data=True, type_='comments')
+        with pytest.raises(ValidationError) as excinfo:
+            field.deserialize({'data': ['1']})
+        assert excinfo.value.args[0] == 'Relationship is not list-like'
 
     def test_include_null_data_single(self, post_with_null_author):
         field = Relationship(
