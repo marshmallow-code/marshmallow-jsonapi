@@ -107,6 +107,8 @@ class Schema(ma.Schema):
             raise IncorrectTypeError(actual=item['type'], expected=self.opts.type_)
 
         payload = self.dict_class()
+        if 'id' in item:
+            payload['id'] = item['id']
         for key, value in iteritems(item.get('attributes', {})):
             payload[key] = value
         for key, value in iteritems(item.get('relationships', {})):
