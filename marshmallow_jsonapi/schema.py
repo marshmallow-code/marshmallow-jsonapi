@@ -105,8 +105,6 @@ class Schema(ma.Schema):
             raise ma.ValidationError('`data` object must include `type` key.')
         if item['type'] != self.opts.type_:
             raise IncorrectTypeError(actual=item['type'], expected=self.opts.type_)
-        if 'attributes' not in item:
-            raise ma.ValidationError('`data` object must include `attributes` key.')
 
         payload = self.dict_class()
         for key, value in iteritems(item.get('attributes', {})):
