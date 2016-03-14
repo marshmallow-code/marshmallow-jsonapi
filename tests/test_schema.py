@@ -7,7 +7,7 @@ from marshmallow_jsonapi.exceptions import IncorrectTypeError
 
 
 class AuthorSchema(Schema):
-    id = fields.Int(dump_only=True)
+    id = fields.Int()
     first_name = fields.Str(required=True)
     last_name = fields.Str(required=True)
     password = fields.Str(load_only=True, validate=validate.Length(6))
@@ -283,6 +283,16 @@ class TestInflection:
         assert not errs
         assert data['first_name'] == 'Steve'
         assert data['last_name'] == 'Loria'
+
+    def test_load_bulk_id_fields(self):
+        request = {'data': [{'id': 1, 'type': 'people'}]}
+
+        result, err = AuthorSchema(only=('id',), many=True).load(request)
+        assert err == {}
+        assert type(result) is list
+
+        response = result[0]
+        assert response['id'] == request['data'][0]['id']
 
     def test_relationship_keys_get_inflected(self, post):
         class PostSchema(Schema):
