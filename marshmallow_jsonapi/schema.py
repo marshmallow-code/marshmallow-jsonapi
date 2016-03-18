@@ -27,6 +27,7 @@ class SchemaOpts(ma.SchemaOpts):
         self.self_url = getattr(meta, 'self_url', None)
         self.self_url_kwargs = getattr(meta, 'self_url_kwargs', None)
         self.self_url_many = getattr(meta, 'self_url_many', None)
+        self.included_schemas = getattr(meta, 'included_schemas', {})
 
 class Schema(ma.Schema):
     """Schema class that formats data according to JSON API 1.0.
@@ -87,18 +88,37 @@ class Schema(ma.Schema):
         if self.opts.self_url_kwargs and not self.opts.self_url:
             raise ValueError('Must specify `self_url` Meta option when '
                              '`self_url_kwargs` is specified')
+        self.included_schemas = self.opts.included_schemas
+        self.included_data = {}
 
     OPTIONS_CLASS = SchemaOpts
 
     @ma.post_dump(pass_many=True)
     def format_json_api_response(self, data, many):
-        """Post-dump hoook that formats serialized data as a top-level JSON API object.
+        """Post-dump hook that formats serialized data as a top-level JSON API object.
 
         See: http://jsonapi.org/format/#document-top-level
         """
         ret = self.format_items(data, many)
         ret = self.wrap_response(ret, many)
+        ret = self.render_included_data(ret)
         return ret
+
+    def render_included_data(self, data):
+        if not self.included_data:
+            return data
+        included = []
+        for (type_, objId), value in self.included_data.items():
+            if type_ not in self.included_schemas:
+                raise ValueError('Must specify a schema in `included_schemas` for '
+                                 'type ' + type_)
+            schema = self.included_schemas[type_]
+            result = schema.dump(value)
+            if result.errors:
+                raise ma.ValidationError(result.errors)
+            included.append(result.data)
+        data['included'] = included
+        return data
 
     def unwrap_item(self, item):
         if 'type' not in item:

@@ -22,6 +22,12 @@ class BaseRelationship(Field):
     pass
 
 
+def stringify(value):
+    if value is not None:
+        return str(value)
+    return value
+
+
 class Relationship(BaseRelationship):
     """Framework-independent field which serializes to a "relationship object".
 
@@ -49,8 +55,10 @@ class Relationship(BaseRelationship):
     :param str self_url: Format string for self relationship links.
     :param dict self_url_kwargs: Replacement fields for `self_url`. String arguments
         enclosed in `< >` will be interpreted as attributes to pull from the target object.
-    :param bool include_data: Whether to include a resource linkage
+    :param bool include_resource_object: Whether to include a resource linkage
         (http://jsonapi.org/format/#document-resource-object-linkage) in the serialized result.
+    :param bool include_data: Whether to include the attributes of the related object as
+        included member. Only affects serialization.
     :param bool many: Whether the relationship represents a many-to-one or many-to-many
         relationship. Only affects serialization of the resource linkage.
     :param str type_: The type of resource.
@@ -63,15 +71,18 @@ class Relationship(BaseRelationship):
         self,
         related_url='', related_url_kwargs=None,
         self_url='', self_url_kwargs=None,
-        include_data=False, many=False, type_=None, id_field=None, **kwargs
+        include_resource_object=False, include_data=False, many=False, type_=None, id_field=None, **kwargs
     ):
         self.related_url = related_url
         self.related_url_kwargs = related_url_kwargs or {}
         self.self_url = self_url
         self.self_url_kwargs = self_url_kwargs or {}
+        if include_resource_object and not type_:
+            raise ValueError('include_resource_object=True requires the type_ argument.')
         if include_data and not type_:
             raise ValueError('include_data=True requires the type_ argument.')
         self.many = many
+        self.include_resource_object = include_resource_object or include_data
         self.include_data = include_data
         self.type_ = type_
         self.id_field = id_field or self.id_field
@@ -89,23 +100,18 @@ class Relationship(BaseRelationship):
             return self.self_url.format(**kwargs)
         return None
 
-    def add_resource_linkage(self, value):
-        def stringify(value):
-            if value is not None:
-                return str(value)
-            return value
-
+    def get_resource_linkage(self, value):
         if self.many:
-            included_data = [{
+            resource_object = [{
                 'type': self.type_,
                 'id': stringify(get_value(self.id_field, each, each))
             } for each in value]
         else:
-            included_data = {
+            resource_object = {
                 'type': self.type_,
                 'id': stringify(get_value(self.id_field, value, value))
             }
-        return included_data
+        return resource_object
 
     def extract_value(self, data):
         """Extract the id key and validate the request structure."""
@@ -156,9 +162,16 @@ class Relationship(BaseRelationship):
             if related_url:
                 ret['links']['related'] = related_url
 
-        if self.include_data:
+        if self.include_resource_object:
             if value is None:
                 ret['data'] = [] if self.many else None
             else:
-                ret['data'] = self.add_resource_linkage(value)
+                ret['data'] = self.get_resource_linkage(value)
+
+        if self.include_data and value is not None:
+            if self.many:
+                for item in value:
+                    self.root.included_data[(self.type_, stringify(get_value(self.id_field, item, item)))] = item
+            else:
+                self.root.included_data[(self.type_, stringify(get_value(self.id_field, value, value)))] = value
         return ret
