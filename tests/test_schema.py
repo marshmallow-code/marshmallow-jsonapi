@@ -382,9 +382,9 @@ class TestRelationshipLoading(object):
         """Walk through the dictionary and determine if a specific
         relationship pointer exists
         """
-        pointer = '/data/relationships/{}'.format(pointer)
+        pointer = '/data/relationships/{}/data'.format(pointer)
         for error in errors:
-            if pointer in error['source']['pointer']:
+            if pointer == error['source']['pointer']:
                 return True
         return False
 
