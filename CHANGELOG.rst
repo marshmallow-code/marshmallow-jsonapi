@@ -2,14 +2,16 @@
 Changelog
 *********
 
-0.6.0 (unreleased)
+0.6.0 (2016-03-24)
 ==================
 
 Features:
 
 * ``Relationship`` deserialization improvements: properly validate to-one and to-many relatinoships and validate the presense of the ``data`` key (:issue:`37`). Thanks :user:`cmanallen` for the PR.
+* ``attributes`` is no longer a required key in the ``data`` object (:issue:`#39`, :issue:`42`). Thanks :user:`ZeeD26` for reporting and :user:`cmanallen` for the PR.
+* Added ``id`` serialization (:issue:`39`). Thanks again :user:`cmanallen`.
 
-0.5.0 (2015-02-08)
+0.5.0 (2016-02-08)
 ==================
 
 Features:
