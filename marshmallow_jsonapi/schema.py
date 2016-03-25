@@ -102,7 +102,14 @@ class Schema(ma.Schema):
 
     def unwrap_item(self, item):
         if 'type' not in item:
-            raise ma.ValidationError('`data` object must include `type` key.')
+            err = ma.ValidationError('`data` object must include `type` key.')
+            err.messages = [
+                {
+                    'detail': err.args[0],
+                    'pointer': '/data'
+                }
+            ]
+            raise err
         if item['type'] != self.opts.type_:
             raise IncorrectTypeError(actual=item['type'], expected=self.opts.type_)
 

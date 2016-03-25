@@ -166,6 +166,14 @@ class TestErrorFormatting:
         with pytest.raises(ValidationError) as excinfo:
             AuthorSchema().validate(author)
         assert excinfo.value.args[0] == '`data` object must include `type` key.'
+        assert excinfo.value.messages == {
+            'errors': [
+                {
+                    'detail': '`data` object must include `type` key.',
+                    'pointer': '/data'
+                }
+            ]
+        }
 
     def test_validate_type(self):
         author = {'data':
