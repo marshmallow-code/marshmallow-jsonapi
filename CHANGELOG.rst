@@ -2,6 +2,13 @@
 Changelog
 *********
 
+0.7.0 (unreleased)
+==================
+
+Features:
+
+* Correctly format ``messages`` attribute of ``ValidationError`` raised when ``type`` key is missing in input (:issue:`43`). Thanks :user:`ZeeD26` for the catch and patch.
+
 0.6.0 (2016-03-24)
 ==================
 

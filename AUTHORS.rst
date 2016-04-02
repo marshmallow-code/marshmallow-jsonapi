@@ -14,3 +14,4 @@ Contributors (chronological)
 - Anders Steinlein `@asteinlein <https://github.com/asteinlein>`_
 - `@floqqi <https://github.com/floqqi>`_
 - Colton Allen `@cmanallen <https://github.com/cmanallen>`_
+- Dominik Steinberger `@ZeeD26 <https://github.com/ZeeD26>`_
