@@ -2,12 +2,13 @@
 Changelog
 *********
 
-0.7.0 (unreleased)
+0.7.0 (2016-04-03)
 ==================
 
 Features:
 
 * Correctly format ``messages`` attribute of ``ValidationError`` raised when ``type`` key is missing in input (:issue:`43`). Thanks :user:`ZeeD26` for the catch and patch.
+* JSON pointers for error objects for relationships will point to the ``data`` key (:issue:`41`). Thanks :user:`cmanallen` for the PR.
 
 0.6.0 (2016-03-24)
 ==================
