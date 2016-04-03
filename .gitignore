@@ -24,6 +24,7 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
+.cache
 nosetests.xml
 
 # Translations
@@ -44,3 +45,7 @@ README.html
 
 _sandbox
 .konchrc
+
+# Virtual Environment
+env
+venv

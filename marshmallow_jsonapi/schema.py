@@ -187,7 +187,9 @@ class Schema(ma.Schema):
 
         See: http://jsonapi.org/format/#error-objects
         """
-        if isinstance(self.declared_fields.get(field_name), BaseRelationship):
+        relationship = isinstance(
+            self.declared_fields.get(field_name), BaseRelationship)
+        if relationship:
             container = 'relationships'
         else:
             container = 'attributes'
@@ -197,6 +199,10 @@ class Schema(ma.Schema):
             pointer = '/data/{}/{}/{}'.format(index, container, inflected_name)
         else:
             pointer = '/data/{}/{}'.format(container, inflected_name)
+
+        if relationship:
+            pointer = '{}/data'.format(pointer)
+
         return {
             'detail': message,
             'source': {
