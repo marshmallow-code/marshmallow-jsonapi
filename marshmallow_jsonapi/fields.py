@@ -60,8 +60,6 @@ class Relationship(BaseRelationship):
         enclosed in `< >` will be interpreted as attributes to pull from the target object.
     :param bool include_resource_object: Whether to include a resource linkage
         (http://jsonapi.org/format/#document-resource-object-linkage) in the serialized result.
-    :param bool include_data: Whether to include the attributes of the related object as
-        included member. Only affects serialization.
     :param Schema schema: The schema to render the included data with when include_data is True.
     :param bool many: Whether the relationship represents a many-to-one or many-to-many
         relationship. Only affects serialization of the resource linkage.
@@ -75,7 +73,7 @@ class Relationship(BaseRelationship):
         self,
         related_url='', related_url_kwargs=None,
         self_url='', self_url_kwargs=None,
-        include_resource_object=False, include_data=False, schema=None,
+        include_resource_object=False, schema=None,
         many=False, type_=None, id_field=None, **kwargs
     ):
         self.related_url = related_url
@@ -84,13 +82,9 @@ class Relationship(BaseRelationship):
         self.self_url_kwargs = self_url_kwargs or {}
         if include_resource_object and not type_:
             raise ValueError('include_resource_object=True requires the type_ argument.')
-        if include_data and not type_:
-            raise ValueError('include_data=True requires the type_ argument.')
-        if include_data and not schema:
-            raise ValueError('include_data=True requires the schema argument.')
         self.many = many
-        self.include_resource_object = include_resource_object or include_data
-        self.include_data = include_data
+        self.include_resource_object = include_resource_object
+        self.include_data = False
         self.__schema = schema
         self.type_ = type_
         self.id_field = id_field or self.id_field
