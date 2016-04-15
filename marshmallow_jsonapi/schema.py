@@ -88,8 +88,7 @@ class Schema(ma.Schema):
         if self.opts.self_url_kwargs and not self.opts.self_url:
             raise ValueError('Must specify `self_url` Meta option when '
                              '`self_url_kwargs` is specified')
-        self.included_schemas = self.opts.included_schemas
-        self.included_data = {}
+        self.included_data = []
 
     OPTIONS_CLASS = SchemaOpts
 
@@ -107,17 +106,7 @@ class Schema(ma.Schema):
     def render_included_data(self, data):
         if not self.included_data:
             return data
-        included = []
-        for (type_, objId), value in self.included_data.items():
-            if type_ not in self.included_schemas:
-                raise ValueError('Must specify a schema in `included_schemas` for '
-                                 'type ' + type_)
-            schema = self.included_schemas[type_]
-            result = schema.dump(value)
-            if result.errors:
-                raise ma.ValidationError(result.errors)
-            included.append(result.data)
-        data['included'] = included
+        data['included'] = self.included_data
         return data
 
     def unwrap_item(self, item):
