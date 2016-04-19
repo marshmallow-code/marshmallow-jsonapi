@@ -46,7 +46,7 @@ class Relationship(BaseRelationship):
         comments = Relationship(
             related_url='/posts/{post_id}/comments/',
             related_url_kwargs={'post_id': '<id>'},
-            many=True, include_data=True,
+            many=True, include_resource_linkage=True,
             type_='comments'
         )
 
@@ -58,9 +58,9 @@ class Relationship(BaseRelationship):
     :param str self_url: Format string for self relationship links.
     :param dict self_url_kwargs: Replacement fields for `self_url`. String arguments
         enclosed in `< >` will be interpreted as attributes to pull from the target object.
-    :param bool include_resource_object: Whether to include a resource linkage
+    :param bool include_resource_linkage: Whether to include a resource linkage
         (http://jsonapi.org/format/#document-resource-object-linkage) in the serialized result.
-    :param Schema schema: The schema to render the included data with when include_data is True.
+    :param Schema schema: The schema to render the included data with.
     :param bool many: Whether the relationship represents a many-to-one or many-to-many
         relationship. Only affects serialization of the resource linkage.
     :param str type_: The type of resource.
@@ -73,17 +73,17 @@ class Relationship(BaseRelationship):
         self,
         related_url='', related_url_kwargs=None,
         self_url='', self_url_kwargs=None,
-        include_resource_object=False, schema=None,
+        include_resource_linkage=False, schema=None,
         many=False, type_=None, id_field=None, **kwargs
     ):
         self.related_url = related_url
         self.related_url_kwargs = related_url_kwargs or {}
         self.self_url = self_url
         self.self_url_kwargs = self_url_kwargs or {}
-        if include_resource_object and not type_:
-            raise ValueError('include_resource_object=True requires the type_ argument.')
+        if include_resource_linkage and not type_:
+            raise ValueError('include_resource_linkage=True requires the type_ argument.')
         self.many = many
-        self.include_resource_object = include_resource_object
+        self.include_resource_linkage = include_resource_linkage
         self.include_data = False
         self.__schema = schema
         self.type_ = type_
@@ -176,7 +176,7 @@ class Relationship(BaseRelationship):
             if related_url:
                 ret['links']['related'] = related_url
 
-        if self.include_resource_object:
+        if self.include_resource_linkage:
             if value is None:
                 ret['data'] = [] if self.many else None
             else:

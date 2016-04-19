@@ -27,40 +27,40 @@ class TestGenericRelationshipField:
         assert 'related' not in result['links']
         assert related == 'http://example.com/posts/{id}/relationships/comments'.format(id=post.id)
 
-    def test_include_data_requires_type(self, post):
+    def test_include_resource_linkage_requires_type(self, post):
         with pytest.raises(ValueError) as excinfo:
             Relationship(
                 related_url='/posts/{post_id}',
                 related_url_kwargs={'post_id': '<id>'},
-                include_data=True
+                include_resource_linkage=True
             )
-        assert excinfo.value.args[0] == 'include_data=True requires the type_ argument.'
+        assert excinfo.value.args[0] == 'include_resource_linkage=True requires the type_ argument.'
 
-    def test_include_data_single(self, post):
+    def test_include_resource_linkage_single(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/author/',
             related_url_kwargs={'post_id': '<id>'},
-            include_data=True, type_='people'
+            include_resource_linkage=True, type_='people'
         )
         result = field.serialize('author', post)
         assert 'data' in result
         assert result['data']
         assert result['data']['id'] == str(post.author.id)
 
-    def test_include_data_single_foreign_key(self, post):
+    def test_include_resource_linkage_single_foreign_key(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/author/',
             related_url_kwargs={'post_id': '<id>'},
-            include_data=True, type_='people'
+            include_resource_linkage=True, type_='people'
         )
         result = field.serialize('author_id', post)
         assert result['data']['id'] == str(post.author_id)
 
-    def test_include_data_many(self, post):
+    def test_include_resource_linkage_many(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=True, include_data=True, type_='comments'
+            many=True, include_resource_linkage=True, type_='comments'
         )
         result = field.serialize('comments', post)
         assert 'data' in result
@@ -71,7 +71,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=False, include_data=True, type_='comments'
+            many=False, include_resource_linkage=True, type_='comments'
         )
         value = {'data': {'type': 'comments', 'id': '1'}}
         result = field.deserialize(value)
@@ -81,7 +81,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=True, include_data=True, type_='comments'
+            many=True, include_resource_linkage=True, type_='comments'
         )
         value = {'data': [{'type': 'comments', 'id': '1'}]}
         result = field.deserialize(value)
@@ -91,7 +91,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=False, include_data=True, type_='comments'
+            many=False, include_resource_linkage=True, type_='comments'
         )
         with pytest.raises(ValidationError) as excinfo:
             value = {'data': {'type': 'comments'}}
@@ -102,7 +102,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=False, include_data=True, type_='comments'
+            many=False, include_resource_linkage=True, type_='comments'
         )
         with pytest.raises(ValidationError) as excinfo:
             value = {'data': {'id': '1'}}
@@ -113,7 +113,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=False, include_data=True, type_='comments'
+            many=False, include_resource_linkage=True, type_='comments'
         )
         with pytest.raises(ValidationError) as excinfo:
             value = {'data': {'type': 'posts', 'id': '1'}}
@@ -124,7 +124,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'}, allow_none=True,
-            many=False, include_data=False, type_='comments'
+            many=False, include_resource_linkage=False, type_='comments'
         )
         result = field.deserialize({'data': None})
         assert result is None
@@ -133,7 +133,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'}, allow_none=False,
-            many=False, include_data=False, type_='comments'
+            many=False, include_resource_linkage=False, type_='comments'
         )
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize({'data': None})
@@ -143,7 +143,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=True, include_data=False, type_='comments'
+            many=True, include_resource_linkage=False, type_='comments'
         )
         result = field.deserialize({'data': []})
         assert result == []
@@ -152,7 +152,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=False, include_data=False, type_='comments'
+            many=False, include_resource_linkage=False, type_='comments'
         )
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize({'data': {}})
@@ -163,20 +163,20 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=False, include_data=False, type_='comments'
+            many=False, include_resource_linkage=False, type_='comments'
         )
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize({})
         assert excinfo.value.args[0] == 'Must include a `data` key'
 
     def test_deserialize_many_non_list_relationship(self):
-        field = Relationship(many=True, include_data=True, type_='comments')
+        field = Relationship(many=True, include_resource_linkage=True, type_='comments')
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize({'data': '1'})
         assert excinfo.value.args[0] == 'Relationship is list-like'
 
     def test_deserialize_non_many_list_relationship(self):
-        field = Relationship(many=False, include_data=True, type_='comments')
+        field = Relationship(many=False, include_resource_linkage=True, type_='comments')
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize({'data': ['1']})
         assert excinfo.value.args[0] == 'Relationship is not list-like'
@@ -185,7 +185,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='posts/{post_id}/author',
             related_url_kwargs={'post_id': '<id>'},
-            include_data=True, type_='people'
+            include_resource_linkage=True, type_='people'
         )
         result = field.serialize('author', post_with_null_author)
         assert result and result['links']['related']
@@ -195,7 +195,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=True, include_data=True, type_='comments'
+            many=True, include_resource_linkage=True, type_='comments'
         )
         result = field.serialize('comments', post_with_null_comment)
         assert result and result['links']['related']
@@ -205,7 +205,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=True, include_data=False, type_='comments'
+            many=True, include_resource_linkage=False, type_='comments'
         )
         result = field.serialize('comments', post_with_null_comment)
         assert result and result['links']['related']

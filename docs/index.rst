@@ -25,7 +25,7 @@ marshmallow-jsonapi provides a simple way to produce JSON API-compliant data in 
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
             # Include resource linkage
-            many=True, include_data=True,
+            many=True, include_resource_linkage=True,
             type_='comments'
         )
 

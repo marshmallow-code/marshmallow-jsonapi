@@ -27,7 +27,6 @@ class SchemaOpts(ma.SchemaOpts):
         self.self_url = getattr(meta, 'self_url', None)
         self.self_url_kwargs = getattr(meta, 'self_url_kwargs', None)
         self.self_url_many = getattr(meta, 'self_url_many', None)
-        self.included_schemas = getattr(meta, 'included_schemas', {})
 
 class Schema(ma.Schema):
     """Schema class that formats data according to JSON API 1.0.
@@ -53,7 +52,7 @@ class Schema(ma.Schema):
                 '/posts/{post_id}/comments',
                 url_kwargs={'post_id': '<id>'},
                 # Include resource linkage
-                many=True, include_data=True,
+                many=True, include_resource_linkage=True,
                 type_='comments'
             )
 

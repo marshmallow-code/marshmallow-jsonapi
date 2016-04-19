@@ -367,9 +367,9 @@ class ArticleSchema(Schema):
     id = fields.Integer()
     body = fields.String()
     author = fields.Relationship(
-        dump_only=False, include_data=True, many=False, type_='people')
+        dump_only=False, include_resource_linkage=True, many=False, type_='people')
     comments = fields.Relationship(
-        dump_only=False, include_data=True, many=True, type_='comments')
+        dump_only=False, include_resource_linkage=True, many=True, type_='comments')
 
     class Meta:
         type_ = 'articles'

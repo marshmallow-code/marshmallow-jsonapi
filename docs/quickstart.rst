@@ -100,7 +100,7 @@ To serialize links, pass a URL format string and a dictionary of keyword argumen
 Resource linkages
 -----------------
 
-You can serialize `resource linkages <http://jsonapi.org/format/#document-resource-object-linkage>`_ by passing ``include_data=True`` .
+You can serialize `resource linkages <http://jsonapi.org/format/#document-resource-object-linkage>`_ by passing ``include_resource_linkage=True`` .
 
 .. code-block:: python
     :emphasize-lines: 8-10
@@ -113,7 +113,7 @@ You can serialize `resource linkages <http://jsonapi.org/format/#document-resour
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
             # Include resource linkage
-            many=True, include_data=True,
+            many=True, include_resource_linkage=True,
             type_='comments'
         )
         class Meta:
@@ -272,7 +272,7 @@ For example, the ``Relationship`` field in the ``marshmallow_jsonapi.flask`` mod
         comments = Relationship(
             related_view='article_comments',
             related_view_kwargs={'article_id': '<id>'},
-            many=True, include_data=True,
+            many=True, include_resource_linkage=True,
             type_='comments'
         )
 
