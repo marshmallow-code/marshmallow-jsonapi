@@ -75,9 +75,9 @@ class Schema(ma.Schema):
         """
         pass
 
-    def __init__(self, *args, include_data=(), **kwargs):
+    def __init__(self, *args, **kwargs):
+        self.include_data = kwargs.pop('include_data', ())
         super(Schema, self).__init__(*args, **kwargs)
-        self.include_data = include_data
         for field_name, field in self.fields.items():
             if field_name in self.include_data:
                 if not isinstance(field, BaseRelationship):
