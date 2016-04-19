@@ -15,3 +15,4 @@ Contributors (chronological)
 - `@floqqi <https://github.com/floqqi>`_
 - Colton Allen `@cmanallen <https://github.com/cmanallen>`_
 - Dominik Steinberger `@ZeeD26 <https://github.com/ZeeD26>`_
+- Tim Mundt `@Tim-Erwin <https://github.com/Tim-Erwin>`_
