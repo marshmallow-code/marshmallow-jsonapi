@@ -28,14 +28,29 @@ class PostSchema(Schema):
     id = fields.Int()
     post_title = fields.Str(attribute='title', dump_to='title')
 
+    author = fields.Relationship(
+        'http://test.test/posts/{id}/author/',
+        related_url_kwargs={'id': '<id>'},
+        schema=AuthorSchema, many=False
+    )
+
     post_comments = fields.Relationship(
         'http://test.test/posts/{id}/comments/',
         related_url_kwargs={'id': '<id>'},
-        attribute='comments', dump_to='post-comments'
+        attribute='comments', dump_to='post-comments',
+        schema='CommentSchema', many=True
     )
 
     class Meta:
         type_ = 'posts'
+
+
+class CommentSchema(Schema):
+    id = fields.Int()
+    body = fields.Str(required=True)
+
+    class Meta:
+        type_ = 'comments'
 
 
 def test_type_is_required():
@@ -105,6 +120,37 @@ class TestResponseFormatting:
         assert 'title' in data['data']['attributes']
         assert 'relationships' in data['data']
         assert 'post-comments' in data['data']['relationships']
+
+
+class TestCompoundDocuments:
+
+    def test_include_data_with_many(self, post):
+        data = PostSchema(include_data=('post_comments',)).dump(post).data
+        assert 'included' in data
+        assert len(data['included']) == 2
+        first_comment = data['included'][0]
+        assert 'data' in first_comment
+        assert 'attributes' in first_comment['data']
+        assert 'body' in first_comment['data']['attributes']
+
+    def test_include_data_with_single(self, post):
+        data = PostSchema(include_data=('author',)).dump(post).data
+        assert 'included' in data
+        assert len(data['included']) == 1
+        author = data['included'][0]
+        assert 'data' in author
+        assert 'attributes' in author['data']
+        assert 'first_name' in author['data']['attributes']
+
+    def test_include_data_with_all_relations(self, post):
+        data = PostSchema(include_data=('author', 'post_comments')).dump(post).data
+        assert 'included' in data
+        assert len(data['included']) == 3
+
+    def test_include_no_data(self, post):
+        data = PostSchema(include_data=()).dump(post).data
+        assert 'included' not in data
+
 
 def get_error_by_field(errors, field):
     for err in errors['errors']:
