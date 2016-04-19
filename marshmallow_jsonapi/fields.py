@@ -25,7 +25,7 @@ class BaseRelationship(Field):
     pass
 
 
-def stringify(value):
+def _stringify(value):
     if value is not None:
         return str(value)
     return value
@@ -118,12 +118,12 @@ class Relationship(BaseRelationship):
         if self.many:
             resource_object = [{
                 'type': self.type_,
-                'id': stringify(get_value(self.id_field, each, each))
+                'id': _stringify(get_value(self.id_field, each, each))
             } for each in value]
         else:
             resource_object = {
                 'type': self.type_,
-                'id': stringify(get_value(self.id_field, value, value))
+                'id': _stringify(get_value(self.id_field, value, value))
             }
         return resource_object
 
