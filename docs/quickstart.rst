@@ -191,13 +191,12 @@ Now you can include some data in a dump by specifying the includes.
     #     }
     #     "included": [
     #         {
-    #             "data": {
-    #                 "attributes": {
-    #                     "body": "Marshmallow is sweet like sugar!"
-    #                 },
-    #                 "id": 17,
-    #                 "type": "comments"
-    #             }
+    #             "attributes": {
+    #                 "body": "Marshmallow is sweet like sugar!"
+    #             },
+    #             "id": 17,
+    #             "links": {"self": "/comments/17/"},
+    #             "type": "comments"
     #         }
     #     ]
     # }

@@ -176,7 +176,8 @@ class Relationship(BaseRelationship):
             if related_url:
                 ret['links']['related'] = related_url
 
-        if self.include_resource_linkage:
+        # resource linkage is required when including the data
+        if self.include_resource_linkage or self.include_data:
             if value is None:
                 ret['data'] = [] if self.many else None
             else:
@@ -190,10 +191,10 @@ class Relationship(BaseRelationship):
                     result = self.schema.dump(item)
                     if result.errors:
                         raise ValidationError(result.errors)
-                    self.root.included_data.append(result.data)
+                    self.root.included_data.append(result.data['data'])
             else:
                 result = self.schema.dump(value)
                 if result.errors:
                     raise ValidationError(result.errors)
-                self.root.included_data.append(result.data)
+                self.root.included_data.append(result.data['data'])
         return ret

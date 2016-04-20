@@ -129,18 +129,16 @@ class TestCompoundDocuments:
         assert 'included' in data
         assert len(data['included']) == 2
         first_comment = data['included'][0]
-        assert 'data' in first_comment
-        assert 'attributes' in first_comment['data']
-        assert 'body' in first_comment['data']['attributes']
+        assert 'attributes' in first_comment
+        assert 'body' in first_comment['attributes']
 
     def test_include_data_with_single(self, post):
         data = PostSchema(include_data=('author',)).dump(post).data
         assert 'included' in data
         assert len(data['included']) == 1
         author = data['included'][0]
-        assert 'data' in author
-        assert 'attributes' in author['data']
-        assert 'first_name' in author['data']['attributes']
+        assert 'attributes' in author
+        assert 'first_name' in author['attributes']
 
     def test_include_data_with_all_relations(self, post):
         data = PostSchema(include_data=('author', 'post_comments')).dump(post).data
