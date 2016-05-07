@@ -106,7 +106,7 @@ class Schema(ma.Schema):
                 {
                     'detail': '`data` object must include `type` key.',
                     'source': {
-                            'pointer': '/data'
+                        'pointer': '/data'
                     }
                 }
             ])
