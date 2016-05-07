@@ -25,6 +25,11 @@ class IncorrectTypeError(JSONAPIError, ValueError):
         """JSON API-formatted error representation."""
         return {
             'errors': [
-                {'detail': self.detail, 'pointer': self.pointer}
+                {
+                    'detail': self.detail,
+                    'source': {
+                        'pointer': self.pointer
+                    }
+                }
             ]
         }

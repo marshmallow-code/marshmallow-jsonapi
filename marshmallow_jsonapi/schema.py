@@ -105,7 +105,9 @@ class Schema(ma.Schema):
             raise ma.ValidationError([
                 {
                     'detail': '`data` object must include `type` key.',
-                    'pointer': '/data'
+                    'source': {
+                            'pointer': '/data'
+                    }
                 }
             ])
         if item['type'] != self.opts.type_:
