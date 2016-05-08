@@ -169,7 +169,9 @@ class TestErrorFormatting:
             'errors': [
                 {
                     'detail': '`data` object must include `type` key.',
-                    'pointer': '/data'
+                    'source': {
+                        'pointer': '/data'
+                    }
                 }
             ]
         }
@@ -184,7 +186,9 @@ class TestErrorFormatting:
             'errors': [
                 {
                     'detail': 'Invalid type. Expected "people".',
-                    'pointer': '/data/type'
+                    'source': {
+                        'pointer': '/data/type'
+                    }
                 }
             ]
         }
