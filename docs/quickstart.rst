@@ -2,7 +2,7 @@
 Quickstart
 **********
 
-.. note:: The following guide assumes some familiarity with the marshmallow API. To learn more about marshmallow, see its official documentation at `https://marshmallow.readthedocs.org <https://marshmallow.readthedocs.org>`_.
+.. note:: The following guide assumes some familiarity with the marshmallow API. To learn more about marshmallow, see its official documentation at `https://marshmallow.readthedocs.io <https://marshmallow.readthedocs.io>`_.
 
 Declaring schemas
 =================

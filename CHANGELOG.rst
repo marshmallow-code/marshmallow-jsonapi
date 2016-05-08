@@ -2,6 +2,13 @@
 Changelog
 *********
 
+0.7.1 (2016-05-08)
+==================
+
+Bug fixes:
+
+* Format correction for error objects (:issue:`47`). Thanks :user:`ZeeD26` for the PR.
+
 0.7.0 (2016-04-03)
 ==================
 

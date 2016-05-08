@@ -2,17 +2,17 @@
 marshmallow-jsonapi
 *******************
 
-.. image:: https://badge.fury.io/py/marshmallow-jsonapi.png
+.. image:: https://badge.fury.io/py/marshmallow-jsonapi.svg
     :target: http://badge.fury.io/py/marshmallow-jsonapi
     :alt: Latest version
 
-.. image:: https://travis-ci.org/marshmallow-code/marshmallow-jsonapi.png
+.. image:: https://travis-ci.org/marshmallow-code/marshmallow-jsonapi.svg
     :target: https://travis-ci.org/marshmallow-code/marshmallow-jsonapi
     :alt: Travis-CI
 
-Homepage: http://marshmallow-jsonapi.rtfd.org/
+Homepage: http://marshmallow-jsonapi.readthedocs.io/
 
-JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with `marshmallow <https://marshmallow.readthedocs.org>`_.
+JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with `marshmallow <https://marshmallow.readthedocs.io>`_.
 
 marshmallow-jsonapi provides a simple way to produce JSON API-compliant data in any Python web framework.
 
@@ -79,7 +79,7 @@ Installation
 Documentation
 =============
 
-Full documentation is available at https://marshmallow-jsonapi.readthedocs.org/.
+Full documentation is available at https://marshmallow-jsonapi.readthedocs.io/.
 
 Requirements
 ============
@@ -89,8 +89,8 @@ Requirements
 Project Links
 =============
 
-- Docs: http://marshmallow-jsonapi.rtfd.org/
-- Changelog: http://marshmallow-jsonapi.readthedocs.org/en/latest/changelog.html
+- Docs: http://marshmallow-jsonapi.readthedocs.io/
+- Changelog: http://marshmallow-jsonapi.readthedocs.io/en/latest/changelog.html
 - PyPI: https://pypi.python.org/pypi/marshmallow-jsonapi
 - Issues: https://github.com/marshmallow-code/marshmallow-jsonapi/issues
 
