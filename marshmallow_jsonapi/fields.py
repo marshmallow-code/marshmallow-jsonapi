@@ -13,6 +13,9 @@ from marshmallow.utils import get_value, is_collection
 from .utils import resolve_params
 
 
+_RECURSIVE_NESTED = 'self'
+
+
 class BaseRelationship(Field):
     """Base relationship field.
 
@@ -98,8 +101,12 @@ class Relationship(BaseRelationship):
             self.__schema = self.__schema()
             return self.__schema
         if isinstance(self.__schema, basestring):
-            schema_class = class_registry.get_class(self.__schema)
-            self.__schema = schema_class()
+            if self.__schema == _RECURSIVE_NESTED:
+                parent_class = self.parent.__class__
+                self.__schema = parent_class(many=self.many)
+            else:
+                schema_class = class_registry.get_class(self.__schema)
+                self.__schema = schema_class()
             return self.__schema
 
     def get_related_url(self, obj):

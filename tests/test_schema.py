@@ -149,6 +149,25 @@ class TestCompoundDocuments:
         data = PostSchema(include_data=()).dump(post).data
         assert 'included' not in data
 
+    def test_include_self_referential_relationship(self):
+        class RefSchema(Schema):
+            id = fields.Int()
+            data = fields.Str()
+            parent = fields.Relationship(schema='self', many=False)
+            class Meta:
+                type_ = 'refs'
+
+        obj = {
+            'id': 1, 'data': 'data1',
+            'parent': {
+                'id': 2,
+                'data': 'data2'
+            }
+        }
+        data = RefSchema(include_data=('parent',)).dump(obj).data
+        assert 'included' in data
+        assert data['included'][0]['attributes']['data'] == 'data2'
+
 
 def get_error_by_field(errors, field):
     for err in errors['errors']:
