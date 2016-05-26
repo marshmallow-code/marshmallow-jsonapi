@@ -81,17 +81,17 @@ class Schema(ma.Schema):
         for field_name, field in self.fields.items():
             if field_name in self.include_data:
                 if not isinstance(field, BaseRelationship):
-                    raise ValueError('Can only include relationships. "%s" is a "%s"'
-                                     % (field_name, field.__class__.__name__))
+                    raise ValueError('Can only include relationships. "{}" is a "{}"'
+                                     .format(field_name, field.__class__.__name__))
                 if not hasattr(field, 'schema') or not field.schema:
-                    raise ValueError('A schema is required to serialize "%s"' % field_name)
+                    raise ValueError('A schema is required to serialize "{}"'.format(field_name))
                 field.include_data = True
-            else:
+            elif isinstance(field, BaseRelationship):
                 field.include_data = False
 
         for field_name in self.include_data:
             if field_name not in self.fields:
-                raise ValueError('Unknown field "%s"' % field_name)
+                raise ValueError('Unknown field "{}"'.format(field_name))
 
         if not self.opts.type_:
             raise ValueError('Must specify type_ class Meta option')
@@ -102,7 +102,7 @@ class Schema(ma.Schema):
         if self.opts.self_url_kwargs and not self.opts.self_url:
             raise ValueError('Must specify `self_url` Meta option when '
                              '`self_url_kwargs` is specified')
-        self.included_data = []
+        self.included_data = {}
 
     OPTIONS_CLASS = SchemaOpts
 
@@ -120,7 +120,7 @@ class Schema(ma.Schema):
     def render_included_data(self, data):
         if not self.included_data:
             return data
-        data['included'] = self.included_data
+        data['included'] = list(self.included_data.values())
         return data
 
     def unwrap_item(self, item):

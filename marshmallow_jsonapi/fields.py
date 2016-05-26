@@ -193,15 +193,14 @@ class Relationship(BaseRelationship):
         if self.include_data and value is not None:
             if self.many:
                 for item in value:
-                    # items need to be dumped separately,
-                    # othwerwise we'd get a JSONAPI list
-                    result = self.schema.dump(item)
-                    if result.errors:
-                        raise ValidationError(result.errors)
-                    self.root.included_data.append(result.data['data'])
+                    self._serialize_included(item)
             else:
-                result = self.schema.dump(value)
-                if result.errors:
-                    raise ValidationError(result.errors)
-                self.root.included_data.append(result.data['data'])
+                self._serialize_included(value)
         return ret
+
+    def _serialize_included(self, value):
+        result = self.schema.dump(value)
+        if result.errors:
+            raise ValidationError(result.errors)
+        item = result.data['data']
+        self.root.included_data[(item['type'], item['id'])] = item
