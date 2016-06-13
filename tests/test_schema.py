@@ -144,6 +144,9 @@ class TestCompoundDocuments:
         data = PostSchema(include_data=('author', 'post_comments')).dump(post).data
         assert 'included' in data
         assert len(data['included']) == 3
+        for included in data['included']:
+            assert included['id']
+            assert included['type'] in ('people', 'comments')
 
     def test_include_no_data(self, post):
         data = PostSchema(include_data=()).dump(post).data
@@ -167,6 +170,35 @@ class TestCompoundDocuments:
         data = RefSchema(include_data=('parent',)).dump(obj).data
         assert 'included' in data
         assert data['included'][0]['attributes']['data'] == 'data2'
+
+    def test_include_self_referential_relationship_many(self):
+        class RefSchema(Schema):
+            id = fields.Str()
+            data = fields.Str()
+            children = fields.Relationship(schema='self', many=True)
+
+            class Meta:
+                type_ = 'refs'
+
+        obj = {
+            'id': '1',
+            'data': 'data1',
+            'children': [
+                {
+                    'id': '2',
+                    'data': 'data2'
+                },
+                {
+                    'id': '3',
+                    'data': 'data3'
+                }
+            ]
+        }
+        data = RefSchema(include_data=('children', )).dump(obj).data
+        assert 'included' in data
+        assert len(data['included']) == 2
+        for child in data['included']:
+            assert child['attributes']['data'] == 'data%s' % child['id']
 
 
 def get_error_by_field(errors, field):
