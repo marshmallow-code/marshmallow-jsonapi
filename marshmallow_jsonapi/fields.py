@@ -10,7 +10,7 @@ from marshmallow.fields import *  # noqa
 from marshmallow.base import SchemaABC
 from marshmallow.utils import get_value, is_collection
 
-from .utils import resolve_params
+from .utils import resolve_params, iteritems
 
 
 _RECURSIVE_NESTED = 'self'
@@ -97,7 +97,8 @@ class Relationship(BaseRelationship):
     def schema(self):
         if isinstance(self.__schema, SchemaABC):
             pass
-        elif isinstance(self.__schema, type) and issubclass(self.__schema, SchemaABC):
+        elif isinstance(self.__schema, type) and issubclass(self.__schema,
+                                                            SchemaABC):
             self.__schema = self.__schema(many=self.many)
         elif isinstance(self.__schema, basestring):
             if self.__schema == _RECURSIVE_NESTED:
@@ -142,7 +143,6 @@ class Relationship(BaseRelationship):
         errors = []
         if 'id' not in data:
             errors.append('Must have an `id` field')
-
         if 'type' not in data:
             errors.append('Must have a `type` field')
         elif data['type'] != self.type_:
@@ -202,8 +202,11 @@ class Relationship(BaseRelationship):
         return ret
 
     def _serialize_included(self, value):
-        result = self.schema.dump(value)
+        schema = self.schema
+        result = schema.dump(value)
         if result.errors:
             raise ValidationError(result.errors)
         item = result.data['data']
         self.root.included_data[(item['type'], item['id'])] = item
+        for key, value in iteritems(schema.included_data):
+            self.root.included_data[key] = value

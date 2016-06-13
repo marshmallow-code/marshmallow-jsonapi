@@ -200,6 +200,49 @@ class TestCompoundDocuments:
         for child in data['included']:
             assert child['attributes']['data'] == 'data%s' % child['id']
 
+    def test_include_self_referential_relationship_many_deep(self):
+        class RefSchema(Schema):
+            id = fields.Str()
+            data = fields.Str()
+            children = fields.Relationship(schema='self', type_='refs',
+                                           many=True)
+
+            class Meta:
+                type_ = 'refs'
+
+        obj = {
+            'id': '1',
+            'data': 'data1',
+            'children': [
+                {
+                    'id': '2',
+                    'data': 'data2',
+                    'children': [],
+                },
+                {
+                    'id': '3',
+                    'data': 'data3',
+                    'children': [
+                        {
+                            'id': '4',
+                            'data': 'data4',
+                            'children': []
+                        },
+                        {
+                            'id': '5',
+                            'data': 'data5',
+                            'children': []
+                        }
+                    ]
+                }
+            ]
+        }
+        data = RefSchema(include_data=('children', )).dump(obj).data
+        assert 'included' in data
+        assert len(data['included']) == 4
+        for child in data['included']:
+            assert child['attributes']['data'] == 'data%s' % child['id']
+
 
 def get_error_by_field(errors, field):
     for err in errors['errors']:
