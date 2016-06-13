@@ -83,8 +83,6 @@ class Schema(ma.Schema):
                 if not isinstance(field, BaseRelationship):
                     raise ValueError('Can only include relationships. "{}" is a "{}"'
                                      .format(field_name, field.__class__.__name__))
-                if not hasattr(field, 'schema') or not field.schema:
-                    raise ValueError('A schema is required to serialize "{}"'.format(field_name))
                 field.include_data = True
             elif isinstance(field, BaseRelationship):
                 field.include_data = False
