@@ -171,7 +171,7 @@ Now you can include some data in a dump by specifying the includes.
 
 .. code-block:: python
 
-    ArticleSchema(include=('comments',)).dump(article).data
+    ArticleSchema(include_data=('comments',)).dump(article).data
     # {
     #     "data": {
     #         "id": 1,

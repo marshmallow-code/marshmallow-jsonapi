@@ -10,7 +10,7 @@ from marshmallow.fields import *  # noqa
 from marshmallow.base import SchemaABC
 from marshmallow.utils import get_value, is_collection
 
-from .utils import resolve_params
+from .utils import resolve_params, iteritems
 
 
 _RECURSIVE_NESTED = 'self'
@@ -98,16 +98,19 @@ class Relationship(BaseRelationship):
         if isinstance(self.__schema, SchemaABC):
             return self.__schema
         if isinstance(self.__schema, type) and issubclass(self.__schema, SchemaABC):
-            self.__schema = self.__schema()
+            self.__schema = self.__schema(many=self.many)
             return self.__schema
         if isinstance(self.__schema, basestring):
             if self.__schema == _RECURSIVE_NESTED:
                 parent_class = self.parent.__class__
-                self.__schema = parent_class(many=self.many)
+                self.__schema = parent_class(include_data=self.parent.include_data)
             else:
                 schema_class = class_registry.get_class(self.__schema)
                 self.__schema = schema_class()
             return self.__schema
+        else:
+            raise ValueError(('A Schema is required to serialize a nested '
+                              'relationship with include_data'))
 
     def get_related_url(self, obj):
         if self.related_url:
@@ -139,7 +142,6 @@ class Relationship(BaseRelationship):
         errors = []
         if 'id' not in data:
             errors.append('Must have an `id` field')
-
         if 'type' not in data:
             errors.append('Must have a `type` field')
         elif data['type'] != self.type_:
@@ -204,3 +206,5 @@ class Relationship(BaseRelationship):
             raise ValidationError(result.errors)
         item = result.data['data']
         self.root.included_data[(item['type'], item['id'])] = item
+        for key, value in iteritems(self.schema.included_data):
+            self.root.included_data[key] = value
