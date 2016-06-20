@@ -341,4 +341,4 @@ For example, the ``Relationship`` field in the ``marshmallow_jsonapi.flask`` mod
         class Meta:
             type_ = 'posts'
 
-See `here <https://github.com/marshmallow-code/marshmallow-jsonapi/blob/master/examples/flask_example.py>`_ for a full example.
+See `here <https://github.com/marshmallow-code/marshmallow-jsonapi/blob/dev/examples/flask_example.py>`_ for a full example.
