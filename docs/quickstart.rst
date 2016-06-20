@@ -141,7 +141,7 @@ You can serialize `resource linkages <http://jsonapi.org/format/#document-resour
     # }
 
 
-Compound Documents
+Compound documents
 ------------------
 
 `Compound documents <http://jsonapi.org/format/#document-compound-documents>`_ allow to include related resources into the request with the primary resource. In order to include objects, you have to define a `Schema <marshmallow_json.schema.Schema>` for the respective relationship, which will be used to render those objects.

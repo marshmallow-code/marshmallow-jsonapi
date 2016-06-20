@@ -2,6 +2,14 @@
 Changelog
 *********
 
+0.8.0 (unreleased)
+==================
+
+Features:
+
+* Add support for compound documents (:issue:`11`). Thanks :user:`Tim-Erwin` and :user:`woodb` for implementing this.
+* *Backwards-incompatible*: Remove ``include_data`` parameter from ``Relationship``. Use ``include_resource_linkage`` instead.
+
 0.7.0 (2016-04-03)
 ==================
 
