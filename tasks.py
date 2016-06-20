@@ -9,54 +9,54 @@ docs_dir = 'docs'
 build_dir = os.path.join(docs_dir, '_build')
 
 @task
-def test():
-    flake()
+def test(ctx):
+    flake(ctx)
     import pytest
     errcode = pytest.main(['tests'])
     sys.exit(errcode)
 
 @task
-def flake():
+def flake(ctx):
     """Run flake8 on codebase."""
     run('flake8 .', echo=True)
 
 @task
-def watch():
+def watch(ctx):
     """Run tests when a file changes. Requires pytest-xdist."""
     import pytest
     errcode = pytest.main(['-f'])
     sys.exit(errcode)
 
 @task
-def clean():
+def clean(ctx):
     run("rm -rf build")
     run("rm -rf dist")
     run("rm -rf marshmallow-jsonapi.egg-info")
-    clean_docs()
+    clean_docs(ctx)
     print("Cleaned up.")
 
 @task
-def clean_docs():
+def clean_docs(ctx):
     run("rm -rf %s" % build_dir, echo=True)
 
 @task
-def browse_docs():
+def browse_docs(ctx):
     path = os.path.join(build_dir, 'index.html')
     webbrowser.open_new_tab(path)
 
 @task
-def docs(clean=False, browse=False, watch=False):
+def docs(ctx, clean=False, browse=False, watch=False):
     """Build the docs."""
     if clean:
-        clean_docs()
+        clean_docs(ctx)
     run("sphinx-build %s %s" % (docs_dir, build_dir), echo=True)
     if browse:
-        browse_docs()
+        browse_docs(ctx)
     if watch:
-        watch_docs()
+        watch_docs(ctx)
 
 @task
-def watch_docs():
+def watch_docs(ctx):
     """Run build the docs when a file changes."""
     try:
         import sphinx_autobuild  # noqa
@@ -69,15 +69,15 @@ def watch_docs():
     run('sphinx-autobuild {} {}'.format(docs_dir, build_dir), pty=True)
 
 @task
-def readme(browse=False):
+def readme(ctx, browse=False):
     run("rst2html.py README.rst > README.html", echo=True)
     if browse:
         webbrowser.open_new_tab('README.html')
 
 @task
-def publish(test=False):
+def publish(ctx, test=False):
     """Publish to the cheeseshop."""
-    clean()
+    clean(ctx)
     try:
         __import__('wheel')
     except ImportError:
