@@ -2,12 +2,18 @@
 """Includes all the fields classes from `marshmallow.fields` as well as
 fields for serializing JSON API-formatted hyperlinks.
 """
-from marshmallow import ValidationError
+from marshmallow.compat import basestring
+
+from marshmallow import ValidationError, class_registry
 # Make core fields importable from marshmallow_jsonapi
 from marshmallow.fields import *  # noqa
+from marshmallow.base import SchemaABC
 from marshmallow.utils import get_value, is_collection
 
-from .utils import resolve_params
+from .utils import resolve_params, iteritems
+
+
+_RECURSIVE_NESTED = 'self'
 
 
 class BaseRelationship(Field):
@@ -20,6 +26,12 @@ class BaseRelationship(Field):
     """
 
     pass
+
+
+def _stringify(value):
+    if value is not None:
+        return str(value)
+    return value
 
 
 class Relationship(BaseRelationship):
@@ -37,7 +49,7 @@ class Relationship(BaseRelationship):
         comments = Relationship(
             related_url='/posts/{post_id}/comments/',
             related_url_kwargs={'post_id': '<id>'},
-            many=True, include_data=True,
+            many=True, include_resource_linkage=True,
             type_='comments'
         )
 
@@ -49,8 +61,9 @@ class Relationship(BaseRelationship):
     :param str self_url: Format string for self relationship links.
     :param dict self_url_kwargs: Replacement fields for `self_url`. String arguments
         enclosed in `< >` will be interpreted as attributes to pull from the target object.
-    :param bool include_data: Whether to include a resource linkage
+    :param bool include_resource_linkage: Whether to include a resource linkage
         (http://jsonapi.org/format/#document-resource-object-linkage) in the serialized result.
+    :param Schema schema: The schema to render the included data with.
     :param bool many: Whether the relationship represents a many-to-one or many-to-many
         relationship. Only affects serialization of the resource linkage.
     :param str type_: The type of resource.
@@ -63,19 +76,41 @@ class Relationship(BaseRelationship):
         self,
         related_url='', related_url_kwargs=None,
         self_url='', self_url_kwargs=None,
-        include_data=False, many=False, type_=None, id_field=None, **kwargs
+        include_resource_linkage=False, schema=None,
+        many=False, type_=None, id_field=None, **kwargs
     ):
         self.related_url = related_url
         self.related_url_kwargs = related_url_kwargs or {}
         self.self_url = self_url
         self.self_url_kwargs = self_url_kwargs or {}
-        if include_data and not type_:
-            raise ValueError('include_data=True requires the type_ argument.')
+        if include_resource_linkage and not type_:
+            raise ValueError('include_resource_linkage=True requires the type_ argument.')
         self.many = many
-        self.include_data = include_data
+        self.include_resource_linkage = include_resource_linkage
+        self.include_data = False
+        self.__schema = schema
         self.type_ = type_
         self.id_field = id_field or self.id_field
         super(Relationship, self).__init__(**kwargs)
+
+    @property
+    def schema(self):
+        if isinstance(self.__schema, SchemaABC):
+            return self.__schema
+        if isinstance(self.__schema, type) and issubclass(self.__schema, SchemaABC):
+            self.__schema = self.__schema(many=self.many)
+            return self.__schema
+        if isinstance(self.__schema, basestring):
+            if self.__schema == _RECURSIVE_NESTED:
+                parent_class = self.parent.__class__
+                self.__schema = parent_class(include_data=self.parent.include_data)
+            else:
+                schema_class = class_registry.get_class(self.__schema)
+                self.__schema = schema_class()
+            return self.__schema
+        else:
+            raise ValueError(('A Schema is required to serialize a nested '
+                              'relationship with include_data'))
 
     def get_related_url(self, obj):
         if self.related_url:
@@ -89,30 +124,24 @@ class Relationship(BaseRelationship):
             return self.self_url.format(**kwargs)
         return None
 
-    def add_resource_linkage(self, value):
-        def stringify(value):
-            if value is not None:
-                return str(value)
-            return value
-
+    def get_resource_linkage(self, value):
         if self.many:
-            included_data = [{
+            resource_object = [{
                 'type': self.type_,
-                'id': stringify(get_value(self.id_field, each, each))
+                'id': _stringify(get_value(self.id_field, each, each))
             } for each in value]
         else:
-            included_data = {
+            resource_object = {
                 'type': self.type_,
-                'id': stringify(get_value(self.id_field, value, value))
+                'id': _stringify(get_value(self.id_field, value, value))
             }
-        return included_data
+        return resource_object
 
     def extract_value(self, data):
         """Extract the id key and validate the request structure."""
         errors = []
         if 'id' not in data:
             errors.append('Must have an `id` field')
-
         if 'type' not in data:
             errors.append('Must have a `type` field')
         elif data['type'] != self.type_:
@@ -156,9 +185,26 @@ class Relationship(BaseRelationship):
             if related_url:
                 ret['links']['related'] = related_url
 
-        if self.include_data:
+        # resource linkage is required when including the data
+        if self.include_resource_linkage or self.include_data:
             if value is None:
                 ret['data'] = [] if self.many else None
             else:
-                ret['data'] = self.add_resource_linkage(value)
+                ret['data'] = self.get_resource_linkage(value)
+
+        if self.include_data and value is not None:
+            if self.many:
+                for item in value:
+                    self._serialize_included(item)
+            else:
+                self._serialize_included(value)
         return ret
+
+    def _serialize_included(self, value):
+        result = self.schema.dump(value)
+        if result.errors:
+            raise ValidationError(result.errors)
+        item = result.data['data']
+        self.root.included_data[(item['type'], item['id'])] = item
+        for key, value in iteritems(self.schema.included_data):
+            self.root.included_data[key] = value

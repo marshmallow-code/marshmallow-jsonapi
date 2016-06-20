@@ -100,7 +100,7 @@ To serialize links, pass a URL format string and a dictionary of keyword argumen
 Resource linkages
 -----------------
 
-You can serialize `resource linkages <http://jsonapi.org/format/#document-resource-object-linkage>`_ by passing ``include_data=True`` .
+You can serialize `resource linkages <http://jsonapi.org/format/#document-resource-object-linkage>`_ by passing ``include_resource_linkage=True`` .
 
 .. code-block:: python
     :emphasize-lines: 8-10
@@ -113,7 +113,7 @@ You can serialize `resource linkages <http://jsonapi.org/format/#document-resour
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
             # Include resource linkage
-            many=True, include_data=True,
+            many=True, include_resource_linkage=True,
             type_='comments'
         )
         class Meta:
@@ -139,6 +139,68 @@ You can serialize `resource linkages <http://jsonapi.org/format/#document-resour
     #         },
     #     }
     # }
+
+
+Compound documents
+------------------
+
+`Compound documents <http://jsonapi.org/format/#document-compound-documents>`_ allow to include related resources into the request with the primary resource. In order to include objects, you have to define a `Schema <marshmallow_json.schema.Schema>` for the respective relationship, which will be used to render those objects.
+
+.. code-block:: python
+    :emphasize-lines: 10-11
+
+    class ArticleSchema(Schema):
+        id = fields.Str(dump_only=True)
+        title = fields.Str()
+
+        comments = fields.Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'},
+            many=True, include_resource_linkage=True,
+            type_='comments',
+            # define a schema for rendering included data
+            schema='CommentSchema'
+        )
+        class Meta:
+            type_ = 'articles'
+            strict = True
+
+Just as with nested fields the ``schema`` can be a class or a string with a simple or fully qualified class name. Make sure to import the schema beforehand.
+
+Now you can include some data in a dump by specifying the includes.
+
+.. code-block:: python
+
+    ArticleSchema(include_data=('comments',)).dump(article).data
+    # {
+    #     "data": {
+    #         "id": 1,
+    #         "type": "articles"
+    #         "attributes": {"title": "Django is Omakase"},
+    #         "relationships": {
+    #             "comments": {
+    #                 "links": {
+    #                     "related": "/posts/1/comments/"
+    #                 }
+    #                 "data": [
+    #                     {"id": 5, "type": "comments"},
+    #                     {"id": 12, "type": "comments"}
+    #                 ],
+    #             }
+    #         },
+    #     }
+    #     "included": [
+    #         {
+    #             "attributes": {
+    #                 "body": "Marshmallow is sweet like sugar!"
+    #             },
+    #             "id": 17,
+    #             "links": {"self": "/comments/17/"},
+    #             "type": "comments"
+    #         }
+    #     ]
+    # }
+
 
 Errors
 ======
@@ -272,7 +334,7 @@ For example, the ``Relationship`` field in the ``marshmallow_jsonapi.flask`` mod
         comments = Relationship(
             related_view='article_comments',
             related_view_kwargs={'article_id': '<id>'},
-            many=True, include_data=True,
+            many=True, include_resource_linkage=True,
             type_='comments'
         )
 

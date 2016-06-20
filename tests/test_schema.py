@@ -28,14 +28,29 @@ class PostSchema(Schema):
     id = fields.Int()
     post_title = fields.Str(attribute='title', dump_to='title')
 
+    author = fields.Relationship(
+        'http://test.test/posts/{id}/author/',
+        related_url_kwargs={'id': '<id>'},
+        schema=AuthorSchema, many=False
+    )
+
     post_comments = fields.Relationship(
         'http://test.test/posts/{id}/comments/',
         related_url_kwargs={'id': '<id>'},
-        attribute='comments', dump_to='post-comments'
+        attribute='comments', dump_to='post-comments',
+        schema='CommentSchema', many=True
     )
 
     class Meta:
         type_ = 'posts'
+
+
+class CommentSchema(Schema):
+    id = fields.Int()
+    body = fields.Str(required=True)
+
+    class Meta:
+        type_ = 'comments'
 
 
 def test_type_is_required():
@@ -105,6 +120,129 @@ class TestResponseFormatting:
         assert 'title' in data['data']['attributes']
         assert 'relationships' in data['data']
         assert 'post-comments' in data['data']['relationships']
+
+
+class TestCompoundDocuments:
+
+    def test_include_data_with_many(self, post):
+        data = PostSchema(include_data=('post_comments',)).dump(post).data
+        assert 'included' in data
+        assert len(data['included']) == 2
+        first_comment = data['included'][0]
+        assert 'attributes' in first_comment
+        assert 'body' in first_comment['attributes']
+
+    def test_include_data_with_single(self, post):
+        data = PostSchema(include_data=('author',)).dump(post).data
+        assert 'included' in data
+        assert len(data['included']) == 1
+        author = data['included'][0]
+        assert 'attributes' in author
+        assert 'first_name' in author['attributes']
+
+    def test_include_data_with_all_relations(self, post):
+        data = PostSchema(include_data=('author', 'post_comments')).dump(post).data
+        assert 'included' in data
+        assert len(data['included']) == 3
+        for included in data['included']:
+            assert included['id']
+            assert included['type'] in ('people', 'comments')
+
+    def test_include_no_data(self, post):
+        data = PostSchema(include_data=()).dump(post).data
+        assert 'included' not in data
+
+    def test_include_self_referential_relationship(self):
+        class RefSchema(Schema):
+            id = fields.Int()
+            data = fields.Str()
+            parent = fields.Relationship(schema='self', many=False)
+            class Meta:
+                type_ = 'refs'
+
+        obj = {
+            'id': 1, 'data': 'data1',
+            'parent': {
+                'id': 2,
+                'data': 'data2'
+            }
+        }
+        data = RefSchema(include_data=('parent',)).dump(obj).data
+        assert 'included' in data
+        assert data['included'][0]['attributes']['data'] == 'data2'
+
+    def test_include_self_referential_relationship_many(self):
+        class RefSchema(Schema):
+            id = fields.Str()
+            data = fields.Str()
+            children = fields.Relationship(schema='self', many=True)
+
+            class Meta:
+                type_ = 'refs'
+
+        obj = {
+            'id': '1',
+            'data': 'data1',
+            'children': [
+                {
+                    'id': '2',
+                    'data': 'data2'
+                },
+                {
+                    'id': '3',
+                    'data': 'data3'
+                }
+            ]
+        }
+        data = RefSchema(include_data=('children', )).dump(obj).data
+        assert 'included' in data
+        assert len(data['included']) == 2
+        for child in data['included']:
+            assert child['attributes']['data'] == 'data%s' % child['id']
+
+    def test_include_self_referential_relationship_many_deep(self):
+        class RefSchema(Schema):
+            id = fields.Str()
+            data = fields.Str()
+            children = fields.Relationship(schema='self', type_='refs',
+                                           many=True)
+
+            class Meta:
+                type_ = 'refs'
+
+        obj = {
+            'id': '1',
+            'data': 'data1',
+            'children': [
+                {
+                    'id': '2',
+                    'data': 'data2',
+                    'children': [],
+                },
+                {
+                    'id': '3',
+                    'data': 'data3',
+                    'children': [
+                        {
+                            'id': '4',
+                            'data': 'data4',
+                            'children': []
+                        },
+                        {
+                            'id': '5',
+                            'data': 'data5',
+                            'children': []
+                        }
+                    ]
+                }
+            ]
+        }
+        data = RefSchema(include_data=('children', )).dump(obj).data
+        assert 'included' in data
+        assert len(data['included']) == 4
+        for child in data['included']:
+            assert child['attributes']['data'] == 'data%s' % child['id']
+
 
 def get_error_by_field(errors, field):
     for err in errors['errors']:
@@ -371,9 +509,9 @@ class ArticleSchema(Schema):
     id = fields.Integer()
     body = fields.String()
     author = fields.Relationship(
-        dump_only=False, include_data=True, many=False, type_='people')
+        dump_only=False, include_resource_linkage=True, many=False, type_='people')
     comments = fields.Relationship(
-        dump_only=False, include_data=True, many=True, type_='comments')
+        dump_only=False, include_resource_linkage=True, many=True, type_='comments')
 
     class Meta:
         type_ = 'articles'

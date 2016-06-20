@@ -52,7 +52,7 @@ class Schema(ma.Schema):
                 '/posts/{post_id}/comments',
                 url_kwargs={'post_id': '<id>'},
                 # Include resource linkage
-                many=True, include_data=True,
+                many=True, include_resource_linkage=True,
                 type_='comments'
             )
 
@@ -76,7 +76,20 @@ class Schema(ma.Schema):
         pass
 
     def __init__(self, *args, **kwargs):
+        self.include_data = kwargs.pop('include_data', ())
         super(Schema, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if field_name in self.include_data:
+                if not isinstance(field, BaseRelationship):
+                    raise ValueError('Can only include relationships. "{}" is a "{}"'
+                                     .format(field_name, field.__class__.__name__))
+                field.include_data = True
+            elif isinstance(field, BaseRelationship):
+                field.include_data = False
+
+        for field_name in self.include_data:
+            if field_name not in self.fields:
+                raise ValueError('Unknown field "{}"'.format(field_name))
 
         if not self.opts.type_:
             raise ValueError('Must specify type_ class Meta option')
@@ -87,18 +100,26 @@ class Schema(ma.Schema):
         if self.opts.self_url_kwargs and not self.opts.self_url:
             raise ValueError('Must specify `self_url` Meta option when '
                              '`self_url_kwargs` is specified')
+        self.included_data = {}
 
     OPTIONS_CLASS = SchemaOpts
 
     @ma.post_dump(pass_many=True)
     def format_json_api_response(self, data, many):
-        """Post-dump hoook that formats serialized data as a top-level JSON API object.
+        """Post-dump hook that formats serialized data as a top-level JSON API object.
 
         See: http://jsonapi.org/format/#document-top-level
         """
         ret = self.format_items(data, many)
         ret = self.wrap_response(ret, many)
+        ret = self.render_included_data(ret)
         return ret
+
+    def render_included_data(self, data):
+        if not self.included_data:
+            return data
+        data['included'] = list(self.included_data.values())
+        return data
 
     def unwrap_item(self, item):
         if 'type' not in item:

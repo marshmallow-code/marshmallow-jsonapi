@@ -46,14 +46,14 @@ class TestRelationshipField:
         related = result['links']['related']
         assert related == url_for('posts_comments', post_id=post.id, _external=True)
 
-    def test_include_data_requires_type(self, app, post):
+    def test_include_resource_linkage_requires_type(self, app, post):
         with pytest.raises(ValueError) as excinfo:
             Relationship(
                 related_view='posts_comments',
                 related_view_kwargs={'post_id': '<id>'},
-                include_data=True
+                include_resource_linkage=True
             )
-        assert excinfo.value.args[0] == 'include_data=True requires the type_ argument.'
+        assert excinfo.value.args[0] == 'include_resource_linkage=True requires the type_ argument.'
 
     def test_serialize_self_link(self, app, post):
         field = Relationship(

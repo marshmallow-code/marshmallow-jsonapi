@@ -24,7 +24,7 @@ class Relationship(GenericRelationship):
         comments = Relationship(
             related_view='posts_comments',
             related_view_kwargs={'post_id': '<id>'},
-            many=True, include_data=True,
+            many=True, include_resource_linkage=True,
             type_='comments'
         )
 

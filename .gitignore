@@ -49,3 +49,4 @@ _sandbox
 # Virtual Environment
 env
 venv
+.python-version
