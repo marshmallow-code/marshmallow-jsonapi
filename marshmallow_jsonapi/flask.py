@@ -1,12 +1,69 @@
 # -*- coding: utf-8 -*-
-"""Flask integration, including a field for linking to related resources."""
+"""Flask integration that avoids the need to hard-code URLs for links.
+
+This includes a Flask-specific schema with custom Meta options and a
+relationship field for linking to related resources.
+"""
 from __future__ import absolute_import
 
 import flask
 from werkzeug.routing import BuildError
 
 from .fields import Relationship as GenericRelationship
+from .schema import Schema as DefaultSchema, SchemaOpts as DefaultOpts
 from .utils import resolve_params
+
+
+class SchemaOpts(DefaultOpts):
+    """Options to use Flask view names instead of hard coding URLs."""
+
+    def __init__(self, meta):
+        if getattr(meta, 'self_url', None):
+            raise ValueError('Use `self_view` instead of `self_url` '
+                             'using the Flask extension.')
+        if getattr(meta, 'self_url_kwargs', None):
+            raise ValueError('Use `self_view_kwargs` instead of `self_url_kwargs` '
+                             'when using the Flask extension.')
+        if getattr(meta, 'self_url_many', None):
+            raise ValueError('Use `self_view_many` instead of `self_url_many` '
+                             'when using the Flask extension.')
+
+        if getattr(meta, 'self_view_kwargs', None) \
+                and not getattr(meta, 'self_view', None):
+            raise ValueError('Must specify `self_view` Meta option when '
+                             '`self_view_kwargs` is specified.')
+
+        # Transfer Flask options to URL options, to piggy-back on its handling
+        setattr(meta, 'self_url', getattr(meta, 'self_view', None))
+        setattr(meta, 'self_url_kwargs', getattr(meta, 'self_view_kwargs', None))
+        setattr(meta, 'self_url_many', getattr(meta, 'self_view_many', None))
+
+        super(SchemaOpts, self).__init__(meta)
+
+
+class Schema(DefaultSchema):
+    """A Flask specific schema that resolves self URLs from view names."""
+
+    OPTIONS_CLASS = SchemaOpts
+
+    class Meta:
+        """Options object that takes the same options as `marshmallow-jsonapi.Schema`,
+        but instead of ``self_url``, ``self_url_kwargs`` and ``self_url_many``
+        has the following options to resolve the URLs from Flask views:
+
+        * ``self_view`` - View name to resolve the self URL link from.
+        * ``self_view_kwargs`` - Replacement fields for ``self_view``. String
+          attributes enclosed in ``< >`` will be interpreted as attributes to
+          pull from the schema data.
+        * ``self_view_many`` - View name to resolve the self URL link when a
+          collection of resources is returned.
+        """
+        pass
+
+    def generate_url(self, view_name, **kwargs):
+        """Generate URL with any kwargs interpolated."""
+        return flask.url_for(view_name, **kwargs) if view_name else None
+
 
 class Relationship(GenericRelationship):
     """Field which serializes to a "relationship object"

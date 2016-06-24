@@ -39,3 +39,7 @@ def post_with_null_comment():
 @pytest.fixture()
 def post_with_null_author():
     return make_post(with_author=False)
+
+@pytest.fixture()
+def posts():
+    return [make_post() for _ in range(3)]
