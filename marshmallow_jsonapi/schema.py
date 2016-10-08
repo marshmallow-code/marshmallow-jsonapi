@@ -168,11 +168,17 @@ class Schema(ma.Schema):
         try:
             result, errors = super(Schema, self)._do_load(data, many, **kwargs)
         except ValidationError as err:  # strict mode
-            formatted_messages = self.format_errors(err.messages, many=many)
+            error_messages = err.messages
+            if '_schema' in error_messages:
+                error_messages = error_messages['_schema']
+            formatted_messages = self.format_errors(error_messages, many=many)
             err.messages = formatted_messages
             raise err
         else:
-            formatted_messages = self.format_errors(errors, many=many)
+            error_messages = errors
+            if '_schema' in error_messages:
+                error_messages = error_messages['_schema']
+            formatted_messages = self.format_errors(error_messages, many=many)
         return result, formatted_messages
 
     def inflect(self, text):

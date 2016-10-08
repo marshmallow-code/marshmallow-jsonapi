@@ -9,6 +9,10 @@ Features:
 
 * Add Flask-specific schema with class Meta options for self link generation: ``self_view``, ``self_view_kwargs``, and ``self_view_many`` (:issue:`51`). Thanks :user:`asteinlein`.
 
+Bug fixes:
+
+* Fix formatting of validation error messages on newer versions of marshmallow.
+
 0.8.0 (2016-06-20)
 ==================
 

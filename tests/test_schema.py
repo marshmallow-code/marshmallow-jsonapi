@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import pytest
+import marshmallow
 from marshmallow import validate, ValidationError
 from marshmallow_jsonapi import Schema, fields
 from marshmallow_jsonapi.exceptions import IncorrectTypeError
+
+MARSHMALLOW_VERSION_INFO = tuple(map(int, marshmallow.__version__.split('.')))
 
 
 class AuthorSchema(Schema):
@@ -302,8 +305,9 @@ class TestErrorFormatting:
     def test_validate_no_type_raises_error(self):
         author = {'data': {'attributes': {'first_name': 'Dan', 'password': 'supersecure'}}}
         with pytest.raises(ValidationError) as excinfo:
-            AuthorSchema().validate(author)
-        assert excinfo.value.messages == {
+            AuthorSchema(strict=True).validate(author)
+
+        expected = {
             'errors': [
                 {
                     'detail': '`data` object must include `type` key.',
@@ -313,6 +317,13 @@ class TestErrorFormatting:
                 }
             ]
         }
+        assert excinfo.value.messages == expected
+
+        # This assertion is only valid on newer versions of marshmallow, which
+        # have this bugfix: https://github.com/marshmallow-code/marshmallow/pull/530
+        if MARSHMALLOW_VERSION_INFO >= (2, 10, 1):
+            errors = AuthorSchema(strict=False).validate(author)
+            assert errors == expected
 
     def test_validate_type(self):
         author = {'data':
