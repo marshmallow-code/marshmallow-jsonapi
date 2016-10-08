@@ -6,13 +6,19 @@ language: python
 python:
   - "3.5"
   - "3.4"
-  - "3.3"
   - "2.7"
   - "pypy"
 
+env:
+  # Lowest supported version
+  - MARSHMALLOW_VERSION="==2.3.0"
+  # Latest release
+  - MARSHMALLOW_VERSION=""
+
 install:
-  - pip install -U .
-  - pip install -U -r dev-requirements.txt
+  - travis_retry pip install -U .
+  - travis_retry pip install -U -r dev-requirements.txt
+  - travis_retry pip install -U marshmallow"$MARSHMALLOW_VERSION"
 
 before_script:
     - flake8 .

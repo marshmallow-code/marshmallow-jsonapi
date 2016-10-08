@@ -84,7 +84,7 @@ Full documentation is available at https://marshmallow-jsonapi.readthedocs.io/.
 Requirements
 ============
 
-- Python >= 2.7 or >= 3.3
+- Python >= 2.7 or >= 3.4
 
 Project Links
 =============

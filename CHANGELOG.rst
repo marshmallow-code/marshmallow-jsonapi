@@ -13,6 +13,10 @@ Bug fixes:
 
 * Fix formatting of validation error messages on newer versions of marshmallow.
 
+Other changes:
+
+* Drop official support for Python 3.3.
+
 0.8.0 (2016-06-20)
 ==================
 
