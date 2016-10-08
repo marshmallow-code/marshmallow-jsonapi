@@ -3,13 +3,22 @@ from flask import Flask, url_for
 import pytest
 from werkzeug.routing import BuildError
 
-from marshmallow_jsonapi.flask import Relationship
+from marshmallow_jsonapi import fields
+from marshmallow_jsonapi.flask import Relationship, Schema
 
 @pytest.yield_fixture()
 def app():
     app_ = Flask('testapp')
     app_.config['DEBUG'] = True
     app_.config['TESTING'] = True
+
+    @app_.route('/posts/')
+    def posts():
+        return 'All posts'
+
+    @app_.route('/posts/<post_id>/')
+    def post_detail(post_id):
+        return 'Detail for post {}'.format(post_id)
 
     @app_.route('/posts/<post_id>/comments/')
     def posts_comments(post_id):
@@ -23,6 +32,55 @@ def app():
     ctx.push()
     yield app_
     ctx.pop()
+
+
+class TestSchema:
+
+    class PostFlaskSchema(Schema):
+        id = fields.Int()
+        title = fields.Str()
+
+        class Meta:
+            type_ = 'posts'
+            self_view = 'post_detail'
+            self_view_kwargs = {'post_id': '<id>'}
+            self_view_many = 'posts'
+
+    def test_schema_requires_view_options(self, post):
+        with pytest.raises(ValueError):
+            class InvalidFlaskMetaSchema(Schema):
+                id = fields.Int()
+
+                class Meta:
+                    type_ = 'posts'
+                    self_url = '/posts/{id}'
+                    self_url_kwargs = {'post_id': '<id>'}
+
+    def test_non_existing_view(self, app, post):
+        class InvalidFlaskMetaSchema(Schema):
+            id = fields.Int()
+
+            class Meta:
+                type_ = 'posts'
+                self_view = 'wrong_view'
+                self_view_kwargs = {'post_id': '<id>'}
+
+        with pytest.raises(BuildError):
+            InvalidFlaskMetaSchema().dump(post).data
+
+    def test_self_link_single(self, app, post):
+        data = self.PostFlaskSchema().dump(post).data
+        assert 'links' in data
+        assert data['links']['self'] == '/posts/{}/'.format(post.id)
+
+    def test_self_link_many(self, app, posts):
+        data = self.PostFlaskSchema(many=True).dump(posts).data
+        assert 'links' in data
+        assert data['links']['self'] == '/posts/'
+
+        assert 'links' in data['data'][0]
+        assert data['data'][0]['links']['self'] == '/posts/{}/'.format(posts[0].id)
+
 
 class TestRelationshipField:
 

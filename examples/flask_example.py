@@ -39,8 +39,8 @@ db = {
 ### SCHEMAS ###
 
 from marshmallow import validate  # flake8: noqa
-from marshmallow_jsonapi import Schema, fields  # flake8: noqa
-from marshmallow_jsonapi.flask import Relationship  # flake8: noqa
+from marshmallow_jsonapi import fields  # flake8: noqa
+from marshmallow_jsonapi.flask import Relationship, Schema  # flake8: noqa
 
 class CommentSchema(Schema):
     id = fields.Str(dump_only=True)
@@ -48,6 +48,7 @@ class CommentSchema(Schema):
 
     class Meta:
         type_ = 'comments'
+        self_view_many = 'posts_comments'
 
 class AuthorSchema(Schema):
     id = fields.Str(dump_only=True)
@@ -56,15 +57,11 @@ class AuthorSchema(Schema):
     password = fields.Str(load_only=True, validate=validate.Length(6))
     twitter = fields.Str()
 
-    def get_top_level_links(self, data, many):
-        if many:
-            self_link = url_for('authors_list', _external=True)
-        else:
-            self_link = url_for('author_detail', author_id=data['id'], _external=True)
-        return {'self': self_link}
-
     class Meta:
         type_ = 'people'
+        self_view = 'author_detail'
+        self_view_kwargs = {'author_id': '<id>'}
+        self_view_many = 'authors_list'
 
 class PostSchema(Schema):
     id = fields.Str(dump_only=True)
@@ -85,15 +82,11 @@ class PostSchema(Schema):
         type_='comments'
     )
 
-    def get_top_level_links(self, data, many):
-        if many:
-            self_link = url_for('posts_list', _external=True)
-        else:
-            self_link = url_for('posts_detail', post_id=data['id'], _external=True)
-        return {'self': self_link}
-
     class Meta:
         type_ = 'posts'
+        self_view = 'posts_detail'
+        self_view_kwargs = {'post_id': '<id>'}
+        self_view_many = 'posts_list'
 
 
 ### VIEWS ###
