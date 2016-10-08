@@ -2,6 +2,13 @@
 Changelog
 *********
 
+0.9.0 (unreleased)
+==================
+
+Features:
+
+* Add Flask-specific schema with class Meta options for self link generation: ``self_view``, ``self_view_kwargs``, and ``self_view_many`` (:issue:`51`). Thanks :user:`asteinlein`.
+
 0.8.0 (2016-06-20)
 ==================
 
