@@ -2,6 +2,8 @@
 """Includes all the fields classes from `marshmallow.fields` as well as
 fields for serializing JSON API-formatted hyperlinks.
 """
+import collections
+
 from marshmallow.compat import basestring
 
 from marshmallow import ValidationError, class_registry
@@ -14,6 +16,10 @@ from .utils import resolve_params, iteritems
 
 
 _RECURSIVE_NESTED = 'self'
+# JSON API disallows U+005F LOW LINE at the start of amember name, so we can use
+# it to load the Meta type from since it can't clash with an attribute named
+# meta (which isn't disallowed by the spec).
+_META_LOAD_FROM = '_meta'
 
 
 class BaseRelationship(Field):
@@ -208,3 +214,42 @@ class Relationship(BaseRelationship):
         self.root.included_data[(item['type'], item['id'])] = item
         for key, value in iteritems(self.schema.included_data):
             self.root.included_data[key] = value
+
+
+class Meta(Field):
+    """Field which serializes to a "meta object" within  a "resource object".
+
+    Examples: ::
+
+        from marshmallow_jsonapi import Schema, fields
+
+        class UserSchema(Schema):
+            id = fields.String()
+            metadata = fields.Meta()
+
+            class Meta:
+                type_ = 'product'
+                strict = True
+
+    See: http://jsonapi.org/format/#document-meta
+    """
+
+    default_error_messages = {
+        'invalid': 'Not a valid mapping type.'
+    }
+
+    def __init__(self, **kwargs):
+        super(Meta, self).__init__(**kwargs)
+        self.load_from = _META_LOAD_FROM
+
+    def _deserialize(self, value, attr, data):
+        if isinstance(value, collections.Mapping):
+            return value
+        else:
+            self.fail('invalid')
+
+    def _serialize(self, value, *args, **kwargs):
+        if isinstance(value, collections.Mapping):
+            return super(Meta, self)._serialize(value, *args, **kwargs)
+        else:
+            self.fail('invalid')

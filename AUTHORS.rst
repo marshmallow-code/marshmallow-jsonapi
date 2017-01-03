@@ -17,3 +17,4 @@ Contributors (chronological)
 - Dominik Steinberger `@ZeeD26 <https://github.com/ZeeD26>`_
 - Tim Mundt `@Tim-Erwin <https://github.com/Tim-Erwin>`_
 - Brandon Wood `@woodb <https://github.com/woodb>`_
+- Frazer McLean `@RazerM <https://github.com/RazerM>`_
