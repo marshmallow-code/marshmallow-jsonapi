@@ -4,7 +4,7 @@ import marshmallow as ma
 from marshmallow.exceptions import ValidationError
 from marshmallow.compat import iteritems, PY2
 
-from .fields import BaseRelationship
+from .fields import BaseRelationship, Meta, _META_LOAD_FROM
 from .exceptions import IncorrectTypeError
 from .utils import resolve_params
 
@@ -138,6 +138,8 @@ class Schema(ma.Schema):
         payload = self.dict_class()
         if 'id' in item:
             payload['id'] = item['id']
+        if 'meta' in item:
+            payload[_META_LOAD_FROM] = item['meta']
         for key, value in iteritems(item.get('attributes', {})):
             payload[key] = value
         for key, value in iteritems(item.get('relationships', {})):
@@ -258,6 +260,10 @@ class Schema(ma.Schema):
             attribute = attributes[field_name]
             if attribute == ID:
                 ret[ID] = value
+            elif isinstance(self.fields[attribute], Meta):
+                if 'meta' not in ret:
+                    ret['meta'] = self.dict_class()
+                ret['meta'].update(value)
             elif isinstance(self.fields[attribute], BaseRelationship):
                 if 'relationships' not in ret:
                     ret['relationships'] = self.dict_class()

@@ -528,6 +528,61 @@ class ArticleSchema(Schema):
         type_ = 'articles'
 
 
+class PolygonSchema(Schema):
+    id = fields.Integer(as_string=True)
+    sides = fields.Integer()
+    regular = fields.Boolean()
+    # This is an attribute that uses the 'meta' key: /data/attributes/meta
+    meta = fields.String()
+    # This is the resource object's meta object: /data/meta
+    resource_meta = fields.Meta()
+
+    class Meta:
+        type_ = 'shapes'
+
+
+class TestMeta(object):
+
+    serialized_shape = {
+        'data': {
+            'id': '1',
+            'type': 'shapes',
+            'attributes': {
+                'sides': 3,
+                'regular': False,
+                'meta': 'This is an ill-advised (albeit valid) attribute name.',
+            },
+            'meta': {
+                'some': 'metadata',
+            },
+        },
+        'links': {'self': None},
+    }
+
+    shape = {
+        'id': 1,
+        'sides': 3,
+        'regular': False,
+        'meta': 'This is an ill-advised (albeit valid) attribute name.',
+        'resource_meta': {'some': 'metadata'},
+    }
+
+    def test_deserialize_meta(self):
+        data = PolygonSchema().load(self.serialized_shape).data
+        assert data
+        assert data['id'] == 1
+        assert data['sides'] == 3
+        assert data['regular'] == False
+        assert data['meta'] == \
+               'This is an ill-advised (albeit valid) attribute name.'
+        assert data['resource_meta'] == {'some': 'metadata'}
+
+    def test_serialize_meta(self):
+        data = PolygonSchema().dump(self.shape).data
+        assert data == self.serialized_shape
+
+
+
 class TestRelationshipLoading(object):
 
     article = {
