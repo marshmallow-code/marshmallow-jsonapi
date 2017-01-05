@@ -2,6 +2,17 @@
 Changelog
 *********
 
+0.10.0 (2017-01-05)
+===================
+
+Features:
+
+* Add ``fields.Meta`` for (de)serializing ``meta`` data on resource objects (:issue:`28`). Thanks :user:`rubdos` for the suggestion and initial work. Thanks :user:`RazerM` for the PR.
+
+Other changes:
+
+* Test against Python 3.6.
+
 0.9.0 (2016-10-08)
 ==================
 
