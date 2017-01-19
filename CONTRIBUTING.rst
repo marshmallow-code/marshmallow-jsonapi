@@ -26,7 +26,7 @@ Setting Up for Local Development
 1. Fork marshmallow-jsonapi_ on Github. ::
 
     $ git clone https://github.com/marshmallow-code/marshmallow-jsonapi.git
-    $ cd marshmallow
+    $ cd marshmallow-jsonapi
 
 2. Install development requirements. It is highly recommended that you use a virtualenv. ::
 
