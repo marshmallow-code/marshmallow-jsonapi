@@ -323,7 +323,7 @@ class Schema(ma.Schema):
         # may only be included if there is data in the ret
         if many or data:
             top_level_links = self.get_top_level_links(data, many)
-            if top_level_links:
+            if top_level_links['self']:
                 ret['links'] = top_level_links
         return ret
 
