@@ -124,6 +124,21 @@ class TestResponseFormatting:
         assert 'relationships' in data['data']
         assert 'post-comments' in data['data']['relationships']
 
+    def test_dump_none(self):
+        data = AuthorSchema().dump(None).data
+
+        assert 'data' in data
+        assert data['data'] is None
+        assert 'links' not in data
+
+    def test_dump_empty_list(self):
+        data = AuthorSchema(many=True).dump([]).data
+
+        assert 'data' in data
+        assert type(data['data']) is list
+        assert len(data['data']) == 0
+        assert 'links' not in data
+
 
 class TestCompoundDocuments:
 

@@ -247,6 +247,12 @@ class Schema(ma.Schema):
 
         See: http://jsonapi.org/format/#document-resource-objects
         """
+        # http://jsonapi.org/format/#document-top-level
+        # Primary data MUST be either... a single resource object, a single resource
+        # identifier object, or null, for requests that target single resources
+        if not item:
+            return None
+
         ret = self.dict_class()
         ret[TYPE] = self.opts.type_
 
@@ -313,9 +319,11 @@ class Schema(ma.Schema):
     def wrap_response(self, data, many):
         """Wrap data and links according to the JSON API """
         ret = {'data': data}
-        top_level_links = self.get_top_level_links(data, many)
-        if top_level_links:
-            ret['links'] = top_level_links
+        print('WRAP_RESPONSE', data)
+        if data:
+            top_level_links = self.get_top_level_links(data, many)
+            if top_level_links:
+                ret['links'] = top_level_links
         return ret
 
     def generate_url(self, link, **kwargs):
