@@ -319,8 +319,9 @@ class Schema(ma.Schema):
     def wrap_response(self, data, many):
         """Wrap data and links according to the JSON API """
         ret = {'data': data}
-        print('WRAP_RESPONSE', data)
-        if data:
+        # self_url_many is still valid when there isn't any data, but self_url
+        # may only be included if there is data in the ret
+        if many or data:
             top_level_links = self.get_top_level_links(data, many)
             if top_level_links:
                 ret['links'] = top_level_links

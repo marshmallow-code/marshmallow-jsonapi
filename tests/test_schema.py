@@ -133,11 +133,13 @@ class TestResponseFormatting:
 
     def test_dump_empty_list(self):
         data = AuthorSchema(many=True).dump([]).data
+        print('TEST_DUMP_EMPTY_LIST', data)
 
         assert 'data' in data
         assert type(data['data']) is list
         assert len(data['data']) == 0
-        assert 'links' not in data
+        assert 'links' in data
+        assert data['links']['self'] == '/authors/'
 
 
 class TestCompoundDocuments:
