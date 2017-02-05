@@ -42,7 +42,7 @@ setup(
     package_dir={'marshmallow-jsonapi': 'marshmallow-jsonapi'},
     include_package_data=True,
     install_requires=REQUIRES,
-    license=read('LICENSE'),
+    license='MIT',
     zip_safe=False,
     keywords=('marshmallow-jsonapi marshmallow marshalling serialization '
             'jsonapi deserialization validation'),
