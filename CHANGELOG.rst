@@ -2,6 +2,13 @@
 Changelog
 *********
 
+0.10.1 (2017-02-05)
+===================
+
+Bug fixes:
+
+* Serialize ``None`` and empty lists (``[]``) to valid JSON-API objects (:issue:`58`). Thanks :user:`rgant` for reporting and sending a PR.
+
 0.10.0 (2017-01-05)
 ===================
 

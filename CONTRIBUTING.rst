@@ -26,7 +26,7 @@ Setting Up for Local Development
 1. Fork marshmallow-jsonapi_ on Github. ::
 
     $ git clone https://github.com/marshmallow-code/marshmallow-jsonapi.git
-    $ cd marshmallow
+    $ cd marshmallow-jsonapi
 
 2. Install development requirements. It is highly recommended that you use a virtualenv. ::
 
@@ -49,9 +49,6 @@ Marshmallow abides by the following branching model:
 ``pypi``
     Current production release on PyPI.
 
-``X.Y-line``
-    Maintenance branch for release ``X.Y``. **Bug fixes should be sent to the most recent release branch.**. The maintainer will forward-port the fix to ``dev``. Note: exceptions may be made for bug fixes that introduce large code changes.
-
 **Always make a new branch for your work**, no matter how small. Also, **do not put unrelated changes in the same branch or pull request**. This makes it more difficult to merge your changes.
 
 Pull Requests
@@ -60,11 +57,7 @@ Pull Requests
 1. Create a new local branch.
 ::
 
-    # For a new feature
     $ git checkout -b name-of-feature dev
-
-    # For a bugfix
-    $ git checkout -b fix-something 1.2-line
 
 2. Commit your changes. Write `good commit messages <http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html>`_.
 ::

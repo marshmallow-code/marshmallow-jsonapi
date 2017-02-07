@@ -29,6 +29,10 @@ def authors():
     return [make_author() for _ in range(3)]
 
 @pytest.fixture()
+def comments():
+    return [make_comment() for _ in range(3)]
+
+@pytest.fixture()
 def post():
     return make_post()
 

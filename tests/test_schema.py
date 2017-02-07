@@ -124,6 +124,22 @@ class TestResponseFormatting:
         assert 'relationships' in data['data']
         assert 'post-comments' in data['data']['relationships']
 
+    def test_dump_none(self):
+        data = AuthorSchema().dump(None).data
+
+        assert 'data' in data
+        assert data['data'] is None
+        assert 'links' not in data
+
+    def test_dump_empty_list(self):
+        data = AuthorSchema(many=True).dump([]).data
+
+        assert 'data' in data
+        assert type(data['data']) is list
+        assert len(data['data']) == 0
+        assert 'links' in data
+        assert data['links']['self'] == '/authors/'
+
 
 class TestCompoundDocuments:
 
@@ -515,6 +531,18 @@ class TestAutoSelfUrls:
         assert 'links' in data['data'][0]
         assert data['data'][0]['links']['self'] == '/authors/{}'.format(authors[0].id)
 
+    def test_without_self_link(self, comments):
+        data = CommentSchema(many=True).dump(comments).data
+
+        assert 'data' in data
+        assert type(data['data']) is list
+
+        first = data['data'][0]
+        assert first['id'] == comments[0].id
+        assert first['type'] == 'comments'
+
+        assert 'links' not in data
+
 
 class ArticleSchema(Schema):
     id = fields.Integer()
@@ -556,7 +584,6 @@ class TestMeta(object):
                 'some': 'metadata',
             },
         },
-        'links': {'self': None},
     }
 
     shape = {
