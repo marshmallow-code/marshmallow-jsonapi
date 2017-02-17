@@ -112,6 +112,34 @@ class TestResponseFormatting:
         assert 'links' in data
         assert data['links']['self'] == '/authors/'
 
+    def test_dump_single_resource_identifer(self, author):
+        data = unpack(AuthorSchema(resource_identifier=True).dump(author))
+
+        assert data == {
+            'data': {'id': str(author.id), 'type': 'people'},
+            'links': {'self': '/authors/' + str(author.id)}
+        }
+
+    def test_dump_many_resource_identifer(self, authors):
+        schema = AuthorSchema(many=True, resource_identifier=True)
+        data = unpack(schema.dump(authors))
+
+        assert set(data.keys()) == {'data', 'links'}
+        assert data['links'] == {'self': '/authors/'}
+        for i, author in enumerate(authors):
+            assert data['data'][i] == {'id': str(authors[i].id), 'type': 'people'}
+
+    def test_dump_none_resource_identifier(self):
+        data = unpack(AuthorSchema(resource_identifier=True).dump(None))
+
+        assert 'data' in data
+        assert data['data'] is None
+        assert 'links' not in data
+
+    def test_dump_empty_list_resource_identifier(self):
+        data = unpack(AuthorSchema(many=True, resource_identifier=True).dump([]))
+        assert data == {'data': [], 'links': {'self': '/authors/'}}
+
 
 class TestCompoundDocuments:
 
