@@ -60,6 +60,42 @@ class Schema(DefaultSchema):
         """
         pass
 
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('self_url', None):
+            raise TypeError('Use `self_view` instead of `self_url` '
+                            'using the Flask extension.')
+        if kwargs.get('self_url_kwargs', None):
+            raise TypeError('Use `self_view_kwargs` instead of '
+                            '`self_url_kwargs` when using the Flask extension.')
+        if kwargs.get('related_url', None):
+            raise TypeError('Use `related_view` instead of `related_url` '
+                             'using the Flask extension.')
+        if kwargs.get('related_url_kwargs', None):
+            raise TypeError('Use `related_view_kwargs` instead of '
+                            '`related_url_kwargs` when using the Flask extension.')
+
+        self_view = kwargs.pop('self_view', None)
+        self_view_kwargs = kwargs.pop('self_view_kwargs', dict())
+        related_view = kwargs.pop('related_view', None)
+        related_view_kwargs = kwargs.pop('related_view_kwargs', dict())
+
+        if self_view_kwargs and not self_view:
+            raise ValueError('Must specify `self_view` keyword when '
+                             '`self_view_kwargs` is specified.')
+
+        if related_view_kwargs and not related_view:
+            raise ValueError('Must specify `related_view` keyword when '
+                             '`related_view_kwargs` is specified.')
+
+        if self_view:
+            kwargs['self_url'] = flask.url_for(self_view, **self_view_kwargs)
+        if related_view:
+            kwargs['related_url'] = flask.url_for(related_view,
+                                                  **related_view_kwargs)
+
+        super(Schema, self).__init__(*args, **kwargs)
+
+
     def generate_url(self, view_name, **kwargs):
         """Generate URL with any kwargs interpolated."""
         return flask.url_for(view_name, **kwargs) if view_name else None

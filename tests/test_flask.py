@@ -99,6 +99,37 @@ class TestSchema:
         assert 'links' in data['data'][0]
         assert data['data'][0]['links']['self'] == '/posts/{}/'.format(posts[0].id)
 
+    @pytest.mark.parametrize('kwargs, exc, msg', [
+        (dict(self_url='foo'), TypeError, 'self_view'),
+        (dict(self_url_kwargs='foo'), TypeError, 'self_view_kwargs'),
+        (dict(related_url='foo'), TypeError, 'related_view'),
+        (dict(related_url_kwargs='foo'), TypeError, 'related_view_kwargs'),
+        (dict(self_view_kwargs='foo'), ValueError, 'self_view'),
+        (dict(related_view_kwargs='foo'), ValueError, 'related_view'),
+    ])
+    def test_schema_view_override_exceptions(self, kwargs, exc, msg):
+        with pytest.raises(exc) as exc_info:
+            self.PostFlaskSchema(**kwargs)
+
+        assert msg in exc_info.value.args[0]
+
+    def test_view_override(self, app):
+        # Here we use "wrong" views just to check output.
+
+        schema = self.PostFlaskSchema(self_view='posts')
+        assert schema.override_self_url == '/posts/'
+
+        schema = self.PostFlaskSchema(
+            self_view='author_detail', self_view_kwargs={'author_id': 1})
+        assert schema.override_self_url == '/authors/1'
+
+        schema = self.PostFlaskSchema(related_view='posts')
+        assert schema.override_related_url == '/posts/'
+
+        schema = self.PostFlaskSchema(
+            related_view='author_detail', related_view_kwargs={'author_id': 1})
+        assert schema.override_related_url == '/authors/1'
+
     def test_schema_with_empty_relationship(self, app, post_with_null_author):
         data = unpack(self.PostAuthorFlaskSchema().dump(post_with_null_author))
         assert 'relationships' not in data

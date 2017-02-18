@@ -752,3 +752,24 @@ class TestRelationshipLoading(object):
 
         assert assert_relationship_error('author', errors['errors'])
         assert assert_relationship_error('comments', errors['errors'])
+
+
+class TestOverrideUrls(object):
+    def test_self_url(self, author):
+        url = '/articles/1/author'
+        schema = AuthorSchema(self_url=url)
+        data = unpack(schema.dump(author))
+
+        assert data['links']['self'] == url
+
+    def test_related_url(self, author):
+        self_url = '/articles/1/relationships/author'
+        related_url = '/articles/1/author'
+        schema = AuthorSchema(
+            resource_identifier=True,
+            self_url=self_url,
+            related_url=related_url)
+        data = unpack(schema.dump(author))
+
+        assert data['links']['self'] == self_url
+        assert data['links']['related'] == related_url
