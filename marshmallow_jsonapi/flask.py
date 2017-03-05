@@ -95,7 +95,6 @@ class Schema(DefaultSchema):
 
         super(Schema, self).__init__(*args, **kwargs)
 
-
     def generate_url(self, view_name, **kwargs):
         """Generate URL with any kwargs interpolated."""
         return flask.url_for(view_name, **kwargs) if view_name else None
