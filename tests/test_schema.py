@@ -343,7 +343,11 @@ class TestErrorFormatting:
 
     def test_validate_no_data_raises_error(self):
         author = {'meta': {'this': 'that'}}
-        errors = AuthorSchema().validate(author)
+
+        with pytest.raises(ValidationError) as excinfo:
+            AuthorSchema(strict=True).validate(author)
+
+        errors = excinfo.value.messages
 
         expected = {
             'errors': [
