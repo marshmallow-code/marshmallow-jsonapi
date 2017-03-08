@@ -2,6 +2,13 @@
 Changelog
 *********
 
+0.10.2 (unreleased)
+===================
+
+Bug fixes:
+
+* Fix format of error object returned when ``data`` key is not included in input (:issue:`66`). Thanks :user:`RazerM`.
+
 0.10.1 (2017-02-05)
 ===================
 
