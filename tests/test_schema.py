@@ -341,6 +341,27 @@ class TestErrorFormatting:
             errors = AuthorSchema(strict=False).validate(author)
             assert errors == expected
 
+    def test_validate_no_data_raises_error(self):
+        author = {'meta': {'this': 'that'}}
+
+        with pytest.raises(ValidationError) as excinfo:
+            AuthorSchema(strict=True).validate(author)
+
+        errors = excinfo.value.messages
+
+        expected = {
+            'errors': [
+                {
+                    'detail': 'Object must include `data` key.',
+                    'source': {
+                        'pointer': '/'
+                    }
+                }
+            ]
+        }
+
+        assert errors == expected
+
     def test_validate_type(self):
         author = {'data':
                 {'type': 'invalid', 'attributes': {'first_name': 'Dan', 'password': 'supersecure'}}}
