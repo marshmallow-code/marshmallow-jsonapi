@@ -262,6 +262,25 @@ class TestCompoundDocuments:
         for child in data['included']:
             assert child['attributes']['data'] == 'data%s' % child['id']
 
+    def test_include_data_with_many_and_schema_as_class(self, post):
+        class PostClassSchema(PostSchema):
+            post_comments = fields.Relationship(
+                'http://test.test/posts/{id}/comments/',
+                related_url_kwargs={'id': '<id>'},
+                attribute='comments', dump_to='post-comments',
+                schema=CommentSchema, many=True
+            )
+
+            class Meta(PostSchema.Meta):
+                pass
+
+        data = PostClassSchema(include_data=('post_comments',)).dump(post).data
+        assert 'included' in data
+        assert len(data['included']) == 2
+        first_comment = data['included'][0]
+        assert 'attributes' in first_comment
+        assert 'body' in first_comment['attributes']
+
 
 def get_error_by_field(errors, field):
     for err in errors['errors']:

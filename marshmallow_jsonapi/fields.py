@@ -104,7 +104,7 @@ class Relationship(BaseRelationship):
         if isinstance(self.__schema, SchemaABC):
             return self.__schema
         if isinstance(self.__schema, type) and issubclass(self.__schema, SchemaABC):
-            self.__schema = self.__schema(many=self.many)
+            self.__schema = self.__schema()
             return self.__schema
         if isinstance(self.__schema, basestring):
             if self.__schema == _RECURSIVE_NESTED:
