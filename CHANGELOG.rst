@@ -2,12 +2,13 @@
 Changelog
 *********
 
-0.10.2 (unreleased)
+0.10.2 (2017-03-08)
 ===================
 
 Bug fixes:
 
 * Fix format of error object returned when ``data`` key is not included in input (:issue:`66`). Thanks :user:`RazerM`.
+* Fix serializing compound documents when ``Relationship`` is passed a schema class and ``many=True`` (:issue:`67`). Thanks :user:`danpoland` for the catch and patch.
 
 0.10.1 (2017-02-05)
 ===================
