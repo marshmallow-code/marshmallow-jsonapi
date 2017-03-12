@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import pytest
-import marshmallow
+
 from marshmallow import validate, ValidationError
 from marshmallow_jsonapi import Schema, fields
 from marshmallow_jsonapi.exceptions import IncorrectTypeError
-
-MARSHMALLOW_VERSION_INFO = tuple(map(int, marshmallow.__version__.split('.')))
-
+from marshmallow_jsonapi.utils import _MARSHMALLOW_VERSION_INFO
 
 class AuthorSchema(Schema):
     id = fields.Int()
@@ -176,6 +174,7 @@ class TestCompoundDocuments:
             id = fields.Int()
             data = fields.Str()
             parent = fields.Relationship(schema='self', many=False)
+
             class Meta:
                 type_ = 'refs'
 
@@ -356,7 +355,7 @@ class TestErrorFormatting:
 
         # This assertion is only valid on newer versions of marshmallow, which
         # have this bugfix: https://github.com/marshmallow-code/marshmallow/pull/530
-        if MARSHMALLOW_VERSION_INFO >= (2, 10, 1):
+        if _MARSHMALLOW_VERSION_INFO >= (2, 10, 1):
             errors = AuthorSchema(strict=False).validate(author)
             assert errors == expected
 
@@ -639,7 +638,7 @@ class TestMeta(object):
         assert data
         assert data['id'] == 1
         assert data['sides'] == 3
-        assert data['regular'] == False
+        assert data['regular'] is False
         assert data['meta'] == \
                'This is an ill-advised (albeit valid) attribute name.'
         assert data['resource_meta'] == {'some': 'metadata'}
@@ -647,7 +646,6 @@ class TestMeta(object):
     def test_serialize_meta(self):
         data = PolygonSchema().dump(self.shape).data
         assert data == self.serialized_shape
-
 
 
 class TestRelationshipLoading(object):

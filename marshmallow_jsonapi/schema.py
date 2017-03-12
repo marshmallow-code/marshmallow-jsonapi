@@ -20,8 +20,8 @@ def plain_function(f):
 
 class SchemaOpts(ma.SchemaOpts):
 
-    def __init__(self, meta):
-        super(SchemaOpts, self).__init__(meta)
+    def __init__(self, meta, *args, **kwargs):
+        super(SchemaOpts, self).__init__(meta, *args, **kwargs)
         self.type_ = getattr(meta, 'type_', None)
         self.inflect = plain_function(getattr(meta, 'inflect', None))
         self.self_url = getattr(meta, 'self_url', None)

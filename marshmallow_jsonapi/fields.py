@@ -10,9 +10,9 @@ from marshmallow import ValidationError, class_registry
 # Make core fields importable from marshmallow_jsonapi
 from marshmallow.fields import *  # noqa
 from marshmallow.base import SchemaABC
-from marshmallow.utils import get_value, is_collection
+from marshmallow.utils import is_collection
 
-from .utils import resolve_params, iteritems
+from .utils import get_value, resolve_params, iteritems
 
 
 _RECURSIVE_NESTED = 'self'
@@ -134,12 +134,12 @@ class Relationship(BaseRelationship):
         if self.many:
             resource_object = [{
                 'type': self.type_,
-                'id': _stringify(get_value(self.id_field, each, each))
+                'id': _stringify(get_value(each, self.id_field, each))
             } for each in value]
         else:
             resource_object = {
                 'type': self.type_,
-                'id': _stringify(get_value(self.id_field, value, value))
+                'id': _stringify(get_value(value, self.id_field, value))
             }
         return resource_object
 

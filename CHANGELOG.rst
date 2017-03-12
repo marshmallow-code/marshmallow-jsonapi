@@ -2,6 +2,18 @@
 Changelog
 *********
 
+0.11.0 (unreleased)
+===================
+
+Bug fixes:
+
+* Fix compatibility with marshmallow 3.x.
+
+
+Other changes:
+
+* *Backwards-incompatible*: Remove unused `utils.get_value_or_raise` function.
+
 0.10.2 (2017-03-08)
 ===================
 
