@@ -19,7 +19,7 @@ env:
 install:
   - travis_retry pip install -U .
   - travis_retry pip install -U -r dev-requirements.txt
-  - travis_retry pip install -U marshmallow"$MARSHMALLOW_VERSION"
+  - travis_retry pip install -U marshmallow"$MARSHMALLOW_VERSION" --pre
 
 before_script:
     - flake8 .
