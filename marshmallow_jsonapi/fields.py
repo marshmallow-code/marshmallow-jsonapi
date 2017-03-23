@@ -81,7 +81,7 @@ class Relationship(BaseRelationship):
     def __init__(
         self,
         related_url='', related_url_kwargs=None, related_meta=None,
-        self_url='', self_url_kwargs=None,
+        self_url='', self_url_kwargs=None, self_meta=None,
         include_resource_linkage=False, schema=None,
         many=False, type_=None, id_field=None, **kwargs
     ):
@@ -91,11 +91,18 @@ class Relationship(BaseRelationship):
             if not callable(related_meta):
                 raise ValueError('related_meta must be a callable.')
 
+        if self_meta:
+            if not self_url:
+                raise ValueError('self_meta requires the self_url argument.')
+            if not callable(self_meta):
+                raise ValueError('self_meta must be a callable.')
+
         self.related_url = related_url
         self.related_url_kwargs = related_url_kwargs or {}
         self.related_meta = related_meta
         self.self_url = self_url
         self.self_url_kwargs = self_url_kwargs or {}
+        self.self_meta = self_meta
         if include_resource_linkage and not type_:
             raise ValueError('include_resource_linkage=True requires the type_ argument.')
         self.many = many
@@ -196,7 +203,13 @@ class Relationship(BaseRelationship):
             ret['links'] = dict_class()
 
             if self_url:
-                ret['links']['self'] = self_url
+                if self.self_meta:
+                    meta = self.self_meta(value)
+                    if not isinstance(meta, dict_class):
+                        raise ValueError('self_meta must return a dict.')
+                    ret['links']['self'] = {'href': self_url, 'meta': meta}
+                else:
+                    ret['links']['self'] = self_url
             if related_url:
                 if self.related_meta:
                     meta = self.related_meta(value)
