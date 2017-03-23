@@ -207,7 +207,7 @@ class Relationship(BaseRelationship):
                     meta = self.self_meta(value)
                     if not isinstance(meta, dict_class):
                         raise ValueError('self_meta must return a dict.')
-                    ret['links']['self'] = {'href': self_url, 'meta': meta}
+                    ret['links']['self'] = dict_class(href=self_url, meta=meta)
                 else:
                     ret['links']['self'] = self_url
             if related_url:
@@ -215,7 +215,7 @@ class Relationship(BaseRelationship):
                     meta = self.related_meta(value)
                     if not isinstance(meta, dict_class):
                         raise ValueError('related_meta must return a dict.')
-                    ret['links']['related'] = {'href': related_url, 'meta': meta}
+                    ret['links']['related'] = dict_class(href=related_url, meta=meta)
                 else:
                     ret['links']['related'] = related_url
 
