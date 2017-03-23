@@ -86,7 +86,10 @@ class Relationship(BaseRelationship):
         many=False, type_=None, id_field=None, **kwargs
     ):
         if related_meta:
-            assert callable(related_meta), 'related_meta must be a callable.'
+            if not related_url:
+                raise ValueError('related_meta requires the related_url argument.')
+            if not callable(related_meta):
+                raise ValueError('related_meta must be a callable.')
 
         self.related_url = related_url
         self.related_url_kwargs = related_url_kwargs or {}
@@ -197,7 +200,8 @@ class Relationship(BaseRelationship):
             if related_url:
                 if self.related_meta:
                     meta = self.related_meta(value)
-                    assert isinstance(meta, dict_class), 'related_meta must return a dict.'
+                    if not isinstance(meta, dict_class):
+                        raise ValueError('related_meta must return a dict.')
                     ret['links']['related'] = {'href': related_url, 'meta': meta}
                 else:
                     ret['links']['related'] = related_url
