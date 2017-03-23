@@ -80,13 +80,17 @@ class Relationship(BaseRelationship):
 
     def __init__(
         self,
-        related_url='', related_url_kwargs=None,
+        related_url='', related_url_kwargs=None, related_meta=None,
         self_url='', self_url_kwargs=None,
         include_resource_linkage=False, schema=None,
         many=False, type_=None, id_field=None, **kwargs
     ):
+        if related_meta:
+            assert callable(related_meta), 'related_meta must be a callable.'
+
         self.related_url = related_url
         self.related_url_kwargs = related_url_kwargs or {}
+        self.related_meta = related_meta
         self.self_url = self_url
         self.self_url_kwargs = self_url_kwargs or {}
         if include_resource_linkage and not type_:
@@ -184,12 +188,19 @@ class Relationship(BaseRelationship):
         ret = dict_class()
         self_url = self.get_self_url(obj)
         related_url = self.get_related_url(obj)
+
         if self_url or related_url:
             ret['links'] = dict_class()
+
             if self_url:
                 ret['links']['self'] = self_url
             if related_url:
-                ret['links']['related'] = related_url
+                if self.related_meta:
+                    meta = self.related_meta(value)
+                    assert isinstance(meta, dict_class), 'related_meta must return a dict.'
+                    ret['links']['related'] = {'href': related_url, 'meta': meta}
+                else:
+                    ret['links']['related'] = related_url
 
         # resource linkage is required when including the data
         if self.include_resource_linkage or self.include_data:
