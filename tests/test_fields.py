@@ -253,6 +253,42 @@ class TestGenericRelationshipField:
         with pytest.raises(ValueError):
             field.serialize('comments', post)
 
+    def test_self_meta(self, post):
+        def get_meta(value):
+            return {'test': 'test'}
+
+        field = Relationship(
+            self_url='/posts/{post_id}/relationships/comments',
+            self_url_kwargs={'post_id': '<id>'},
+            self_meta=get_meta,
+        )
+        result = field.serialize('comments', post)
+
+        assert result['links']['self']['href']
+        assert result['links']['self']['meta'] == {'test': 'test'}
+
+    def test_self_meta_missing_self_url(self, post):
+        def get_meta(value):
+            return {'test': 'test'}
+
+        with pytest.raises(ValueError):
+            Relationship(
+                self_meta=get_meta,
+            )
+
+    def test_self_meta_bad_return(self, post):
+        def get_meta(value):
+            return 'test'
+
+        field = Relationship(
+            self_url='/posts/{post_id}/relationships/comments',
+            self_url_kwargs={'post_id': '<id>'},
+            self_meta=get_meta,
+        )
+
+        with pytest.raises(ValueError):
+            field.serialize('comments', post)
+
 
 class TestMetaField:
 
