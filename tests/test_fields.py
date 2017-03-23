@@ -211,6 +211,48 @@ class TestGenericRelationshipField:
         assert result and result['links']['related']
         assert 'data' not in result
 
+    def test_include_meta(self, post):
+        def get_count(value):
+            return {'count': len(value)}
+
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'},
+            related_meta=get_count,
+            many=True,
+            include_resource_linkage=False
+        )
+        result = field.serialize('comments', post)
+
+        assert result['links']['related']['href']
+        assert result['links']['related']['meta'] == {'count': 2}
+
+    def test_include_meta_missing_related_url(self, post):
+        def get_count(value):
+            return {'count': len(value)}
+
+        with pytest.raises(ValueError):
+            Relationship(
+                related_meta=get_count,
+                many=True,
+                include_resource_linkage=False
+            )
+
+    def test_include_meta_bad_return(self, post):
+        def get_count(value):
+            return len(value)
+
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'},
+            related_meta=get_count,
+            many=True,
+            include_resource_linkage=False
+        )
+
+        with pytest.raises(ValueError):
+            field.serialize('comments', post)
+
 
 class TestMetaField:
 
