@@ -12,7 +12,7 @@ from marshmallow.fields import *  # noqa
 from marshmallow.base import SchemaABC
 from marshmallow.utils import is_collection
 
-from .utils import resolve_params, iteritems
+from .utils import resolve_params, iteritems, _MARSHMALLOW_VERSION_INFO
 
 
 _RECURSIVE_NESTED = 'self'
@@ -135,12 +135,16 @@ class Relationship(BaseRelationship):
         if self.many:
             resource_object = [{
                 'type': self.type_,
-                'id': _stringify(self.schema.get_attribute(self.id_field, each, each))
+                'id': _stringify(self.schema.get_attribute(each, self.id_field, each)
+                                 if _MARSHMALLOW_VERSION_INFO[0] >= 3
+                                 else self.schema.get_attribute(self.id_field, each, each))
             } for each in value]
         else:
             resource_object = {
                 'type': self.type_,
-                'id': _stringify(self.schema.get_attribute(self.id_field, value, value))
+                'id': _stringify(self.schema.get_attribute(value, self.id_field, value)
+                                 if _MARSHMALLOW_VERSION_INFO[0] >= 3
+                                 else self.schema.get_attribute(self.id_field, value, value))
             }
         return resource_object
 
