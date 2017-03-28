@@ -40,7 +40,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/author/',
             related_url_kwargs={'post_id': '<id>'},
-            include_resource_linkage=True, type_='people'
+            include_resource_linkage=True, type_='people', schema='PostSchema'
         )
         result = field.serialize('author', post)
         assert 'data' in result
@@ -51,7 +51,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/author/',
             related_url_kwargs={'post_id': '<id>'},
-            include_resource_linkage=True, type_='people'
+            include_resource_linkage=True, type_='people', schema='PostSchema'
         )
         result = field.serialize('author_id', post)
         assert result['data']['id'] == str(post.author_id)
@@ -60,7 +60,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
-            many=True, include_resource_linkage=True, type_='comments'
+            many=True, include_resource_linkage=True, type_='comments', schema='CommentSchema'
         )
         result = field.serialize('comments', post)
         assert 'data' in result

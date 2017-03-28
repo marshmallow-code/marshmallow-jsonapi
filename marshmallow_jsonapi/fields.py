@@ -101,6 +101,7 @@ class Relationship(BaseRelationship):
 
     @property
     def schema(self):
+        print(self.__schema.__class__)
         if isinstance(self.__schema, SchemaABC):
             return self.__schema
         if isinstance(self.__schema, type) and issubclass(self.__schema, SchemaABC):
@@ -134,12 +135,12 @@ class Relationship(BaseRelationship):
         if self.many:
             resource_object = [{
                 'type': self.type_,
-                'id': _stringify(self.schema.get_attribute(each, self.id_field, each))
+                'id': _stringify(self.schema.get_attribute(self.id_field, each, each))
             } for each in value]
         else:
             resource_object = {
                 'type': self.type_,
-                'id': _stringify(self.schema.get_attribute(value, self.id_field, value))
+                'id': _stringify(self.schema.get_attribute(self.id_field, value, value))
             }
         return resource_object
 
