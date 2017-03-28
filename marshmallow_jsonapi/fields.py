@@ -101,7 +101,6 @@ class Relationship(BaseRelationship):
 
     @property
     def schema(self):
-        print(self.__schema.__class__)
         if isinstance(self.__schema, SchemaABC):
             return self.__schema
         if isinstance(self.__schema, type) and issubclass(self.__schema, SchemaABC):
