@@ -40,6 +40,17 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/author/',
             related_url_kwargs={'post_id': '<id>'},
+            include_resource_linkage=True, type_='people'
+        )
+        result = field.serialize('author', post)
+        assert 'data' in result
+        assert result['data']
+        assert result['data']['id'] == str(post.author.id)
+
+    def test_include_resource_linkage_single_with_schema(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/author/',
+            related_url_kwargs={'post_id': '<id>'},
             include_resource_linkage=True, type_='people', schema='PostSchema'
         )
         result = field.serialize('author', post)
@@ -51,12 +62,32 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url='/posts/{post_id}/author/',
             related_url_kwargs={'post_id': '<id>'},
+            include_resource_linkage=True, type_='people'
+        )
+        result = field.serialize('author_id', post)
+        assert result['data']['id'] == str(post.author_id)
+
+    def test_include_resource_linkage_single_foreign_key_with_schema(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/author/',
+            related_url_kwargs={'post_id': '<id>'},
             include_resource_linkage=True, type_='people', schema='PostSchema'
         )
         result = field.serialize('author_id', post)
         assert result['data']['id'] == str(post.author_id)
 
     def test_include_resource_linkage_many(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'},
+            many=True, include_resource_linkage=True, type_='comments'
+        )
+        result = field.serialize('comments', post)
+        assert 'data' in result
+        ids = [each['id'] for each in result['data']]
+        assert ids == [str(each.id) for each in post.comments]
+
+    def test_include_resource_linkage_many_with_schema(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
