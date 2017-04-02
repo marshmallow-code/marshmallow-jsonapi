@@ -217,14 +217,14 @@ class Relationship(BaseRelationship):
 
     def _get_id(self, value):
         if _MARSHMALLOW_VERSION_INFO[0] >= 3:
-            try:
+            if self.__schema:
                 return self.schema.get_attribute(value, self.id_field, value)
-            except ValueError:
+            else:
                 return get_value(value, self.id_field, value)
         else:
-            try:
+            if self.__schema:
                 return self.schema.get_attribute(self.id_field, value, value)
-            except ValueError:
+            else:
                 return get_value(value, self.id_field, value)
 
 
