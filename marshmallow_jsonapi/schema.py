@@ -20,8 +20,8 @@ def plain_function(f):
 
 class SchemaOpts(ma.SchemaOpts):
 
-    def __init__(self, meta):
-        super(SchemaOpts, self).__init__(meta)
+    def __init__(self, meta, *args, **kwargs):
+        super(SchemaOpts, self).__init__(meta, *args, **kwargs)
         self.type_ = getattr(meta, 'type_', None)
         self.inflect = plain_function(getattr(meta, 'inflect', None))
         self.self_url = getattr(meta, 'self_url', None)
@@ -157,7 +157,12 @@ class Schema(ma.Schema):
     @ma.pre_load(pass_many=True)
     def unwrap_request(self, data, many):
         if 'data' not in data:
-            raise ma.ValidationError('Object must include `data` key.')
+            raise ma.ValidationError([{
+                'detail': 'Object must include `data` key.',
+                'source': {
+                    'pointer': '/',
+                },
+            }])
 
         data = data['data']
         if many:

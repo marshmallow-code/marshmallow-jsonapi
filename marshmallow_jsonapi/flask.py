@@ -17,7 +17,7 @@ from .utils import resolve_params
 class SchemaOpts(DefaultOpts):
     """Options to use Flask view names instead of hard coding URLs."""
 
-    def __init__(self, meta):
+    def __init__(self, meta, *args, **kwargs):
         if getattr(meta, 'self_url', None):
             raise ValueError('Use `self_view` instead of `self_url` '
                              'using the Flask extension.')
@@ -38,7 +38,7 @@ class SchemaOpts(DefaultOpts):
         setattr(meta, 'self_url_kwargs', getattr(meta, 'self_view_kwargs', None))
         setattr(meta, 'self_url_many', getattr(meta, 'self_view_many', None))
 
-        super(SchemaOpts, self).__init__(meta)
+        super(SchemaOpts, self).__init__(meta, *args, **kwargs)
 
 
 class Schema(DefaultSchema):

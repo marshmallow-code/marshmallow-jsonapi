@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import pytest
-import marshmallow
+
 from marshmallow import validate, ValidationError
 from marshmallow_jsonapi import Schema, fields
 from marshmallow_jsonapi.exceptions import IncorrectTypeError
-
-MARSHMALLOW_VERSION_INFO = tuple(map(int, marshmallow.__version__.split('.')))
-
+from marshmallow_jsonapi.utils import _MARSHMALLOW_VERSION_INFO
 
 class AuthorSchema(Schema):
     id = fields.Int()
@@ -176,6 +174,7 @@ class TestCompoundDocuments:
             id = fields.Int()
             data = fields.Str()
             parent = fields.Relationship(schema='self', many=False)
+
             class Meta:
                 type_ = 'refs'
 
@@ -262,6 +261,25 @@ class TestCompoundDocuments:
         for child in data['included']:
             assert child['attributes']['data'] == 'data%s' % child['id']
 
+    def test_include_data_with_many_and_schema_as_class(self, post):
+        class PostClassSchema(PostSchema):
+            post_comments = fields.Relationship(
+                'http://test.test/posts/{id}/comments/',
+                related_url_kwargs={'id': '<id>'},
+                attribute='comments', dump_to='post-comments',
+                schema=CommentSchema, many=True
+            )
+
+            class Meta(PostSchema.Meta):
+                pass
+
+        data = PostClassSchema(include_data=('post_comments',)).dump(post).data
+        assert 'included' in data
+        assert len(data['included']) == 2
+        first_comment = data['included'][0]
+        assert 'attributes' in first_comment
+        assert 'body' in first_comment['attributes']
+
 
 def get_error_by_field(errors, field):
     for err in errors['errors']:
@@ -337,9 +355,30 @@ class TestErrorFormatting:
 
         # This assertion is only valid on newer versions of marshmallow, which
         # have this bugfix: https://github.com/marshmallow-code/marshmallow/pull/530
-        if MARSHMALLOW_VERSION_INFO >= (2, 10, 1):
+        if _MARSHMALLOW_VERSION_INFO >= (2, 10, 1):
             errors = AuthorSchema(strict=False).validate(author)
             assert errors == expected
+
+    def test_validate_no_data_raises_error(self):
+        author = {'meta': {'this': 'that'}}
+
+        with pytest.raises(ValidationError) as excinfo:
+            AuthorSchema(strict=True).validate(author)
+
+        errors = excinfo.value.messages
+
+        expected = {
+            'errors': [
+                {
+                    'detail': 'Object must include `data` key.',
+                    'source': {
+                        'pointer': '/'
+                    }
+                }
+            ]
+        }
+
+        assert errors == expected
 
     def test_validate_type(self):
         author = {'data':
@@ -599,7 +638,7 @@ class TestMeta(object):
         assert data
         assert data['id'] == 1
         assert data['sides'] == 3
-        assert data['regular'] == False
+        assert data['regular'] is False
         assert data['meta'] == \
                'This is an ill-advised (albeit valid) attribute name.'
         assert data['resource_meta'] == {'some': 'metadata'}
@@ -607,7 +646,6 @@ class TestMeta(object):
     def test_serialize_meta(self):
         data = PolygonSchema().dump(self.shape).data
         assert data == self.serialized_shape
-
 
 
 class TestRelationshipLoading(object):

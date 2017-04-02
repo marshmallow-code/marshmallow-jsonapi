@@ -19,3 +19,4 @@ Contributors (chronological)
 - Brandon Wood `@woodb <https://github.com/woodb>`_
 - Frazer McLean `@RazerM <https://github.com/RazerM>`_
 - J Rob Gant `@rgant <https://github.com/rgant>`_
+- Dan Poland `@danpoland <https://github.com/danpoland>`_
