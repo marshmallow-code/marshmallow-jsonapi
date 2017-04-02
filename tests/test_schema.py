@@ -151,7 +151,7 @@ class TestCompoundDocuments:
         data = PostSchema(include_data=('post_comments', 'post_comments.author')).dump(post).data
         assert 'included' in data
         assert len(data['included']) == 4
-        first_comment = data['included'][0]
+        first_comment = [i for i in data['included'] if i['type'] == 'comments'][0]
         assert 'attributes' in first_comment
         assert 'body' in first_comment['attributes']
 
