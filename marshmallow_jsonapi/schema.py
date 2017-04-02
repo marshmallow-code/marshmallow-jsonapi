@@ -96,22 +96,24 @@ class Schema(ma.Schema):
     OPTIONS_CLASS = SchemaOpts
 
     def check_relations(self, relations):
+        """Recursive function which checks if a relation is valid."""
         for rel in relations:
-            if rel:
-                rel = rel.split('.', 1)
-                local_field = rel[0]
+            if not rel:
+                continue
+            fields = rel.split('.', 1)
 
-                if local_field not in self.fields:
-                    raise ValueError('Unknown field "{}"'.format(local_field))
+            local_field = fields[0]
+            if local_field not in self.fields:
+                raise ValueError('Unknown field "{}"'.format(local_field))
 
-                field = self.fields[local_field]
-                if not isinstance(field, BaseRelationship):
-                    raise ValueError('Can only include relationships. "{}" is a "{}"'
-                                     .format(field.name, field.__class__.__name__))
+            field = self.fields[local_field]
+            if not isinstance(field, BaseRelationship):
+                raise ValueError('Can only include relationships. "{}" is a "{}"'
+                                 .format(field.name, field.__class__.__name__))
 
-                field.include_data = True
-                if len(rel) > 1:
-                    field.schema.check_relations(rel[1:])
+            field.include_data = True
+            if len(fields) > 1:
+                field.schema.check_relations(fields[1:])
 
     @ma.post_dump(pass_many=True)
     def format_json_api_response(self, data, many):

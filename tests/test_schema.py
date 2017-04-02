@@ -50,6 +50,12 @@ class CommentSchema(Schema):
     id = fields.Int()
     body = fields.Str(required=True)
 
+    author = fields.Relationship(
+        'http://test.test/comments/{id}/author/',
+        related_url_kwargs={'id': '<id>'},
+        schema=AuthorSchema, many=False
+    )
+
     class Meta:
         type_ = 'comments'
 
@@ -142,9 +148,9 @@ class TestResponseFormatting:
 class TestCompoundDocuments:
 
     def test_include_data_with_many(self, post):
-        data = PostSchema(include_data=('post_comments',)).dump(post).data
+        data = PostSchema(include_data=('post_comments', 'post_comments.author')).dump(post).data
         assert 'included' in data
-        assert len(data['included']) == 2
+        assert len(data['included']) == 4
         first_comment = data['included'][0]
         assert 'attributes' in first_comment
         assert 'body' in first_comment['attributes']
@@ -158,9 +164,9 @@ class TestCompoundDocuments:
         assert 'first_name' in author['attributes']
 
     def test_include_data_with_all_relations(self, post):
-        data = PostSchema(include_data=('author', 'post_comments')).dump(post).data
+        data = PostSchema(include_data=('author', 'post_comments', 'post_comments.author')).dump(post).data
         assert 'included' in data
-        assert len(data['included']) == 3
+        assert len(data['included']) == 5
         for included in data['included']:
             assert included['id']
             assert included['type'] in ('people', 'comments')
