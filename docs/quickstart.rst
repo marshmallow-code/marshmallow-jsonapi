@@ -169,7 +169,7 @@ Compound documents
 
 Just as with nested fields the ``schema`` can be a class or a string with a simple or fully qualified class name. Make sure to import the schema beforehand.
 
-Now you can include some data in a dump by specifying the includes.
+Now you can include some data in a dump by specifying the includes (also supports nested relations via the dot syntax).
 
 .. code-block:: python
 
