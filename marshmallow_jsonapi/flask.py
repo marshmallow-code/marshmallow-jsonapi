@@ -109,7 +109,7 @@ class Relationship(GenericRelationship):
 
     def get_url(self, obj, view_name, view_kwargs):
         if view_name:
-            kwargs = resolve_params(obj, view_kwargs)
+            kwargs = resolve_params(obj, view_kwargs, default=self.default)
             kwargs['endpoint'] = view_name
             try:
                 return flask.url_for(**kwargs)

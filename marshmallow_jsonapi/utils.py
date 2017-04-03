@@ -27,7 +27,7 @@ def tpl(val):
         return match.groups()[0]
     return None
 
-def resolve_params(obj, params):
+def resolve_params(obj, params, default=missing):
     """Given a dictionary of keyword arguments, return the same dictionary except with
     values enclosed in `< >` resolved to attributes on `obj`.
     """
@@ -35,7 +35,7 @@ def resolve_params(obj, params):
     for name, attr_tpl in iteritems(params):
         attr_name = tpl(str(attr_tpl))
         if attr_name:
-            attribute_value = get_value(obj, attr_name, default=missing)
+            attribute_value = get_value(obj, attr_name, default=default)
             if attribute_value is not missing:
                 param_values[name] = attribute_value
             else:

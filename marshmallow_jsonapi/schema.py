@@ -276,9 +276,10 @@ class Schema(ma.Schema):
                     ret['meta'] = self.dict_class()
                 ret['meta'].update(value)
             elif isinstance(self.fields[attribute], BaseRelationship):
-                if 'relationships' not in ret:
-                    ret['relationships'] = self.dict_class()
-                ret['relationships'][self.inflect(field_name)] = value
+                if value:
+                    if 'relationships' not in ret:
+                        ret['relationships'] = self.dict_class()
+                    ret['relationships'][self.inflect(field_name)] = value
             else:
                 if 'attributes' not in ret:
                     ret['attributes'] = self.dict_class()
