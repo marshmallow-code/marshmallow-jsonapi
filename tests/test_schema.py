@@ -417,8 +417,8 @@ class TestErrorFormatting:
 
     def test_errors_many(self):
         authors = make_authors([
-            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'},
             {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'bad'},
+            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'},
         ])
         errors = AuthorSchema(many=True).validate(authors)['errors']
 
@@ -426,7 +426,7 @@ class TestErrorFormatting:
 
         err = errors[0]
         assert 'source' in err
-        assert err['source']['pointer'] == '/data/1/attributes/password'
+        assert err['source']['pointer'] == '/data/0/attributes/password'
 
 def dasherize(text):
     return text.replace('_', '-')
