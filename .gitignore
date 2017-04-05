@@ -50,6 +50,3 @@ _sandbox
 env
 venv
 .python-version
-
-# Pycharm
-.idea/
