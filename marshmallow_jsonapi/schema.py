@@ -232,7 +232,7 @@ class Schema(ma.Schema):
             container = 'attributes'
 
         inflected_name = self.inflect(field_name)
-        if index:
+        if index is not None:
             pointer = '/data/{}/{}/{}'.format(index, container, inflected_name)
         else:
             pointer = '/data/{}/{}'.format(container, inflected_name)
