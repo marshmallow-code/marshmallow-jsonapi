@@ -2,6 +2,13 @@
 Changelog
 *********
 
+0.11.1 (2017-04-06)
+===================
+
+Bug fixes:
+
+- Fix formatting JSON pointer when serializing an invalid object at index 0 (:issue:`77`). Thanks :user:`danpoland` for the catch and patch.
+
 0.11.0 (2017-03-12)
 ===================
 
