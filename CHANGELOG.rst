@@ -2,6 +2,13 @@
 Changelog
 *********
 
+0.12.0 (2017-05-16)
+===================
+
+Features:
+
+* Use default attribute value instead of raising exception if relationship is ``None`` on ``Relationship`` field (:issue:`75`). Thanks :user:`akira-dev`.
+
 0.11.1 (2017-04-06)
 ===================
 
