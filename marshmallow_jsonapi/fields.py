@@ -120,14 +120,24 @@ class Relationship(BaseRelationship):
 
     def get_related_url(self, obj):
         if self.related_url:
-            kwargs = resolve_params(obj, self.related_url_kwargs)
-            return self.related_url.format(**kwargs)
+            params = resolve_params(obj, self.related_url_kwargs, default=self.default)
+            non_null_params = {
+                key: value for key, value in params.items()
+                if value is not None
+            }
+            if non_null_params:
+                return self.related_url.format(**non_null_params)
         return None
 
     def get_self_url(self, obj):
         if self.self_url:
-            kwargs = resolve_params(obj, self.self_url_kwargs)
-            return self.self_url.format(**kwargs)
+            params = resolve_params(obj, self.self_url_kwargs, default=self.default)
+            non_null_params = {
+                key: value for key, value in params.items()
+                if value is not None
+            }
+            if non_null_params:
+                return self.self_url.format(**non_null_params)
         return None
 
     def get_resource_linkage(self, value):
