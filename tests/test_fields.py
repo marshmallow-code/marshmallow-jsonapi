@@ -211,6 +211,16 @@ class TestGenericRelationshipField:
         assert result and result['links']['related']
         assert 'data' not in result
 
+    def test_empty_relationship_with_alternative_identifier_field(self, post_with_null_author):
+        field = Relationship(
+            related_url='/authors/{author_id}',
+            related_url_kwargs={'author_id': '<author.last_name>'},
+            default=None
+        )
+        result = field.serialize('author', post_with_null_author)
+
+        assert not result
+
 
 class TestMetaField:
 

@@ -20,3 +20,4 @@ Contributors (chronological)
 - Frazer McLean `@RazerM <https://github.com/RazerM>`_
 - J Rob Gant `@rgant <https://github.com/rgant>`_
 - Dan Poland `@danpoland <https://github.com/danpoland>`_
+- Pierre CHAISY `@akira-dev <https://github.com/akira-dev>`_
