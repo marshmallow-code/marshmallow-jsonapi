@@ -167,11 +167,13 @@ class TestCompoundDocuments:
         data = PostSchema(include_data=('author', 'post_comments', 'post_comments.author')).dump(post).data
         assert 'included' in data
         assert len(data['included']) == 5
-        for i, included in enumerate(data['included']):
+        for included in data['included']:
             assert included['id']
             assert included['type'] in ('people', 'comments')
-            if 'relationships' in included:
-                assert included['relationships']['author']['data']['id'] == str(data['included'][i + 1]['id'])
+        expected_comments_author_ids = set([comment.author.id for comment in post.comments])
+        included_comments_author_ids = set([i['id'] for i in data['included'] if i['type'] == 'people'
+                                                                              and i['id'] != post.author.id])
+        assert included_comments_author_ids == expected_comments_author_ids
 
     def test_include_no_data(self, post):
         data = PostSchema(include_data=()).dump(post).data
