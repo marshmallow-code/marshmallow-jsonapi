@@ -134,8 +134,8 @@ You can serialize `resource linkages <http://jsonapi.org/format/#document-resour
     #                     "related": "/posts/1/comments/"
     #                 }
     #                 "data": [
-    #                     {"id": 5, "type": "comments"},
-    #                     {"id": 12, "type": "comments"}
+    #                     {"id": "5", "type": "comments"},
+    #                     {"id": "12", "type": "comments"}
     #                 ],
     #             }
     #         },
@@ -173,10 +173,10 @@ Now you can include some data in a dump by specifying the includes (also support
 
 .. code-block:: python
 
-    ArticleSchema(include_data=('comments',)).dump(article).data
+    ArticleSchema(include_data=('comments', 'comments.author')).dump(article).data
     # {
     #     "data": {
-    #         "id": 1,
+    #         "id": "1",
     #         "type": "articles"
     #         "attributes": {"title": "Django is Omakase"},
     #         "relationships": {
@@ -185,8 +185,8 @@ Now you can include some data in a dump by specifying the includes (also support
     #                     "related": "/posts/1/comments/"
     #                 }
     #                 "data": [
-    #                     {"id": 5, "type": "comments"},
-    #                     {"id": 12, "type": "comments"}
+    #                     {"id": "5", "type": "comments"},
+    #                     {"id": "12", "type": "comments"}
     #                 ],
     #             }
     #         },
@@ -196,9 +196,17 @@ Now you can include some data in a dump by specifying the includes (also support
     #             "attributes": {
     #                 "body": "Marshmallow is sweet like sugar!"
     #             },
-    #             "id": 17,
+    #             "id": "17",
     #             "links": {"self": "/comments/17/"},
     #             "type": "comments"
+    #         },
+    #         {
+    #             "attributes": {
+    #                 "name": "Laura"
+    #             },
+    #             "id": "94",
+    #             "links": {"self": "/people/94/"},
+    #             "type": "people"
     #         }
     #     ]
     # }
@@ -227,7 +235,7 @@ meta object within a `resource object <http://jsonapi.org/format/#document-resou
     AuthorSchema().dump(author).data
     # {
     #     "data": {
-    #         "id": 1,
+    #         "id": "1",
     #         "type": "people"
     #         "attributes": {"name": "Alice"},
     #         "meta": {"page": {"offset": 10}}

@@ -93,7 +93,7 @@ class Relationship(GenericRelationship):
     :param str self_view: View name for self relationship link.
     :param dict self_view_kwargs: Path kwargs for `self_view`. String arguments
         enclosed in `< >` will be interpreted as attributes to pull from the target object.
-    :param **kwargs: Same keyword arguments as `marshmallow_jsonapi.fields.Relationship`.
+    :param \*\*kwargs: Same keyword arguments as `marshmallow_jsonapi.fields.Relationship`.
     """
     def __init__(
         self,

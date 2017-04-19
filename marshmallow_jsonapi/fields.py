@@ -69,7 +69,7 @@ class Relationship(BaseRelationship):
         enclosed in `< >` will be interpreted as attributes to pull from the target object.
     :param bool include_resource_linkage: Whether to include a resource linkage
         (http://jsonapi.org/format/#document-resource-object-linkage) in the serialized result.
-    :param Schema schema: The schema to render the included data with.
+    :param marshmallow_jsonapi.Schema schema: The schema to render the included data with.
     :param bool many: Whether the relationship represents a many-to-one or many-to-many
         relationship. Only affects serialization of the resource linkage.
     :param str type_: The type of resource.

@@ -21,3 +21,4 @@ Contributors (chronological)
 - J Rob Gant `@rgant <https://github.com/rgant>`_
 - Dan Poland `@danpoland <https://github.com/danpoland>`_
 - Pierre CHAISY `@akira-dev <https://github.com/akira-dev>`_
+- `@mrhanky17 <https://github.com/mrhanky17>`_
