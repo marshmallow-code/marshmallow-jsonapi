@@ -2,14 +2,14 @@
 Changelog
 *********
 
-0.13.0 (unreleased)
+0.13.0 (2017-04-18)
 ===================
 
 Features:
 
 * Add support for including deeply nested relationships in compount documents (:issue:`61`). Thanks :user:`mrhanky17` for the PR.
 
-0.12.0 (2017-05-16)
+0.12.0 (2017-04-16)
 ===================
 
 Features:
