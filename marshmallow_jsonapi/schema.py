@@ -79,18 +79,8 @@ class Schema(ma.Schema):
     def __init__(self, *args, **kwargs):
         self.include_data = kwargs.pop('include_data', ())
         super(Schema, self).__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            if field_name in self.include_data:
-                if not isinstance(field, BaseRelationship):
-                    raise ValueError('Can only include relationships. "{}" is a "{}"'
-                                     .format(field_name, field.__class__.__name__))
-                field.include_data = True
-            elif isinstance(field, BaseRelationship):
-                field.include_data = False
-
-        for field_name in self.include_data:
-            if field_name not in self.fields:
-                raise ValueError('Unknown field "{}"'.format(field_name))
+        if self.include_data:
+            self.check_relations(self.include_data)
 
         if not self.opts.type_:
             raise ValueError('Must specify type_ class Meta option')
@@ -104,6 +94,26 @@ class Schema(ma.Schema):
         self.included_data = {}
 
     OPTIONS_CLASS = SchemaOpts
+
+    def check_relations(self, relations):
+        """Recursive function which checks if a relation is valid."""
+        for rel in relations:
+            if not rel:
+                continue
+            fields = rel.split('.', 1)
+
+            local_field = fields[0]
+            if local_field not in self.fields:
+                raise ValueError('Unknown field "{}"'.format(local_field))
+
+            field = self.fields[local_field]
+            if not isinstance(field, BaseRelationship):
+                raise ValueError('Can only include relationships. "{}" is a "{}"'
+                                 .format(field.name, field.__class__.__name__))
+
+            field.include_data = True
+            if len(fields) > 1:
+                field.schema.check_relations(fields[1:])
 
     @ma.post_dump(pass_many=True)
     def format_json_api_response(self, data, many):
