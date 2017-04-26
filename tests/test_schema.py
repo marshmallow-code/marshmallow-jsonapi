@@ -74,7 +74,10 @@ class KeywordSchema(Schema):
 
     def get_attribute(self, attr, obj, default):
         if attr == 'id':
-            return md5(super(Schema, self).get_attribute('keyword', obj, '').encode('utf-8')).hexdigest()
+            if _MARSHMALLOW_VERSION_INFO[0] >= 3:
+                return md5(super(Schema, self).get_attribute(obj, 'keyword', obj).encode('utf-8')).hexdigest()
+            else:
+                return md5(super(Schema, self).get_attribute('keyword', obj, obj).encode('utf-8')).hexdigest()
         else:
             return super(Schema, self).get_attribute(attr, obj, default)
 
