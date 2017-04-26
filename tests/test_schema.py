@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
+from hashlib import md5
 from marshmallow import validate, ValidationError
 from marshmallow_jsonapi import Schema, fields
 from marshmallow_jsonapi.exceptions import IncorrectTypeError
@@ -42,6 +43,13 @@ class PostSchema(Schema):
         schema='CommentSchema', many=True
     )
 
+    post_keywords= fields.Relationship(
+        'http://test.test/posts/{id}/keywords/',
+        related_url_kwargs={'id': '<id>'},
+        attribute='keywords', dump_to='post-keywords',
+        schema='KeywordSchema', many=True
+    )
+
     class Meta:
         type_ = 'posts'
 
@@ -58,6 +66,20 @@ class CommentSchema(Schema):
 
     class Meta:
         type_ = 'comments'
+
+
+class KeywordSchema(Schema):
+    id = fields.Str()
+    keyword = fields.Str(required=True)
+
+    def get_attribute(self, attr, obj, default):
+        if attr == 'id':
+            return md5(super(Schema, self).get_attribute('keyword', obj, '').encode('utf-8')).hexdigest()
+        else:
+            return super(Schema, self).get_attribute(attr, obj, default)
+
+    class Meta:
+        type_ = 'keywords'
 
 
 def test_type_is_required():

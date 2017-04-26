@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
+from hashlib import md5
 from marshmallow import ValidationError
 from marshmallow_jsonapi.fields import Meta, Relationship
 
@@ -97,6 +98,17 @@ class TestGenericRelationshipField:
         assert 'data' in result
         ids = [each['id'] for each in result['data']]
         assert ids == [str(each.id) for each in post.comments]
+
+    def test_include_resource_linkage_many_with_schema_overriding_get_attribute(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/keywords',
+            related_url_kwargs={'post_id': '<id>'},
+            many=True, include_resource_linkage=True, type_='keywords', schema='KeywordSchema'
+        )
+        result = field.serialize('keywords', post)
+        assert 'data' in result
+        ids = [each['id'] for each in result['data']]
+        assert ids == [md5(each.keyword.encode('utf-8')).hexdigest() for each in post.keywords]
 
     def test_deserialize_data_single(self, post):
         field = Relationship(
