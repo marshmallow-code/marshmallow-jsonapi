@@ -69,7 +69,7 @@ class Relationship(BaseRelationship):
         enclosed in `< >` will be interpreted as attributes to pull from the target object.
     :param bool include_resource_linkage: Whether to include a resource linkage
         (http://jsonapi.org/format/#document-resource-object-linkage) in the serialized result.
-    :param Schema schema: The schema to render the included data with.
+    :param marshmallow_jsonapi.Schema schema: The schema to render the included data with.
     :param bool many: Whether the relationship represents a many-to-one or many-to-many
         relationship. Only affects serialization of the resource linkage.
     :param str type_: The type of resource.
@@ -120,14 +120,24 @@ class Relationship(BaseRelationship):
 
     def get_related_url(self, obj):
         if self.related_url:
-            kwargs = resolve_params(obj, self.related_url_kwargs)
-            return self.related_url.format(**kwargs)
+            params = resolve_params(obj, self.related_url_kwargs, default=self.default)
+            non_null_params = {
+                key: value for key, value in params.items()
+                if value is not None
+            }
+            if non_null_params:
+                return self.related_url.format(**non_null_params)
         return None
 
     def get_self_url(self, obj):
         if self.self_url:
-            kwargs = resolve_params(obj, self.self_url_kwargs)
-            return self.self_url.format(**kwargs)
+            params = resolve_params(obj, self.self_url_kwargs, default=self.default)
+            non_null_params = {
+                key: value for key, value in params.items()
+                if value is not None
+            }
+            if non_null_params:
+                return self.self_url.format(**non_null_params)
         return None
 
     def get_resource_linkage(self, value):

@@ -2,6 +2,27 @@
 Changelog
 *********
 
+0.13.0 (2017-04-18)
+===================
+
+Features:
+
+* Add support for including deeply nested relationships in compount documents (:issue:`61`). Thanks :user:`mrhanky17` for the PR.
+
+0.12.0 (2017-04-16)
+===================
+
+Features:
+
+* Use default attribute value instead of raising exception if relationship is ``None`` on ``Relationship`` field (:issue:`75`). Thanks :user:`akira-dev`.
+
+0.11.1 (2017-04-06)
+===================
+
+Bug fixes:
+
+- Fix formatting JSON pointer when serializing an invalid object at index 0 (:issue:`77`). Thanks :user:`danpoland` for the catch and patch.
+
 0.11.0 (2017-03-12)
 ===================
 

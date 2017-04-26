@@ -46,6 +46,22 @@ class TestSchema:
             self_view_kwargs = {'post_id': '<id>'}
             self_view_many = 'posts'
 
+    class PostAuthorFlaskSchema(Schema):
+        id = fields.Int()
+        title = fields.Str()
+
+        field = Relationship(
+            related_view='author_detail',
+            related_view_kwargs={'author_id': '<author.last_name>'},
+            default=None
+        )
+
+        class Meta:
+            type_ = 'posts'
+            self_view = 'post_detail'
+            self_view_kwargs = {'post_id': '<id>'}
+            self_view_many = 'posts'
+
     def test_schema_requires_view_options(self, post):
         with pytest.raises(ValueError):
             class InvalidFlaskMetaSchema(Schema):
@@ -80,6 +96,10 @@ class TestSchema:
 
         assert 'links' in data['data'][0]
         assert data['data'][0]['links']['self'] == '/posts/{}/'.format(posts[0].id)
+
+    def test_schema_with_empty_relationship(self, app, post_with_null_author):
+        data = self.PostAuthorFlaskSchema().dump(post_with_null_author).data
+        assert 'relationships' not in data
 
 
 class TestRelationshipField:
@@ -140,3 +160,13 @@ class TestRelationshipField:
         )
         with pytest.raises(BuildError):
             field.serialize('author', post)
+
+    def test_empty_relationship_with_alternative_identifier_field(self, app, post_with_null_author):
+        field = Relationship(
+            related_view='author_detail',
+            related_view_kwargs={'author_id': '<author.last_name>'},
+            default=None
+        )
+        result = field.serialize('author', post_with_null_author)
+
+        assert not result
