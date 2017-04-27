@@ -16,3 +16,6 @@ class Author(Bunch):
 
 class Comment(Bunch):
     pass
+
+class Keyword(Bunch):
+    pass
