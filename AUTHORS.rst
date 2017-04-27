@@ -22,3 +22,4 @@ Contributors (chronological)
 - Dan Poland `@danpoland <https://github.com/danpoland>`_
 - Pierre CHAISY `@akira-dev <https://github.com/akira-dev>`_
 - `@mrhanky17 <https://github.com/mrhanky17>`_
+- Mark Hall `@scmmmh <https://github.com/scmmmh>`_
