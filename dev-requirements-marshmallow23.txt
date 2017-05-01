@@ -15,3 +15,6 @@ twine
 
 # Syntax checking
 flake8==2.4.1
+
+# Force using Marshmallow < 3
+marshmallow>=2.3.0,<3
