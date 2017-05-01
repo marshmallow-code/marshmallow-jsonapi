@@ -2,6 +2,13 @@
 Changelog
 *********
 
+0.14.0 (2017-04-30)
+===================
+
+Features:
+
+* ``Relationship`` respects its passed ``Schema's`` ``get_attribute`` method when getting the ``id`` field for resource linkages (:issue:`80`). Thanks :user:`scmmmh` for the PR.
+
 0.13.0 (2017-04-18)
 ===================
 
