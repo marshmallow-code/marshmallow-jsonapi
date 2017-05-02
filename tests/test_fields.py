@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
+from hashlib import md5
 from marshmallow import ValidationError
 from marshmallow_jsonapi.fields import Meta, Relationship
 
@@ -47,11 +48,31 @@ class TestGenericRelationshipField:
         assert result['data']
         assert result['data']['id'] == str(post.author.id)
 
+    def test_include_resource_linkage_single_with_schema(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/author/',
+            related_url_kwargs={'post_id': '<id>'},
+            include_resource_linkage=True, type_='people', schema='PostSchema'
+        )
+        result = field.serialize('author', post)
+        assert 'data' in result
+        assert result['data']
+        assert result['data']['id'] == str(post.author.id)
+
     def test_include_resource_linkage_single_foreign_key(self, post):
         field = Relationship(
             related_url='/posts/{post_id}/author/',
             related_url_kwargs={'post_id': '<id>'},
             include_resource_linkage=True, type_='people'
+        )
+        result = field.serialize('author_id', post)
+        assert result['data']['id'] == str(post.author_id)
+
+    def test_include_resource_linkage_single_foreign_key_with_schema(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/author/',
+            related_url_kwargs={'post_id': '<id>'},
+            include_resource_linkage=True, type_='people', schema='PostSchema'
         )
         result = field.serialize('author_id', post)
         assert result['data']['id'] == str(post.author_id)
@@ -66,6 +87,28 @@ class TestGenericRelationshipField:
         assert 'data' in result
         ids = [each['id'] for each in result['data']]
         assert ids == [str(each.id) for each in post.comments]
+
+    def test_include_resource_linkage_many_with_schema(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'},
+            many=True, include_resource_linkage=True, type_='comments', schema='CommentSchema'
+        )
+        result = field.serialize('comments', post)
+        assert 'data' in result
+        ids = [each['id'] for each in result['data']]
+        assert ids == [str(each.id) for each in post.comments]
+
+    def test_include_resource_linkage_many_with_schema_overriding_get_attribute(self, post):
+        field = Relationship(
+            related_url='/posts/{post_id}/keywords',
+            related_url_kwargs={'post_id': '<id>'},
+            many=True, include_resource_linkage=True, type_='keywords', schema='KeywordSchema'
+        )
+        result = field.serialize('keywords', post)
+        assert 'data' in result
+        ids = [each['id'] for each in result['data']]
+        assert ids == [md5(each.keyword.encode('utf-8')).hexdigest() for each in post.keywords]
 
     def test_deserialize_data_single(self, post):
         field = Relationship(
@@ -210,6 +253,16 @@ class TestGenericRelationshipField:
         result = field.serialize('comments', post_with_null_comment)
         assert result and result['links']['related']
         assert 'data' not in result
+
+    def test_empty_relationship_with_alternative_identifier_field(self, post_with_null_author):
+        field = Relationship(
+            related_url='/authors/{author_id}',
+            related_url_kwargs={'author_id': '<author.last_name>'},
+            default=None
+        )
+        result = field.serialize('author', post_with_null_author)
+
+        assert not result
 
 
 class TestMetaField:

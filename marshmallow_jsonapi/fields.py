@@ -12,7 +12,7 @@ from marshmallow.fields import *  # noqa
 from marshmallow.base import SchemaABC
 from marshmallow.utils import is_collection
 
-from .utils import get_value, resolve_params, iteritems
+from .utils import get_value, resolve_params, iteritems, _MARSHMALLOW_VERSION_INFO
 
 
 _RECURSIVE_NESTED = 'self'
@@ -69,7 +69,7 @@ class Relationship(BaseRelationship):
         enclosed in `< >` will be interpreted as attributes to pull from the target object.
     :param bool include_resource_linkage: Whether to include a resource linkage
         (http://jsonapi.org/format/#document-resource-object-linkage) in the serialized result.
-    :param Schema schema: The schema to render the included data with.
+    :param marshmallow_jsonapi.Schema schema: The schema to render the included data with.
     :param bool many: Whether the relationship represents a many-to-one or many-to-many
         relationship. Only affects serialization of the resource linkage.
     :param str type_: The type of resource.
@@ -121,26 +121,36 @@ class Relationship(BaseRelationship):
 
     def get_related_url(self, obj):
         if self.related_url:
-            kwargs = resolve_params(obj, self.related_url_kwargs)
-            return self.related_url.format(**kwargs)
+            params = resolve_params(obj, self.related_url_kwargs, default=self.default)
+            non_null_params = {
+                key: value for key, value in params.items()
+                if value is not None
+            }
+            if non_null_params:
+                return self.related_url.format(**non_null_params)
         return None
 
     def get_self_url(self, obj):
         if self.self_url:
-            kwargs = resolve_params(obj, self.self_url_kwargs)
-            return self.self_url.format(**kwargs)
+            params = resolve_params(obj, self.self_url_kwargs, default=self.default)
+            non_null_params = {
+                key: value for key, value in params.items()
+                if value is not None
+            }
+            if non_null_params:
+                return self.self_url.format(**non_null_params)
         return None
 
     def get_resource_linkage(self, value):
         if self.many:
             resource_object = [{
                 'type': self.type_,
-                'id': _stringify(get_value(each, self.id_field, each))
+                'id': _stringify(self._get_id(each))
             } for each in value]
         else:
             resource_object = {
                 'type': self.type_,
-                'id': _stringify(get_value(value, self.id_field, value))
+                'id': _stringify(self._get_id(value))
             }
         return resource_object
 
@@ -220,6 +230,18 @@ class Relationship(BaseRelationship):
         self.root.included_data[(item['type'], item['id'])] = item
         for key, value in iteritems(self.schema.included_data):
             self.root.included_data[key] = value
+
+    def _get_id(self, value):
+        if _MARSHMALLOW_VERSION_INFO[0] >= 3:
+            if self.__schema:
+                return self.schema.get_attribute(value, self.id_field, value)
+            else:
+                return get_value(value, self.id_field, value)
+        else:
+            if self.__schema:
+                return self.schema.get_attribute(self.id_field, value, value)
+            else:
+                return get_value(value, self.id_field, value)
 
 
 class Meta(Field):

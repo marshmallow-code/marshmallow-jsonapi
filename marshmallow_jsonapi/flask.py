@@ -93,7 +93,7 @@ class Relationship(GenericRelationship):
     :param str self_view: View name for self relationship link.
     :param dict self_view_kwargs: Path kwargs for `self_view`. String arguments
         enclosed in `< >` will be interpreted as attributes to pull from the target object.
-    :param **kwargs: Same keyword arguments as `marshmallow_jsonapi.fields.Relationship`.
+    :param \*\*kwargs: Same keyword arguments as `marshmallow_jsonapi.fields.Relationship`.
     """
     def __init__(
         self,
@@ -109,7 +109,7 @@ class Relationship(GenericRelationship):
 
     def get_url(self, obj, view_name, view_kwargs):
         if view_name:
-            kwargs = resolve_params(obj, view_kwargs)
+            kwargs = resolve_params(obj, view_kwargs, default=self.default)
             kwargs['endpoint'] = view_name
             try:
                 return flask.url_for(**kwargs)

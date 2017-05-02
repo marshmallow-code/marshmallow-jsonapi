@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
+from hashlib import md5
 from marshmallow import validate, ValidationError
 from marshmallow_jsonapi import Schema, fields
 from marshmallow_jsonapi.exceptions import IncorrectTypeError
@@ -42,6 +43,13 @@ class PostSchema(Schema):
         schema='CommentSchema', many=True
     )
 
+    post_keywords= fields.Relationship(
+        'http://test.test/posts/{id}/keywords/',
+        related_url_kwargs={'id': '<id>'},
+        attribute='keywords', dump_to='post-keywords',
+        schema='KeywordSchema', many=True
+    )
+
     class Meta:
         type_ = 'posts'
 
@@ -50,8 +58,35 @@ class CommentSchema(Schema):
     id = fields.Int()
     body = fields.Str(required=True)
 
+    author = fields.Relationship(
+        'http://test.test/comments/{id}/author/',
+        related_url_kwargs={'id': '<id>'},
+        schema=AuthorSchema, many=False
+    )
+
     class Meta:
         type_ = 'comments'
+
+
+class KeywordSchema(Schema):
+    id = fields.Str()
+    keyword = fields.Str(required=True)
+
+    def get_attribute(self, attr, obj, default):
+        if _MARSHMALLOW_VERSION_INFO[0] >= 3:
+            if obj == 'id':
+                return md5(super(Schema, self).get_attribute(attr, 'keyword', default).encode('utf-8')).hexdigest()
+            else:
+                return super(Schema, self).get_attribute(attr, obj, default)
+        else:
+            if attr == 'id':
+                return md5(super(Schema, self).get_attribute('keyword', obj, default).encode('utf-8')).hexdigest()
+            else:
+                return super(Schema, self).get_attribute(attr, obj, default)
+            
+
+    class Meta:
+        type_ = 'keywords'
 
 
 def test_type_is_required():
@@ -142,10 +177,10 @@ class TestResponseFormatting:
 class TestCompoundDocuments:
 
     def test_include_data_with_many(self, post):
-        data = PostSchema(include_data=('post_comments',)).dump(post).data
+        data = PostSchema(include_data=('post_comments', 'post_comments.author')).dump(post).data
         assert 'included' in data
-        assert len(data['included']) == 2
-        first_comment = data['included'][0]
+        assert len(data['included']) == 4
+        first_comment = [i for i in data['included'] if i['type'] == 'comments'][0]
         assert 'attributes' in first_comment
         assert 'body' in first_comment['attributes']
 
@@ -158,12 +193,16 @@ class TestCompoundDocuments:
         assert 'first_name' in author['attributes']
 
     def test_include_data_with_all_relations(self, post):
-        data = PostSchema(include_data=('author', 'post_comments')).dump(post).data
+        data = PostSchema(include_data=('author', 'post_comments', 'post_comments.author')).dump(post).data
         assert 'included' in data
-        assert len(data['included']) == 3
+        assert len(data['included']) == 5
         for included in data['included']:
             assert included['id']
             assert included['type'] in ('people', 'comments')
+        expected_comments_author_ids = set([comment.author.id for comment in post.comments])
+        included_comments_author_ids = set([i['id'] for i in data['included'] if i['type'] == 'people'
+                                                                              and i['id'] != post.author.id])
+        assert included_comments_author_ids == expected_comments_author_ids
 
     def test_include_no_data(self, post):
         data = PostSchema(include_data=()).dump(post).data
@@ -417,8 +456,8 @@ class TestErrorFormatting:
 
     def test_errors_many(self):
         authors = make_authors([
-            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'},
             {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'bad'},
+            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'},
         ])
         errors = AuthorSchema(many=True).validate(authors)['errors']
 
@@ -426,7 +465,7 @@ class TestErrorFormatting:
 
         err = errors[0]
         assert 'source' in err
-        assert err['source']['pointer'] == '/data/1/attributes/password'
+        assert err['source']['pointer'] == '/data/0/attributes/password'
 
 def dasherize(text):
     return text.replace('_', '-')
