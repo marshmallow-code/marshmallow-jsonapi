@@ -94,6 +94,17 @@ Project Links
 - PyPI: https://pypi.python.org/pypi/marshmallow-jsonapi
 - Issues: https://github.com/marshmallow-code/marshmallow-jsonapi/issues
 
+Contributing
+============
+
+- Fork this repository
+- Clone your fork to your computer
+- Install dev requirements
+- Create branch for your work
+- Write a test for your work
+- Implement your feature/fix and iterate until your test passes and the feature is complete
+- Push to your fork and submit a pull request
+
 License
 =======
 
