@@ -33,21 +33,25 @@ class PostSchema(Schema):
     author = fields.Relationship(
         'http://test.test/posts/{id}/author/',
         related_url_kwargs={'id': '<id>'},
-        schema=AuthorSchema, many=False
+        schema=AuthorSchema, many=False,
+        type_='people'
     )
 
     post_comments = fields.Relationship(
         'http://test.test/posts/{id}/comments/',
         related_url_kwargs={'id': '<id>'},
-        attribute='comments', dump_to='post-comments',
-        schema='CommentSchema', many=True
+        attribute='comments',
+        load_from='post-comments', dump_to='post-comments',
+        schema='CommentSchema', many=True,
+        type_='comments'
     )
 
     post_keywords= fields.Relationship(
         'http://test.test/posts/{id}/keywords/',
         related_url_kwargs={'id': '<id>'},
         attribute='keywords', dump_to='post-keywords',
-        schema='KeywordSchema', many=True
+        schema='KeywordSchema', many=True,
+        type_='keywords'
     )
 
     class Meta:
@@ -83,7 +87,6 @@ class KeywordSchema(Schema):
                 return md5(super(Schema, self).get_attribute('keyword', obj, default).encode('utf-8')).hexdigest()
             else:
                 return super(Schema, self).get_attribute(attr, obj, default)
-            
 
     class Meta:
         type_ = 'keywords'
@@ -318,6 +321,56 @@ class TestCompoundDocuments:
         first_comment = data['included'][0]
         assert 'attributes' in first_comment
         assert 'body' in first_comment['attributes']
+
+    def test_include_data_load(self, post):
+        serialized = PostSchema(
+            include_data=('author', 'post_comments')
+        ).dump(post).data
+        loaded = PostSchema().load(serialized).data
+
+        assert 'author' in loaded
+        assert loaded['author']['id'] == post.author.id
+        assert loaded['author']['first_name'] == post.author.first_name
+
+        assert 'comments' in loaded
+        assert len(loaded['comments']) == len(post.comments)
+        for comment in loaded['comments']:
+            assert 'body' in comment
+            assert comment['id'] in [c.id for c in post.comments]
+
+    def test_include_data_load_null(self, post_with_null_author):
+        serialized = PostSchema(
+            include_data=('author', 'post_comments')
+        ).dump(post_with_null_author).data
+
+        loaded = PostSchema().load(serialized).data
+
+        assert 'author' not in loaded
+        assert 'comments' in loaded
+
+    def test_include_data_load_without_schema_loads_only_ids(
+            self, post):
+        class PostInnerSchemalessSchema(Schema):
+            id = fields.Str()
+            comments = fields.Relationship(
+                'http://test.test/posts/{id}/comments/',
+                related_url_kwargs={'id': '<id>'},
+                load_from='post-comments', many=True, type_='comments'
+            )
+
+            class Meta:
+                type_ = 'posts'
+
+        serialized = PostSchema(
+            include_data=('author', 'post_comments')
+        ).dump(post).data
+
+        loaded = PostInnerSchemalessSchema().load(serialized).data
+
+        assert 'comments' in loaded
+        assert len(loaded['comments']) == len(post.comments)
+        for comment_id in loaded['comments']:
+            assert comment_id in [c.id for c in post.comments]
 
 
 def get_error_by_field(errors, field):
