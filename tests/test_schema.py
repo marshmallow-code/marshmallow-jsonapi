@@ -319,6 +319,36 @@ class TestCompoundDocuments:
         assert 'attributes' in first_comment
         assert 'body' in first_comment['attributes']
 
+    def test_include_data_with_schema_context(self, post):
+        class ContextTestSchema(Schema):
+            id = fields.Str()
+            from_context = fields.Method('get_from_context')
+
+            def get_from_context(self, obj):
+                return self.context['some_value']
+
+            class Meta:
+                type_ = 'people'
+
+        class PostContextTestSchema(PostSchema):
+            author = fields.Relationship(
+                'http://test.test/posts/{id}/author/',
+                related_url_kwargs={'id': '<id>'},
+                schema=ContextTestSchema, many=False
+            )
+
+            class Meta(PostSchema.Meta):
+                pass
+
+        data = PostContextTestSchema(
+            include_data=('author',),
+            context={'some_value': 'Hello World'}
+        ).dump(post).data
+
+        for included in data['included']:
+            if included['type'] == 'people':
+                assert 'from_context' in included['attributes']
+                assert included['attributes']['from_context'] == 'Hello World'
 
 def get_error_by_field(errors, field):
     for err in errors['errors']:
