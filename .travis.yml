@@ -1,27 +1,25 @@
-# Config file for automatic testing at travis-ci.org
 sudo: false
-
 language: python
-
 python:
-  - "3.6"
-  - "3.5"
-  - "3.4"
-  - "2.7"
-  - "pypy"
-
+- '3.6'
+- '3.5'
+- '3.4'
+- '2.7'
+- pypy
 env:
-  # Lowest supported version
-  - MARSHMALLOW_VERSION="==2.3.0"
-  # Latest release
-  - MARSHMALLOW_VERSION=""
-
+- MARSHMALLOW_VERSION="==2.3.0"
+- MARSHMALLOW_VERSION=""
 install:
-  - travis_retry pip install -U .
-  - travis_retry pip install -U -r dev-requirements.txt
-  - travis_retry pip install -U marshmallow"$MARSHMALLOW_VERSION" --pre
-
+- travis_retry pip install -U .
+- travis_retry pip install -U -r dev-requirements.txt
+- travis_retry pip install -U marshmallow"$MARSHMALLOW_VERSION" --pre
 before_script:
-    - flake8 .
-
+- flake8 .
 script: py.test
+deploy:
+  provider: pypi
+  user: sloria
+  password:
+    secure: XRc9UtQUaE3klaDXhbmz42xYOBXIxybgCuZ4dLi0pnb5kWxMpx/dezKF5Mhky2ikOPn8QKuZnyAYyrxAJd5YgZcqJ3o92SLW5fVlWbRWx7FCv6yRCkB6KacaYreHz/p0yia0/mqB33MJKJLY/q00hy82eXYkfseTkRggOhvgiFXJVD4i+6IcAKpimyoGcrR4DxoixplKDUGdwWahSR82qL3ioYie0alclCbITIz/C8IwMPp3sSdOa9UdF8NW5VXCi0FdBC5R25XY0joDcY+sHNl21iKdAaOGVsHa51xdf59dDPTiAQcD8596Zt7g68dezwdsCe+OAXuId9OA3SiDPwGOBRy2GcIr72dmPOZWAfcMADNXHa5cqQTzZu2Gh9AOKFHj/O7f09ILOlRYkz4hnrndVXL5y5IGIgUUbfUi0nM8K33tsLagV4lfOUiuiiBx2PFCQ8j+1LXHY7vMb81uZVn25wdM46hcfNLckD1dEE19N9OuQPfISXzjy7JFiH4O12LjijhirHbuUbkM5CxKtEFVTgRNq/FySHA/zYwMdo8Jg0wlAwQJbsgnGkbsklqWbZOR5+4ZRj0a5liJ4jTJMMmah7ABwI5uhXDop1bRzxVxxSyqdbTWysVNPwQAMbPjGHEN7Y9R9L7/Gba8qhe4VDWSvFhB7emL4PcAv7ZpFU8=
+  on:
+    tags: true
