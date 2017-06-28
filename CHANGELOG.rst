@@ -2,6 +2,15 @@
 Changelog
 *********
 
+0.15.0 (2017-06-27)
+===================
+
+Features:
+
+* ``Relationship`` field supports deserializing included data
+  (:issue:`83`). Thanks :user:`anuragagarwal561994` for the suggestion
+  and thanks :user:`asteinlein` for the PR.
+
 0.14.0 (2017-04-30)
 ===================
 
