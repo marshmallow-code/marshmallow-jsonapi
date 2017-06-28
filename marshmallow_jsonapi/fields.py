@@ -165,6 +165,13 @@ class Relationship(BaseRelationship):
 
         if errors:
             raise ValidationError(errors)
+
+        # If ``attributes`` is set, we've folded included data into this
+        # relationship. Unserialize it if we have a schema set; otherwise we
+        # fall back below to old behaviour of only IDs.
+        if 'attributes' in data and self.__schema:
+            return self.schema.load({'data': data}).data
+
         return data.get('id')
 
     def deserialize(self, value, attr=None, data=None):

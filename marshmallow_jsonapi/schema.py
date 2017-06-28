@@ -3,6 +3,7 @@
 import marshmallow as ma
 from marshmallow.exceptions import ValidationError
 from marshmallow.compat import iteritems, PY2
+from marshmallow.utils import is_collection
 
 from .fields import BaseRelationship, Meta, _META_LOAD_FROM
 from .exceptions import IncorrectTypeError
@@ -153,6 +154,28 @@ class Schema(ma.Schema):
         for key, value in iteritems(item.get('attributes', {})):
             payload[key] = value
         for key, value in iteritems(item.get('relationships', {})):
+            # Fold included data related to this relationship into the item, so
+            # that we can deserialize the whole objects instead of just IDs.
+            if self.included_data:
+                included_data = []
+                inner_data = value.get('data', [])
+
+                # Data may be ``None`` (for empty relationships), but we only
+                # need to process it when it's present.
+                if inner_data:
+                    if not is_collection(inner_data):
+                        included_data = next(
+                            self._extract_from_included(inner_data),
+                            None
+                        )
+                    else:
+                        for data in inner_data:
+                            included_data.extend(
+                                self._extract_from_included(data))
+
+                if included_data:
+                    value['data'] = included_data
+
             payload[key] = value
         return payload
 
@@ -179,9 +202,19 @@ class Schema(ma.Schema):
             field_obj.load_from = self.inflect(field_name)
         return None
 
-    # overrides ma.Schema._do_load so that we can format errors as JSON API Error objects.
     def _do_load(self, data, many=None, **kwargs):
+        """Override `marshmallow.Schema._do_load` for custom JSON API handling.
+
+        Specifically, we do this to format errors as JSON API Error objects,
+        and to support loading of included data.
+        """
         many = self.many if many is None else bool(many)
+
+        # Store this on the instance so we have access to the included data
+        # when processing relationships (``included`` is outside of the
+        # ``data``).
+        self.included_data = data.get('included', {})
+
         try:
             result, errors = super(Schema, self)._do_load(data, many, **kwargs)
         except ValidationError as err:  # strict mode
@@ -197,6 +230,16 @@ class Schema(ma.Schema):
                 error_messages = error_messages['_schema']
             formatted_messages = self.format_errors(error_messages, many=many)
         return result, formatted_messages
+
+    def _extract_from_included(self, data):
+        """Extract included data matching the items in ``data``.
+
+        For each item in ``data``, extract the full data from the included
+        data.
+        """
+        return (item for item in self.included_data
+                if item['type'] == data['type'] and
+                str(item['id']) == str(data['id']))
 
     def inflect(self, text):
         """Inflect ``text`` if the ``inflect`` class Meta option is defined, otherwise
