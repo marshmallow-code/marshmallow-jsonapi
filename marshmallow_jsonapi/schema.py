@@ -80,6 +80,7 @@ class Schema(ma.Schema):
     def __init__(self, *args, **kwargs):
         self.include_data = kwargs.pop('include_data', ())
         super(Schema, self).__init__(*args, **kwargs)
+        self.included_data = {}
         if self.include_data:
             self.check_relations(self.include_data)
 
@@ -92,7 +93,6 @@ class Schema(ma.Schema):
         if self.opts.self_url_kwargs and not self.opts.self_url:
             raise ValueError('Must specify `self_url` Meta option when '
                              '`self_url_kwargs` is specified')
-        self.included_data = {}
 
     OPTIONS_CLASS = SchemaOpts
 
@@ -154,28 +154,6 @@ class Schema(ma.Schema):
         for key, value in iteritems(item.get('attributes', {})):
             payload[key] = value
         for key, value in iteritems(item.get('relationships', {})):
-            # Fold included data related to this relationship into the item, so
-            # that we can deserialize the whole objects instead of just IDs.
-            if self.included_data:
-                included_data = []
-                inner_data = value.get('data', [])
-
-                # Data may be ``None`` (for empty relationships), but we only
-                # need to process it when it's present.
-                if inner_data:
-                    if not is_collection(inner_data):
-                        included_data = next(
-                            self._extract_from_included(inner_data),
-                            None
-                        )
-                    else:
-                        for data in inner_data:
-                            included_data.extend(
-                                self._extract_from_included(data))
-
-                if included_data:
-                    value['data'] = included_data
-
             payload[key] = value
         return payload
 
@@ -210,10 +188,15 @@ class Schema(ma.Schema):
         """
         many = self.many if many is None else bool(many)
 
-        # Store this on the instance so we have access to the included data
-        # when processing relationships (``included`` is outside of the
-        # ``data``).
-        self.included_data = data.get('included', {})
+        # Load the included data into a dict with keys (type, id) to enable
+        # loading relationships
+        included = data.get('included', {})
+        if included and not self.included_data:
+            if is_collection(included):
+                for part in included:
+                    self.included_data[(part['type'], str(part['id']))] = part
+            else:
+                self.included_data[(included['type'], str(included['id']))] = included
 
         try:
             result, errors = super(Schema, self)._do_load(data, many, **kwargs)
@@ -230,16 +213,6 @@ class Schema(ma.Schema):
                 error_messages = error_messages['_schema']
             formatted_messages = self.format_errors(error_messages, many=many)
         return result, formatted_messages
-
-    def _extract_from_included(self, data):
-        """Extract included data matching the items in ``data``.
-
-        For each item in ``data``, extract the full data from the included
-        data.
-        """
-        return (item for item in self.included_data
-                if item['type'] == data['type'] and
-                str(item['id']) == str(data['id']))
 
     def inflect(self, text):
         """Inflect ``text`` if the ``inflect`` class Meta option is defined, otherwise

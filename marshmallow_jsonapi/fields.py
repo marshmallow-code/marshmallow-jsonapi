@@ -101,10 +101,13 @@ class Relationship(BaseRelationship):
 
     @property
     def schema(self):
+        included_data = self.parent.included_data if self.parent else {}
         if isinstance(self.__schema, SchemaABC):
+            self.__schema.included_data = included_data
             return self.__schema
         if isinstance(self.__schema, type) and issubclass(self.__schema, SchemaABC):
             self.__schema = self.__schema()
+            self.__schema.included_data = included_data
             return self.__schema
         if isinstance(self.__schema, basestring):
             if self.__schema == _RECURSIVE_NESTED:
@@ -113,6 +116,7 @@ class Relationship(BaseRelationship):
             else:
                 schema_class = class_registry.get_class(self.__schema)
                 self.__schema = schema_class()
+            self.__schema.included_data = included_data
             return self.__schema
         else:
             raise ValueError(('A Schema is required to serialize a nested '
@@ -166,11 +170,16 @@ class Relationship(BaseRelationship):
         if errors:
             raise ValidationError(errors)
 
-        # If ``attributes`` is set, we've folded included data into this
-        # relationship. Unserialize it if we have a schema set; otherwise we
-        # fall back below to old behaviour of only IDs.
-        if 'attributes' in data and self.__schema:
-            return self.schema.load({'data': data}).data
+        # If there is included data available for this relationship, then use the schema
+        # to load it. The loaded data then replaces the original data to ensure that only
+        # a single instance of any object referred to multiple times is loaded.
+        if self.parent and self.__schema and self.include_data:
+            key = (data['type'], str(data['id']))
+            if key in self.parent.included_data:
+                if isinstance(self.parent.included_data[key], dict):
+                    loaded_data = self.schema.load({'data': self.parent.included_data[key]}).data
+                    self.parent.included_data[key] = loaded_data
+                return self.parent.included_data[key]
 
         return data.get('id')
 
