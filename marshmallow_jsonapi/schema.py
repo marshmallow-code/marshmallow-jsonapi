@@ -250,26 +250,28 @@ class Schema(ma.Schema):
 
         See: http://jsonapi.org/format/#error-objects
         """
+        pointer = ['/data']
+
+        if index is not None:
+            pointer.append(str(index))
+
         relationship = isinstance(
             self.declared_fields.get(field_name), BaseRelationship)
         if relationship:
-            container = 'relationships'
-        else:
-            container = 'attributes'
+            pointer.append('relationships')
+        elif field_name != 'id':
+            # JSONAPI identifier is a special field that exists above the attribute object.
+            pointer.append('attributes')
 
-        inflected_name = self.inflect(field_name)
-        if index is not None:
-            pointer = '/data/{}/{}/{}'.format(index, container, inflected_name)
-        else:
-            pointer = '/data/{}/{}'.format(container, inflected_name)
+        pointer.append(self.inflect(field_name))
 
         if relationship:
-            pointer = '{}/data'.format(pointer)
+            pointer.append('data')
 
         return {
             'detail': message,
             'source': {
-                'pointer': pointer
+                'pointer': '/'.join(pointer)
             }
         }
 

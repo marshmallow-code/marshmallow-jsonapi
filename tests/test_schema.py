@@ -415,7 +415,8 @@ class TestCompoundDocuments:
 
 def get_error_by_field(errors, field):
     for err in errors['errors']:
-        if err['source']['pointer'].split('/data/attributes/')[1] == field:
+        # Relationship error pointers won't match with this.
+        if err['source']['pointer'].endswith('/' + field):
             return err
     return None
 
@@ -529,6 +530,24 @@ class TestErrorFormatting:
             ]
         }
 
+    def test_validate_id(self):
+        """ the pointer for id should be at the data object, not attributes """
+        author = {'data': {'type': 'people', 'id': 'invalid',
+                           'attributes': {'first_name': 'Rob', 'password': 'correcthorses'}}}
+        errors = AuthorSchema().validate(author)
+        assert 'errors' in errors
+        assert len(errors['errors']) == 2
+
+        lname_err = get_error_by_field(errors, 'last_name')
+        assert lname_err
+        assert lname_err['source']['pointer'] == '/data/attributes/last_name'
+        assert lname_err['detail'] == 'Missing data for required field.'
+
+        id_err = get_error_by_field(errors, 'id')
+        assert id_err
+        assert id_err['source']['pointer'] == '/data/id'
+        assert id_err['detail'] == 'Not a valid integer.'
+
     def test_load(self):
         _, errors = AuthorSchema().load(make_author({'first_name': 'Dan', 'password': 'short'}))
         assert 'errors' in errors
@@ -559,6 +578,27 @@ class TestErrorFormatting:
         err = errors[0]
         assert 'source' in err
         assert err['source']['pointer'] == '/data/0/attributes/password'
+
+    def test_many_id_errors(self):
+        """ the pointer for id should be at the data object, not attributes """
+        author = {'data': [{'type': 'people', 'id': 'invalid',
+                            'attributes': {'first_name': 'Rob', 'password': 'correcthorses'}},
+                           {'type': 'people', 'id': '37',
+                            'attributes': {'first_name': 'Dan', 'last_name': 'Gebhardt',
+                                           'password': 'supersecret'}}]}
+        errors = AuthorSchema(many=True).validate(author)
+        assert 'errors' in errors
+        assert len(errors['errors']) == 2
+
+        lname_err = get_error_by_field(errors, 'last_name')
+        assert lname_err
+        assert lname_err['source']['pointer'] == '/data/0/attributes/last_name'
+        assert lname_err['detail'] == 'Missing data for required field.'
+
+        id_err = get_error_by_field(errors, 'id')
+        assert id_err
+        assert id_err['source']['pointer'] == '/data/0/id'
+        assert id_err['detail'] == 'Not a valid integer.'
 
 def dasherize(text):
     return text.replace('_', '-')
