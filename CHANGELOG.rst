@@ -2,6 +2,14 @@
 Changelog
 *********
 
+0.15.1 (2017-08-23)
+===================
+
+Bug fixes:
+
+* Fix pointer for ``id`` in error objects (:issue:`90`). Thanks
+  :user:`rgant` for the catch and patch.
+
 0.15.0 (2017-06-27)
 ===================
 
