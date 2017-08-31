@@ -33,8 +33,12 @@ class PostSchema(Schema):
     author = fields.Relationship(
         'http://test.test/posts/{id}/author/',
         related_url_kwargs={'id': '<id>'},
-        schema=AuthorSchema, many=False,
-        type_='people'
+        schema=AuthorSchema,
+        many=False,
+        attribute='author_id',
+        include_attribute='author',
+        type_='people',
+
     )
 
     post_comments = fields.Relationship(
