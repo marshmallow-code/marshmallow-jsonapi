@@ -82,13 +82,14 @@ class Relationship(BaseRelationship):
         self,
         related_url='', related_url_kwargs=None,
         self_url='', self_url_kwargs=None,
-        include_resource_linkage=False, schema=None,
-        many=False, type_=None, id_field=None, **kwargs
+        include_attribute=None, include_resource_linkage=False,
+        schema=None, many=False, type_=None, id_field=None, **kwargs
     ):
         self.related_url = related_url
         self.related_url_kwargs = related_url_kwargs or {}
         self.self_url = self_url
         self.self_url_kwargs = self_url_kwargs or {}
+        self.include_attribute = include_attribute
         if include_resource_linkage and not type_:
             raise ValueError('include_resource_linkage=True requires the type_ argument.')
         self.many = many
@@ -215,12 +216,17 @@ class Relationship(BaseRelationship):
             else:
                 ret['data'] = self.get_resource_linkage(value)
 
-        if self.include_data and value is not None:
-            if self.many:
-                for item in value:
-                    self._serialize_included(item)
-            else:
-                self._serialize_included(value)
+        if self.include_data:
+            if self.include_attribute:
+                value = getattr(obj, self.include_attribute, None)
+
+            if value is not None:
+                if self.many:
+                    for item in value:
+                        self._serialize_included(item)
+                else:
+                    self._serialize_included(value)
+
         return ret
 
     def _serialize_included(self, value):
