@@ -176,9 +176,10 @@ class Relationship(BaseRelationship):
         if self.parent and self.__schema and self.include_data:
             key = (data['type'], str(data['id']))
             if key in self.parent.included_data:
-                if isinstance(self.parent.included_data[key], dict):
-                    loaded_data = self.schema.load({'data': self.parent.included_data[key]}).data
-                    self.parent.included_data[key] = loaded_data
+                if isinstance(self.parent.included_data[key], dict) \
+                        and 'type' in self.parent.included_data[key]:
+                    loaded = self.schema.load({'data': self.parent.included_data[key]})
+                    self.parent.included_data[key] = loaded.data
                 return self.parent.included_data[key]
 
         return data.get('id')

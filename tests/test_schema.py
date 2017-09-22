@@ -345,7 +345,6 @@ class TestCompoundDocuments:
         serialized = PostSchema(
             include_data=('author', 'post_comments')
         ).dump(post_with_null_author).data
-
         loaded = PostSchema(
             include_data=('author', 'post_comments')
         ).load(serialized).data
@@ -411,6 +410,22 @@ class TestCompoundDocuments:
         assert len(loaded['comments']) == len(post.comments)
         for comment in loaded['comments']:
             assert comment in [str(c.id) for c in post.comments]
+
+    def test_include_data_multi(self, comments):
+        from tests.base import Comment, fake
+        comments.append(Comment(id=fake.random_int(),
+                                body=fake.bs(),
+                                author=comments[0].author))
+        serialized = CommentSchema(
+            include_data=('author',)
+        ).dump(comments, many=True).data
+        loaded = CommentSchema(
+            include_data=('author',)
+        ).load(serialized, many=True).data
+
+        assert len(loaded) == len(comments)
+        for comment in loaded:
+            assert comment['author'] is not None
 
 
 def get_error_by_field(errors, field):
