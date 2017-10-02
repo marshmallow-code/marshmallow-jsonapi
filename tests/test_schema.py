@@ -322,6 +322,34 @@ class TestCompoundDocuments:
         assert 'attributes' in first_comment
         assert 'body' in first_comment['attributes']
 
+    def test_include_data_with_nested_only_arg(self, post):
+        data = PostSchema(
+            only=('id', 'post_comments.id', 'post_comments.author.id', 'post_comments.author.twitter'),
+            include_data=('post_comments', 'post_comments.author')
+        ).dump(post).data
+
+        assert 'included' in data
+        assert len(data['included']) == 4
+
+        first_author = [i for i in data['included'] if i['type'] == 'people'][0]
+        assert 'twitter' in first_author['attributes']
+        for attribute in ('first_name', 'last_name'):
+            assert attribute not in first_author['attributes']
+
+    def test_include_data_with_nested_exclude_arg(self, post):
+        data = PostSchema(
+            exclude=('post_comments.author.twitter',),
+            include_data=('post_comments', 'post_comments.author')
+        ).dump(post).data
+
+        assert 'included' in data
+        assert len(data['included']) == 4
+
+        first_author = [i for i in data['included'] if i['type'] == 'people'][0]
+        assert 'twitter' not in first_author['attributes']
+        for attribute in ('first_name', 'last_name'):
+            assert attribute in first_author['attributes']
+
     def test_include_data_load(self, post):
         serialized = PostSchema(
             include_data=('author', 'post_comments')
