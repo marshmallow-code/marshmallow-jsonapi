@@ -7,7 +7,7 @@ python:
 - '2.7'
 - pypy
 env:
-- MARSHMALLOW_VERSION="==2.3.0"
+- MARSHMALLOW_VERSION="==2.8.0"
 - MARSHMALLOW_VERSION=""
 install:
 - travis_retry pip install -U .
