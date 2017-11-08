@@ -2,6 +2,18 @@
 Changelog
 *********
 
+0.16.0 (2017-11-08)
+===================
+
+Features:
+
+* Add support for exluding or including nested fields on relationships
+  (:issue:`94`). Thanks :user:`scottwernervt` for the PR.
+
+Other changes:
+
+* *Backwards-incompatible*: Drop support for marshmallow<2.8.0
+
 0.15.1 (2017-08-23)
 ===================
 
