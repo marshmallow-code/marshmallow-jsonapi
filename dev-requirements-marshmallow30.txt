@@ -1,0 +1,20 @@
+# Build tasks
+invoke==0.13.0
+
+# Soft deps
+Flask
+
+# Testing
+pytest>=2.7.3
+tox>=1.5.0
+faker
+
+# Packaging
+wheel
+twine
+
+# Syntax checking
+flake8==2.4.1
+
+# Force using Marshmallow >= 3
+marshmallow>=3.0.0a1
