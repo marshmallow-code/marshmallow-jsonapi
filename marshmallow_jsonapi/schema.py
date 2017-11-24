@@ -81,6 +81,7 @@ class Schema(ma.Schema):
         self.include_data = kwargs.pop('include_data', ())
         super(Schema, self).__init__(*args, **kwargs)
         self.included_data = {}
+        self._schema_registry = {}
         if self.include_data:
             self.check_relations(self.include_data)
 

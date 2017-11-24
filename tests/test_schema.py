@@ -455,6 +455,53 @@ class TestCompoundDocuments:
         for comment in loaded:
             assert comment['author'] is not None
 
+    def test_recursive_data_structures(self, post):
+        class AuthorSchemaWithComments(AuthorSchema):
+            author_comments = fields.Relationship(
+                'http://test.test/posts/{id}/comments/',
+                related_url_kwargs={'id': '<id>'},
+                attribute='comments',
+                load_from='author-comments', dump_to='author-comments',
+                schema='CommentSchemaWithNewAuthor', many=True,
+                type_='comments'
+            )
+
+        class CommentSchemaWithNewAuthor(CommentSchema):
+            author = fields.Relationship(
+                'http://test.test/comments/{id}/author/',
+                related_url_kwargs={'id': '<id>'},
+                schema=AuthorSchemaWithComments, many=False,
+                type_='people'
+            )
+
+        class PostSchemaWithNewAuthor(PostSchema):
+            author = fields.Relationship(
+                'http://test.test/posts/{id}/author/',
+                related_url_kwargs={'id': '<id>'},
+                schema=AuthorSchemaWithComments, many=False,
+                type_='people'
+            )
+            post_comments = fields.Relationship(
+                'http://test.test/posts/{id}/comments/',
+                related_url_kwargs={'id': '<id>'},
+                attribute='comments',
+                load_from='post-comments', dump_to='post-comments',
+                schema='CommentSchemaWithNewAuthor', many=True,
+                type_='comments'
+            )
+
+        post.comments[0].author = post.author
+        post.author.comments = [post.comments[0]]
+        post.comments[1].author.comments = [post.comments[1]]
+        serialized = PostSchemaWithNewAuthor(
+            include_data=('author', 'author.author_comments', 'post_comments', 'post_comments.author')
+        ).dump(post).data
+        loaded = PostSchemaWithNewAuthor(
+            include_data=('author', 'author.author_comments', 'post_comments', 'post_comments.author')
+        ).load(serialized).data
+        assert 'comments' in loaded['author']
+        assert 'comments' in loaded['comments'][0]['author']
+
 
 def get_error_by_field(errors, field):
     for err in errors['errors']:

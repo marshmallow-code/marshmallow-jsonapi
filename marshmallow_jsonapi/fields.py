@@ -101,26 +101,43 @@ class Relationship(BaseRelationship):
 
     @property
     def schema(self):
-        included_data = self.parent.included_data if self.parent else {}
+        included_data = getattr(self.parent, 'included_data', {}) if self.parent else {}
+        schema_registry = getattr(self.parent, '_schema_registry', {}) if self.parent else {}
         only = getattr(self, 'only', ())
         exclude = getattr(self, 'exclude', ())
 
         if isinstance(self.__schema, SchemaABC):
             self.__schema.included_data = included_data
+            self.__schema._schema_registry = schema_registry
             return self.__schema
         if isinstance(self.__schema, type) and issubclass(self.__schema, SchemaABC):
-            self.__schema = self.__schema(only=only, exclude=exclude)
+            if self.__schema in schema_registry:
+                self.__schema = schema_registry[self.__schema]
+            else:
+                schema_type = self.__schema
+                self.__schema = self.__schema(only=only, exclude=exclude)
+                schema_registry[schema_type] = self.__schema
             self.__schema.included_data = included_data
+            self.__schema._schema_registry = schema_registry
             return self.__schema
         if isinstance(self.__schema, basestring):
             if self.__schema == _RECURSIVE_NESTED:
                 parent_class = self.parent.__class__
-                self.__schema = parent_class(
-                    only=only, exclude=exclude, include_data=self.parent.include_data)
+                if parent_class in schema_registry:
+                    self.__schema = schema_registry[parent_class]
+                else:
+                    self.__schema = parent_class(
+                        only=only, exclude=exclude, include_data=self.parent.include_data)
+                    schema_registry[parent_class] = self.__schema
             else:
                 schema_class = class_registry.get_class(self.__schema)
-                self.__schema = schema_class(only=only, exclude=exclude)
+                if schema_class in schema_registry:
+                    self.__schema = schema_registry[schema_class]
+                else:
+                    self.__schema = schema_class(only=only, exclude=exclude)
+                    schema_registry[schema_class] = self.__schema
             self.__schema.included_data = included_data
+            self.__schema._schema_registry = schema_registry
             return self.__schema
         else:
             raise ValueError(('A Schema is required to serialize a nested '
@@ -181,7 +198,9 @@ class Relationship(BaseRelationship):
             key = (data['type'], str(data['id']))
             if key in self.parent.included_data:
                 if isinstance(self.parent.included_data[key], dict) \
-                        and 'type' in self.parent.included_data[key]:
+                        and 'type' in self.parent.included_data[key] \
+                        and '__seen' not in self.parent.included_data[key]:
+                    self.parent.included_data[key]['__seen'] = True
                     loaded = self.schema.load({'data': self.parent.included_data[key]})
                     self.parent.included_data[key] = loaded.data
                 return self.parent.included_data[key]
@@ -238,6 +257,9 @@ class Relationship(BaseRelationship):
         return ret
 
     def _serialize_included(self, value):
+        if (self.schema.Meta.type_, self._get_id(value)) in self.root.included_data:
+            return
+        self.root.included_data[(self.schema.Meta.type_, self._get_id(value))] = '__seen'
         result = self.schema.dump(value)
         if result.errors:
             raise ValidationError(result.errors)
