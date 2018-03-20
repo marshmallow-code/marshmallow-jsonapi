@@ -234,11 +234,15 @@ meta object within a `resource object <http://jsonapi.org/format/#document-resou
     author = {'name': 'Alice', 'metadata': {'page': {'offset': 10}}}
     AuthorSchema().dump(author).data
     # {
+    #     "meta": {
+    #         "page": {
+    #             "offset": 10
+    #         }
+    #     },
     #     "data": {
     #         "id": "1",
     #         "type": "people"
     #         "attributes": {"name": "Alice"},
-    #         "meta": {"page": {"offset": 10}}
     #     }
     # }
 

@@ -93,6 +93,7 @@ class Schema(ma.Schema):
             raise ValueError('Must specify `self_url` Meta option when '
                              '`self_url_kwargs` is specified')
         self.included_data = {}
+        self.meta_information = {}
 
     OPTIONS_CLASS = SchemaOpts
 
@@ -125,12 +126,19 @@ class Schema(ma.Schema):
         ret = self.format_items(data, many)
         ret = self.wrap_response(ret, many)
         ret = self.render_included_data(ret)
+        ret = self.render_meta_information(ret)
         return ret
 
     def render_included_data(self, data):
         if not self.included_data:
             return data
         data['included'] = list(self.included_data.values())
+        return data
+
+    def render_meta_information(self, data):
+        if not self.meta_information:
+            return data
+        data['meta'] = self.meta_information
         return data
 
     def unwrap_item(self, item):
@@ -149,8 +157,8 @@ class Schema(ma.Schema):
         payload = self.dict_class()
         if 'id' in item:
             payload['id'] = item['id']
-        if 'meta' in item:
-            payload[_META_LOAD_FROM] = item['meta']
+        if self.meta_information:
+            payload[_META_LOAD_FROM] = self.meta_information
         for key, value in iteritems(item.get('attributes', {})):
             payload[key] = value
         for key, value in iteritems(item.get('relationships', {})):
@@ -214,6 +222,7 @@ class Schema(ma.Schema):
         # when processing relationships (``included`` is outside of the
         # ``data``).
         self.included_data = data.get('included', {})
+        self.meta_information = data.get('meta', {})
 
         try:
             result, errors = super(Schema, self)._do_load(data, many, **kwargs)
@@ -327,9 +336,9 @@ class Schema(ma.Schema):
             if attribute == ID:
                 ret[ID] = value
             elif isinstance(self.fields[attribute], Meta):
-                if 'meta' not in ret:
-                    ret['meta'] = self.dict_class()
-                ret['meta'].update(value)
+                if not self.meta_information:
+                    self.meta_information = self.dict_class()
+                self.meta_information.update(value)
             elif isinstance(self.fields[attribute], BaseRelationship):
                 if value:
                     if 'relationships' not in ret:
