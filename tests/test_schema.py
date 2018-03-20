@@ -733,7 +733,7 @@ class PolygonSchema(Schema):
     regular = fields.Boolean()
     # This is an attribute that uses the 'meta' key: /data/attributes/meta
     meta = fields.String()
-    # This is the resource object's meta object: /data/meta
+    # This is the resource object's meta object: /meta
     resource_meta = fields.Meta()
 
     class Meta:
@@ -751,10 +751,10 @@ class TestMeta(object):
                 'regular': False,
                 'meta': 'This is an ill-advised (albeit valid) attribute name.',
             },
-            'meta': {
-                'some': 'metadata',
-            },
         },
+        'meta': {
+            'some': 'metadata',
+        }
     }
 
     shape = {
