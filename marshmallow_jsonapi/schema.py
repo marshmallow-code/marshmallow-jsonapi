@@ -7,7 +7,7 @@ from marshmallow.utils import is_collection
 
 from .fields import BaseRelationship, Meta, _META_LOAD_FROM
 from .exceptions import IncorrectTypeError
-from .utils import resolve_params
+from .utils import resolve_params, _MARSHMALLOW_VERSION_INFO, get_dump_key
 
 TYPE = 'type'
 ID = 'id'
@@ -203,11 +203,15 @@ class Schema(ma.Schema):
         return self.unwrap_item(data)
 
     def on_bind_field(self, field_name, field_obj):
-        """Schema hook override. When binding fields, set load_from to the
-        inflected form of field_name.
+        """Schema hook override. When binding fields, set ``data_key`` (on marshmallow 3) or
+        load_from (on marshmallow 2) to the inflected form of field_name.
         """
-        if not field_obj.load_from:
-            field_obj.load_from = self.inflect(field_name)
+        if _MARSHMALLOW_VERSION_INFO[0] < 3:
+            if not field_obj.load_from:
+                field_obj.load_from = self.inflect(field_name)
+        else:
+            if not field_obj.data_key:
+                field_obj.data_key = self.inflect(field_name)
         return None
 
     def _do_load(self, data, many=None, **kwargs):
@@ -225,7 +229,7 @@ class Schema(ma.Schema):
         self.meta_information = data.get('meta', {})
 
         try:
-            result, errors = super(Schema, self)._do_load(data, many, **kwargs)
+            result = super(Schema, self)._do_load(data, many, **kwargs)
         except ValidationError as err:  # strict mode
             error_messages = err.messages
             if '_schema' in error_messages:
@@ -234,11 +238,14 @@ class Schema(ma.Schema):
             err.messages = formatted_messages
             raise err
         else:
-            error_messages = errors
-            if '_schema' in error_messages:
-                error_messages = error_messages['_schema']
-            formatted_messages = self.format_errors(error_messages, many=many)
-        return result, formatted_messages
+            # On marshmallow 2, _do_load returns a tuple (load_data, errors)
+            if _MARSHMALLOW_VERSION_INFO[0] < 3:
+                data, error_messages = result
+                if '_schema' in error_messages:
+                    error_messages = error_messages['_schema']
+                formatted_messages = self.format_errors(error_messages, many=many)
+                return data, formatted_messages
+        return result
 
     def _extract_from_included(self, data):
         """Extract included data matching the items in ``data``.
@@ -327,7 +334,7 @@ class Schema(ma.Schema):
 
         # Get the schema attributes so we can confirm `dump-to` values exist
         attributes = {
-            (self.fields[field].dump_to or field): field
+            (get_dump_key(self.fields[field]) or field): field
             for field in self.fields
         }
 
