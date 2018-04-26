@@ -101,7 +101,7 @@ class Relationship(BaseRelationship):
 
     @property
     def schema(self):
-        only = getattr(self, 'only', ())
+        only = getattr(self, 'only', None)
         exclude = getattr(self, 'exclude', ())
 
         if isinstance(self.__schema, SchemaABC):
