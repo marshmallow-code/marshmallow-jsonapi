@@ -7,6 +7,7 @@ import collections
 from marshmallow.compat import basestring
 
 from marshmallow import ValidationError, class_registry, missing
+from marshmallow.fields import Field
 # Make core fields importable from marshmallow_jsonapi
 from marshmallow.fields import *  # noqa
 from marshmallow.base import SchemaABC
