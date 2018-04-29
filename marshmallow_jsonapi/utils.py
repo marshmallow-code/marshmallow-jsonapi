@@ -13,6 +13,14 @@ _MARSHMALLOW_VERSION_INFO = tuple(
     [int(part) for part in marshmallow.__version__.split('.') if part.isdigit()]
 )
 
+
+def get_dump_key(field):
+    if _MARSHMALLOW_VERSION_INFO[0] < 3:
+        return field.dump_to
+    else:
+        return field.data_key
+
+
 if _MARSHMALLOW_VERSION_INFO[0] >= 3:
     get_value = _get_value
 else:

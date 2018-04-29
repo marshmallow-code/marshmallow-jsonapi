@@ -2,6 +2,14 @@
 Changelog
 *********
 
+0.17.0 (unreleased)
+===================
+
+Features:
+
+* Add support for marshmallow 3 (:issue:`97`). Thanks :user:`rockmnew`.
+  Thanks :user:`mdodsworth` for helping with :issue:`101`.
+
 0.16.0 (2017-11-08)
 ===================
 
