@@ -24,3 +24,4 @@ Contributors (chronological)
 - `@mrhanky17 <https://github.com/mrhanky17>`_
 - Mark Hall `@scmmmh <https://github.com/scmmmh>`_
 - Scott Werner `@scottwernervt <https://github.com/scottwernervt>`_
+- Michael Dodsworth `@mdodsworth <https://github.com/mdodsworth>`_
