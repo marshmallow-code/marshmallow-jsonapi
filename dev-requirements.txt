@@ -1,13 +1,13 @@
 # Build tasks
-invoke==0.13.0
+invoke==0.22.1
 
 # Soft deps
-Flask
+Flask==1.0
 
 # Testing
 pytest>=2.7.3
 tox>=1.5.0
-faker
+faker==0.8.13
 
 # Syntax checking
-flake8==2.4.1
+flake8==3.5.0

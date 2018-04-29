@@ -1,5 +1,5 @@
 marshmallow>=2.0.0rc1
-Flask
-sphinx
-sphinx-rtd-theme
+Flask==1.0
+sphinx==1.7.4
+sphinx-rtd-theme==0.3.0
 sphinx-issues>=0.2.0
