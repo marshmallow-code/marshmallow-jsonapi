@@ -10,6 +10,10 @@ marshmallow-jsonapi
     :target: https://travis-ci.org/marshmallow-code/marshmallow-jsonapi
     :alt: Travis-CI
 
+.. image:: https://img.shields.io/badge/marshmallow-3-blue.svg
+    :target: https://marshmallow.readthedocs.io/en/latest/upgrading.html
+    :alt: marshmallow 3 compatible
+
 Homepage: http://marshmallow-jsonapi.readthedocs.io/
 
 JSON API 1.0 (`https://jsonapi.org <http://jsonapi.org/>`_) formatting with `marshmallow <https://marshmallow.readthedocs.io>`_.
