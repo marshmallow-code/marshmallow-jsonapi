@@ -2,7 +2,7 @@
 invoke==0.23.0
 
 # Soft deps
-Flask==1.0
+Flask==1.0.1
 
 # Testing
 pytest>=2.7.3
