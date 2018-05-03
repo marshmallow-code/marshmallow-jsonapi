@@ -17,10 +17,11 @@ from .utils import get_value, resolve_params, iteritems, _MARSHMALLOW_VERSION_IN
 
 
 _RECURSIVE_NESTED = 'self'
-# JSON API disallows U+005F LOW LINE at the start of amember name, so we can use
-# it to load the Meta type from since it can't clash with an attribute named
-# meta (which isn't disallowed by the spec).
-_META_LOAD_FROM = '_meta'
+# JSON API disallows U+005F LOW LINE at the start of a member name, so we can
+#  use it to load the Meta type from since it can't clash with an attribute
+# named meta (which isn't disallowed by the spec).
+_META_DOCUMENT_LOAD_FROM = '_meta'
+_META_RESOURCE_LOAD_FROM = '_meta_resource'
 
 
 class BaseRelationship(Field):
@@ -260,7 +261,7 @@ class Relationship(BaseRelationship):
 
 
 class Meta(Field):
-    """Field which serializes to a "meta object" within  a "resource object".
+    """Field which serializes to a "meta object" within a document’s “top level”.
 
     Examples: ::
 
@@ -284,9 +285,9 @@ class Meta(Field):
     def __init__(self, **kwargs):
         super(Meta, self).__init__(**kwargs)
         if _MARSHMALLOW_VERSION_INFO[0] < 3:
-            self.load_from = _META_LOAD_FROM
+            self.load_from = _META_DOCUMENT_LOAD_FROM
         else:
-            self.data_key = _META_LOAD_FROM
+            self.data_key = _META_DOCUMENT_LOAD_FROM
 
     def _deserialize(self, value, attr, data):
         if isinstance(value, collections.Mapping):
@@ -297,5 +298,47 @@ class Meta(Field):
     def _serialize(self, value, *args, **kwargs):
         if isinstance(value, collections.Mapping):
             return super(Meta, self)._serialize(value, *args, **kwargs)
+        else:
+            self.fail('invalid')
+
+
+class MetaResource(Field):
+    """Field which serializes to a "meta object" within a "resource object".
+
+    Examples: ::
+
+        from marshmallow_jsonapi import Schema, fields
+
+        class UserSchema(Schema):
+            id = fields.String()
+            meta_resource = fields.MetaResource()
+
+            class Meta:
+                type_ = 'product'
+                strict = True
+
+    See: http://jsonapi.org/format/#document-resource-objects
+    """
+
+    default_error_messages = {
+        'invalid': 'Not a valid mapping type.'
+    }
+
+    def __init__(self, **kwargs):
+        super(MetaResource, self).__init__(**kwargs)
+        if _MARSHMALLOW_VERSION_INFO[0] < 3:
+            self.load_from = _META_RESOURCE_LOAD_FROM
+        else:
+            self.data_key = _META_RESOURCE_LOAD_FROM
+
+    def _deserialize(self, value, attr, data):
+        if isinstance(value, collections.Mapping):
+            return value
+        else:
+            self.fail('invalid')
+
+    def _serialize(self, value, *args, **kwargs):
+        if isinstance(value, collections.Mapping):
+            return super(MetaResource, self)._serialize(value, *args, **kwargs)
         else:
             self.fail('invalid')
