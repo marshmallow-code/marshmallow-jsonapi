@@ -797,8 +797,10 @@ class PolygonSchema(Schema):
     regular = fields.Boolean()
     # This is an attribute that uses the 'meta' key: /data/attributes/meta
     meta = fields.String()
-    # This is the resource object's meta object: /meta
-    resource_meta = fields.Meta()
+    # This is the document's top level meta object: /meta
+    document_meta = fields.Meta()
+    # This is the resource object's meta object: /data/meta
+    resource_meta = fields.MetaResource()
 
     class Meta:
         type_ = 'shapes'
@@ -816,9 +818,12 @@ class TestMeta(object):
                 'regular': False,
                 'meta': 'This is an ill-advised (albeit valid) attribute name.',
             },
+            'meta': {
+              'resource': 'metadata',
+            },
         },
         'meta': {
-            'some': 'metadata',
+            'document': 'metadata',
         }
     }
 
@@ -827,7 +832,8 @@ class TestMeta(object):
         'sides': 3,
         'regular': False,
         'meta': 'This is an ill-advised (albeit valid) attribute name.',
-        'resource_meta': {'some': 'metadata'},
+        'document_meta': {'document': 'metadata'},
+        'resource_meta': {'resource': 'metadata'},
     }
 
     def test_deserialize_meta(self):
@@ -838,7 +844,8 @@ class TestMeta(object):
         assert data['regular'] is False
         assert data['meta'] == \
                'This is an ill-advised (albeit valid) attribute name.'
-        assert data['resource_meta'] == {'some': 'metadata'}
+        assert data['document_meta'] == {'document': 'metadata'}
+        assert data['resource_meta'] == {'resource': 'metadata'}
 
     def test_serialize_meta(self):
         data = unpack(PolygonSchema().dump(self.shape))
