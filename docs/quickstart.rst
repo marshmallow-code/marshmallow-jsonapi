@@ -216,7 +216,7 @@ Meta Objects
 ============
 
 The :class:`marshmallow_jsonapi.fields.Meta` field is used to serialize the
-meta object within a `resource object <http://jsonapi.org/format/#document-resource-objects>`_.
+meta object within a `document’s "top level" <http://jsonapi.org/format/#document-meta>`_.
 
 .. code-block:: python
 
@@ -246,7 +246,35 @@ meta object within a `resource object <http://jsonapi.org/format/#document-resou
     #     }
     # }
 
+The :class:`marshmallow_jsonapi.fields.MetaResource` field is used to serialize
+the meta object within a `resource object <http://jsonapi.org/format/#document-resource-objects>`_.
 
+.. code-block:: python
+
+    from marshmallow_jsonapi import Schema, fields
+
+    class AuthorSchema(Schema):
+        id = fields.Str(dump_only=True)
+        name = fields.Str()
+        meta_resource = fields.MetaResource()
+
+        class Meta:
+            type_ = 'people'
+            strict = True
+
+    author = {'name': 'Alice', 'meta_resource': {'active': True}}
+    AuthorSchema().dump(author).data
+    # {
+    #     "data": {
+    #         "type": "people",
+    #         "attributes": {
+    #             "name": "Alice"
+    #         },
+    #         "meta": {
+    #             "active": true
+    #         }
+    #     }
+    # }
 
 Errors
 ======
