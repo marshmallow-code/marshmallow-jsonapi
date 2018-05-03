@@ -5,7 +5,8 @@ from marshmallow.exceptions import ValidationError
 from marshmallow.compat import iteritems, PY2
 from marshmallow.utils import is_collection
 
-from .fields import BaseRelationship, Meta, _META_LOAD_FROM
+from .fields import BaseRelationship, Meta, MetaResource
+from .fields import _META_RESOURCE_LOAD_FROM, _META_DOCUMENT_LOAD_FROM
 from .exceptions import IncorrectTypeError
 from .utils import resolve_params, _MARSHMALLOW_VERSION_INFO, get_dump_key
 
@@ -93,7 +94,7 @@ class Schema(ma.Schema):
             raise ValueError('Must specify `self_url` Meta option when '
                              '`self_url_kwargs` is specified')
         self.included_data = {}
-        self.meta_information = {}
+        self.meta_document = {}
 
     OPTIONS_CLASS = SchemaOpts
 
@@ -126,7 +127,7 @@ class Schema(ma.Schema):
         ret = self.format_items(data, many)
         ret = self.wrap_response(ret, many)
         ret = self.render_included_data(ret)
-        ret = self.render_meta_information(ret)
+        ret = self.render_meta_document(ret)
         return ret
 
     def render_included_data(self, data):
@@ -135,10 +136,10 @@ class Schema(ma.Schema):
         data['included'] = list(self.included_data.values())
         return data
 
-    def render_meta_information(self, data):
-        if not self.meta_information:
+    def render_meta_document(self, data):
+        if not self.meta_document:
             return data
-        data['meta'] = self.meta_information
+        data['meta'] = self.meta_document
         return data
 
     def unwrap_item(self, item):
@@ -157,8 +158,10 @@ class Schema(ma.Schema):
         payload = self.dict_class()
         if 'id' in item:
             payload['id'] = item['id']
-        if self.meta_information:
-            payload[_META_LOAD_FROM] = self.meta_information
+        if 'meta' in item:
+            payload[_META_RESOURCE_LOAD_FROM] = item['meta']
+        if self.meta_document:
+            payload[_META_DOCUMENT_LOAD_FROM] = self.meta_document
         for key, value in iteritems(item.get('attributes', {})):
             payload[key] = value
         for key, value in iteritems(item.get('relationships', {})):
@@ -226,7 +229,7 @@ class Schema(ma.Schema):
         # when processing relationships (``included`` is outside of the
         # ``data``).
         self.included_data = data.get('included', {})
-        self.meta_information = data.get('meta', {})
+        self.meta_document = data.get('meta', {})
 
         try:
             result = super(Schema, self)._do_load(data, many, **kwargs)
@@ -343,9 +346,13 @@ class Schema(ma.Schema):
             if attribute == ID:
                 ret[ID] = value
             elif isinstance(self.fields[attribute], Meta):
-                if not self.meta_information:
-                    self.meta_information = self.dict_class()
-                self.meta_information.update(value)
+                if not self.meta_document:
+                    self.meta_document = self.dict_class()
+                self.meta_document.update(value)
+            elif isinstance(self.fields[attribute], MetaResource):
+                if 'meta' not in ret:
+                    ret['meta'] = self.dict_class()
+                ret['meta'].update(value)
             elif isinstance(self.fields[attribute], BaseRelationship):
                 if value:
                     if 'relationships' not in ret:
