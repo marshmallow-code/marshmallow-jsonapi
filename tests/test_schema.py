@@ -782,23 +782,9 @@ class TestAutoSelfUrls:
         assert 'links' not in data
 
 
-class ArticleSchema(Schema):
-    id = fields.Integer()
-    body = fields.String()
-    author = fields.Relationship(
-        dump_only=False, include_resource_linkage=True, many=False, type_='people')
-    comments = fields.Relationship(
-        dump_only=False, include_resource_linkage=True, many=True, type_='comments')
-
-    class Meta:
-        type_ = 'articles'
-        strict = True
-
-
 class PolygonSchema(Schema):
     id = fields.Integer(as_string=True)
     sides = fields.Integer()
-    regular = fields.Boolean()
     # This is an attribute that uses the 'meta' key: /data/attributes/meta
     meta = fields.String()
     # This is the document's top level meta object: /meta
@@ -812,48 +798,85 @@ class PolygonSchema(Schema):
 
 
 class TestMeta(object):
-
-    serialized_shape = {
-        'data': {
-            'id': '1',
-            'type': 'shapes',
-            'attributes': {
-                'sides': 3,
-                'regular': False,
-                'meta': 'This is an ill-advised (albeit valid) attribute name.',
-            },
-            'meta': {
-                'resource': 'metadata',
-            },
-        },
-        'meta': {
-            'document': 'metadata',
-        }
-    }
-
     shape = {
         'id': 1,
         'sides': 3,
-        'regular': False,
-        'meta': 'This is an ill-advised (albeit valid) attribute name.',
-        'document_meta': {'document': 'metadata'},
-        'resource_meta': {'resource': 'metadata'},
+        'meta': 'triangle',
+        'resource_meta': {'concave': False},
+        'document_meta': {'page': 1},
     }
 
-    def test_deserialize_meta(self):
-        data = unpack(PolygonSchema().load(self.serialized_shape))
-        assert data
-        assert data['id'] == 1
-        assert data['sides'] == 3
-        assert data['regular'] is False
-        assert data['meta'] == \
-               'This is an ill-advised (albeit valid) attribute name.'
-        assert data['document_meta'] == {'document': 'metadata'}
-        assert data['resource_meta'] == {'resource': 'metadata'}
+    shapes = [
+        {
+            'id': 1,
+            'sides': 3,
+            'meta': 'triangle',
+            'resource_meta': {'concave': False},
+            'document_meta': {'page': 1},
+        },
+        {
+            'id': 2,
+            'sides': 4,
+            'meta': 'quadrilateral',
+            'resource_meta': {'concave': True},
+            'document_meta': {'page': 1}
+        }
+    ]
 
-    def test_serialize_meta(self):
-        data = unpack(PolygonSchema().dump(self.shape))
-        assert data == self.serialized_shape
+    def test_dump_single(self):
+        serialized = unpack(PolygonSchema().dump(self.shape))
+        assert 'meta' in serialized
+        assert serialized['meta'] == self.shape['document_meta']
+        assert serialized['data']['attributes']['meta'] == self.shape['meta']
+        assert serialized['data']['meta'] == self.shape['resource_meta']
+
+    def test_dump_many(self):
+        serialized = unpack(PolygonSchema(many=True).dump(self.shapes))
+        assert 'meta' in serialized
+        assert serialized['meta'] == self.shapes[0]['document_meta']
+
+        first = serialized['data'][0]
+        assert first['attributes']['meta'] == self.shapes[0]['meta']
+        assert first['meta'] == self.shapes[0]['resource_meta']
+
+        second = serialized['data'][1]
+        assert second['attributes']['meta'] == self.shapes[1]['meta']
+        assert second['meta'] == self.shapes[1]['resource_meta']
+
+    def test_load_single(self):
+        serialized = unpack(PolygonSchema().dump(self.shape))
+        loaded = unpack(PolygonSchema().load(serialized))
+
+        assert loaded['meta'] == self.shape['meta']
+        assert loaded['resource_meta'] == self.shape['resource_meta']
+        assert loaded['document_meta'] == self.shape['document_meta']
+
+    def test_load_many(self):
+        serialized = unpack(PolygonSchema(many=True).dump(self.shapes))
+        loaded = unpack(PolygonSchema(many=True).load(serialized))
+
+        first = loaded[0]
+        assert first['meta'] == self.shapes[0]['meta']
+        assert first['resource_meta'] == self.shapes[0]['resource_meta']
+        assert first['document_meta'] == self.shapes[0]['document_meta']
+
+        second = loaded[1]
+        assert second['meta'] == self.shapes[1]['meta']
+        assert second['resource_meta'] == self.shapes[1]['resource_meta']
+        assert second['document_meta'] == self.shapes[1]['document_meta']
+
+
+class ArticleSchema(Schema):
+    id = fields.Integer()
+    body = fields.String()
+    author = fields.Relationship(
+        dump_only=False, include_resource_linkage=True, many=False, type_='people')
+    comments = fields.Relationship(
+        dump_only=False, include_resource_linkage=True, many=True, type_='comments')
+
+    class Meta:
+        type_ = 'articles'
+        strict = True
 
 
 def assert_relationship_error(pointer, errors):
