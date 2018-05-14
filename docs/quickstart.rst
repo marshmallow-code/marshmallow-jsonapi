@@ -215,8 +215,8 @@ Now you can include some data in a dump by specifying the includes (also support
 Meta Objects
 ============
 
-The :class:`marshmallow_jsonapi.fields.Meta` field is used to serialize the
-meta object within a `document’s "top level" <http://jsonapi.org/format/#document-meta>`_.
+The :class:`marshmallow_jsonapi.fields.DocumentMeta` field is used to serialize
+the meta object within a `document’s "top level" <http://jsonapi.org/format/#document-meta>`_.
 
 .. code-block:: python
 
@@ -225,7 +225,7 @@ meta object within a `document’s "top level" <http://jsonapi.org/format/#docum
     class AuthorSchema(Schema):
         id = fields.Str(dump_only=True)
         name = fields.Str()
-        metadata = fields.Meta()
+        metadata = fields.DocumentMeta()
 
         class Meta:
             type_ = 'people'
@@ -246,7 +246,7 @@ meta object within a `document’s "top level" <http://jsonapi.org/format/#docum
     #     }
     # }
 
-The :class:`marshmallow_jsonapi.fields.MetaResource` field is used to serialize
+The :class:`marshmallow_jsonapi.fields.ResourceMeta` field is used to serialize
 the meta object within a `resource object <http://jsonapi.org/format/#document-resource-objects>`_.
 
 .. code-block:: python
@@ -256,13 +256,13 @@ the meta object within a `resource object <http://jsonapi.org/format/#document-r
     class AuthorSchema(Schema):
         id = fields.Str(dump_only=True)
         name = fields.Str()
-        meta_resource = fields.MetaResource()
+        meta_resource = fields.ResourceMeta()
 
         class Meta:
             type_ = 'people'
             strict = True
 
-    author = {'name': 'Alice', 'meta_resource': {'active': True}}
+    author = {'name': 'Alice', 'resource_meta': {'active': True}}
     AuthorSchema().dump(author).data
     # {
     #     "data": {

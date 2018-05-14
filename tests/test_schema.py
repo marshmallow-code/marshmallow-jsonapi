@@ -802,9 +802,9 @@ class PolygonSchema(Schema):
     # This is an attribute that uses the 'meta' key: /data/attributes/meta
     meta = fields.String()
     # This is the document's top level meta object: /meta
-    document_meta = fields.Meta()
+    document_meta = fields.DocumentMeta()
     # This is the resource object's meta object: /data/meta
-    resource_meta = fields.MetaResource()
+    resource_meta = fields.ResourceMeta()
 
     class Meta:
         type_ = 'shapes'
