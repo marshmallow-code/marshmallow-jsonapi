@@ -3,6 +3,7 @@
 fields for serializing JSON API-formatted hyperlinks.
 """
 import collections
+import warnings
 
 from marshmallow.compat import basestring
 
@@ -342,3 +343,30 @@ class ResourceMeta(Field):
             return super(ResourceMeta, self)._serialize(value, *args, **kwargs)
         else:
             self.fail('invalid')
+
+
+class Meta(DocumentMeta):
+    """Field which serializes to a "meta object" within a document’s “top level”.
+
+    .. deprecated:: 0.18.0
+       Use :class:`DocumentMeta` instead.
+
+    Examples: ::
+
+        from marshmallow_jsonapi import Schema, fields
+
+        class UserSchema(Schema):
+            id = fields.String()
+            metadata = fields.Meta()
+
+            class Meta:
+                type_ = 'product'
+                strict = True
+
+    See: http://jsonapi.org/format/#document-meta
+    """
+    def __init__(self, **kwargs):
+        warnings.warn(
+            'The Meta field is deprecated. Use DocumentMeta field instead.',
+            DeprecationWarning)
+        super(DocumentMeta, self).__init__(**kwargs)

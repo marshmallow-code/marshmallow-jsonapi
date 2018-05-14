@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import pytest
+import warnings
 
 from hashlib import md5
 from marshmallow import ValidationError
-from marshmallow_jsonapi.fields import DocumentMeta, ResourceMeta, Relationship
+from marshmallow_jsonapi.fields import DocumentMeta, Meta, ResourceMeta, Relationship
 
 
 class TestGenericRelationshipField:
@@ -263,6 +264,16 @@ class TestGenericRelationshipField:
         result = field.serialize('author', post_with_null_author)
 
         assert not result
+
+
+class TestMetaField:
+    def test_depreciation(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            Meta()
+            assert len(w) == 1
+            assert issubclass(w[-1].category, DeprecationWarning)
+            assert "deprecated" in str(w[-1].message)
 
 
 class TestDocumentMetaField:
