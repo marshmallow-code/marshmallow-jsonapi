@@ -225,13 +225,13 @@ the meta object within a `document’s "top level" <http://jsonapi.org/format/#d
     class AuthorSchema(Schema):
         id = fields.Str(dump_only=True)
         name = fields.Str()
-        metadata = fields.DocumentMeta()
+        document_meta = fields.DocumentMeta()
 
         class Meta:
             type_ = 'people'
             strict = True
 
-    author = {'name': 'Alice', 'metadata': {'page': {'offset': 10}}}
+    author = {'name': 'Alice', 'document_meta': {'page': {'offset': 10}}}
     AuthorSchema().dump(author).data
     # {
     #     "meta": {
@@ -256,7 +256,7 @@ the meta object within a `resource object <http://jsonapi.org/format/#document-r
     class AuthorSchema(Schema):
         id = fields.Str(dump_only=True)
         name = fields.Str()
-        meta_resource = fields.ResourceMeta()
+        resource_meta = fields.ResourceMeta()
 
         class Meta:
             type_ = 'people'
