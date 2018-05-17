@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import pytest
-import warnings
 
 from hashlib import md5
 from marshmallow import ValidationError
@@ -268,12 +267,8 @@ class TestGenericRelationshipField:
 
 class TestMetaField:
     def test_deprecation(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter('always')
+        with pytest.warns(DeprecationWarning, match='deprecated'):
             Meta()
-            assert len(w) == 1
-            assert issubclass(w[-1].category, DeprecationWarning)
-            assert 'deprecated' in str(w[-1].message)
 
 
 class TestDocumentMetaField:
