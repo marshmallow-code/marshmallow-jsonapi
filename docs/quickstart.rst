@@ -215,8 +215,8 @@ Now you can include some data in a dump by specifying the includes (also support
 Meta Objects
 ============
 
-The :class:`marshmallow_jsonapi.fields.Meta` field is used to serialize the
-meta object within a `resource object <http://jsonapi.org/format/#document-resource-objects>`_.
+The :class:`marshmallow_jsonapi.fields.DocumentMeta` field is used to serialize
+the meta object within a `document’s "top level" <http://jsonapi.org/format/#document-meta>`_.
 
 .. code-block:: python
 
@@ -225,13 +225,13 @@ meta object within a `resource object <http://jsonapi.org/format/#document-resou
     class AuthorSchema(Schema):
         id = fields.Str(dump_only=True)
         name = fields.Str()
-        metadata = fields.Meta()
+        document_meta = fields.DocumentMeta()
 
         class Meta:
             type_ = 'people'
             strict = True
 
-    author = {'name': 'Alice', 'metadata': {'page': {'offset': 10}}}
+    author = {'name': 'Alice', 'document_meta': {'page': {'offset': 10}}}
     AuthorSchema().dump(author).data
     # {
     #     "meta": {
@@ -246,7 +246,35 @@ meta object within a `resource object <http://jsonapi.org/format/#document-resou
     #     }
     # }
 
+The :class:`marshmallow_jsonapi.fields.ResourceMeta` field is used to serialize
+the meta object within a `resource object <http://jsonapi.org/format/#document-resource-objects>`_.
 
+.. code-block:: python
+
+    from marshmallow_jsonapi import Schema, fields
+
+    class AuthorSchema(Schema):
+        id = fields.Str(dump_only=True)
+        name = fields.Str()
+        resource_meta = fields.ResourceMeta()
+
+        class Meta:
+            type_ = 'people'
+            strict = True
+
+    author = {'name': 'Alice', 'resource_meta': {'active': True}}
+    AuthorSchema().dump(author).data
+    # {
+    #     "data": {
+    #         "type": "people",
+    #         "attributes": {
+    #             "name": "Alice"
+    #         },
+    #         "meta": {
+    #             "active": true
+    #         }
+    #     }
+    # }
 
 Errors
 ======

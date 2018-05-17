@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import pytest
+import warnings
 
 from hashlib import md5
 from marshmallow import ValidationError
-from marshmallow_jsonapi.fields import Meta, Relationship
+from marshmallow_jsonapi.fields import DocumentMeta, Meta, ResourceMeta, Relationship
 
 
 class TestGenericRelationshipField:
@@ -266,27 +267,64 @@ class TestGenericRelationshipField:
 
 
 class TestMetaField:
+    def test_deprecation(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            Meta()
+            assert len(w) == 1
+            assert issubclass(w[-1].category, DeprecationWarning)
+            assert 'deprecated' in str(w[-1].message)
+
+
+class TestDocumentMetaField:
 
     def test_serialize(self):
-        field = Meta()
-        result = field.serialize('meta', {'meta': {'page': {'offset': 1}}})
+        field = DocumentMeta()
+        result = field.serialize('document_meta', {'document_meta': {'page': {'offset': 1}}})
         assert result == {'page': {'offset': 1}}
 
     def test_serialize_incorrect_type(self):
-        field = Meta()
+        field = DocumentMeta()
         with pytest.raises(ValidationError) as excinfo:
-            field.serialize('meta', {'meta': 1})
+            field.serialize('document_meta', {'document_meta': 1})
         assert excinfo.value.args[0] == 'Not a valid mapping type.'
 
     def test_deserialize(self):
-        field = Meta()
+        field = DocumentMeta()
         value = {'page': {'offset': 1}}
         result = field.deserialize(value)
         assert result == value
 
     def test_deserialize_incorrect_type(self):
-        field = Meta()
+        field = DocumentMeta()
         value = 1
+        with pytest.raises(ValidationError) as excinfo:
+            field.deserialize(value)
+        assert excinfo.value.args[0] == 'Not a valid mapping type.'
+
+
+class TestResourceMetaField:
+
+    def test_serialize(self):
+        field = ResourceMeta()
+        result = field.serialize('resource_meta', {'resource_meta': {'active': True}})
+        assert result == {'active': True}
+
+    def test_serialize_incorrect_type(self):
+        field = ResourceMeta()
+        with pytest.raises(ValidationError) as excinfo:
+            field.serialize('resource_meta', {'resource_meta': True})
+        assert excinfo.value.args[0] == 'Not a valid mapping type.'
+
+    def test_deserialize(self):
+        field = ResourceMeta()
+        value = {'active': True}
+        result = field.deserialize(value)
+        assert result == value
+
+    def test_deserialize_incorrect_type(self):
+        field = ResourceMeta()
+        value = True
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize(value)
         assert excinfo.value.args[0] == 'Not a valid mapping type.'
