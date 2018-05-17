@@ -2,6 +2,14 @@
 Changelog
 *********
 
+0.18.0 (unreleased)
+===================
+
+Features:
+
+* Add ``fields.ResourceMeta`` for serializing a resource-level meta
+  object (:issue:``). Thanks :user:`scottwernervt`.
+
 0.17.0 (2018-04-29)
 ===================
 
