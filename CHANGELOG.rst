@@ -2,6 +2,15 @@
 Changelog
 *********
 
+0.19.0 (unreleased)
+===================
+
+Features:
+
+* Schemas passed to ``fields.Relationship`` will inherit context from
+  the parent schema (:issue:`84`). Thanks :user:`asteinlein` and
+  :user:`scottwernervt` for the PRs.
+
 0.18.0 (2018-05-19)
 ===================
 
