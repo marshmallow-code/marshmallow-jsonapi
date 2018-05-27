@@ -420,6 +420,36 @@ class TestCompoundDocuments:
         for comment_id in loaded['comments']:
             assert int(comment_id) in [c.id for c in post.comments]
 
+    def test_include_data_with_schema_context(self, post):
+        class ContextTestSchema(Schema):
+            id = fields.Str()
+            from_context = fields.Method('get_from_context')
+
+            def get_from_context(self, obj):
+                return self.context['some_value']
+
+            class Meta:
+                type_ = 'people'
+
+        class PostContextTestSchema(PostSchema):
+            author = fields.Relationship(
+                'http://test.test/posts/{id}/author/',
+                related_url_kwargs={'id': '<id>'},
+                schema=ContextTestSchema, many=False
+            )
+
+            class Meta(PostSchema.Meta):
+                pass
+
+        serialized = unpack(PostContextTestSchema(
+            include_data=('author',),
+            context={'some_value': 'Hello World'}
+        ).dump(post))
+
+        for included in serialized['included']:
+            if included['type'] == 'people':
+                assert 'from_context' in included['attributes']
+                assert included['attributes']['from_context'] == 'Hello World'
 
 def get_error_by_field(errors, field):
     for err in errors['errors']:

@@ -106,20 +106,23 @@ class Relationship(BaseRelationship):
     def schema(self):
         only = getattr(self, 'only', None)
         exclude = getattr(self, 'exclude', ())
+        context = getattr(self, 'context', {})
 
         if isinstance(self.__schema, SchemaABC):
             return self.__schema
         if isinstance(self.__schema, type) and issubclass(self.__schema, SchemaABC):
-            self.__schema = self.__schema(only=only, exclude=exclude)
+            self.__schema = self.__schema(only=only, exclude=exclude, context=context)
             return self.__schema
         if isinstance(self.__schema, basestring):
             if self.__schema == _RECURSIVE_NESTED:
                 parent_class = self.parent.__class__
                 self.__schema = parent_class(
-                    only=only, exclude=exclude, include_data=self.parent.include_data)
+                    only=only, exclude=exclude, context=context,
+                    include_data=self.parent.include_data)
             else:
                 schema_class = class_registry.get_class(self.__schema)
-                self.__schema = schema_class(only=only, exclude=exclude)
+                self.__schema = schema_class(only=only, exclude=exclude,
+                                             context=context)
             return self.__schema
         else:
             raise ValueError(('A Schema is required to serialize a nested '
