@@ -61,7 +61,7 @@ setup(
     ],
     test_suite='tests',
     project_urls={
-        'Bug Reports': 'https://github.com/marshmallow-code/marshmallow/issues',
+        'Bug Reports': 'https://github.com/marshmallow-code/marshmallow-jsonapi/issues',
         'Funding': 'https://opencollective.com/marshmallow',
     }
 )
