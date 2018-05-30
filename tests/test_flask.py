@@ -5,7 +5,7 @@ from werkzeug.routing import BuildError
 
 from marshmallow_jsonapi import fields
 from marshmallow_jsonapi.flask import Relationship, Schema
-from .base import unpack
+from tests.base import unpack
 
 @pytest.yield_fixture()
 def app():

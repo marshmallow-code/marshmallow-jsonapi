@@ -8,7 +8,7 @@ from marshmallow import validate, ValidationError
 from marshmallow_jsonapi import Schema, fields
 from marshmallow_jsonapi.exceptions import IncorrectTypeError
 from marshmallow_jsonapi.utils import _MARSHMALLOW_VERSION_INFO
-from .base import unpack
+from tests.base import unpack
 
 
 class AuthorSchema(Schema):
