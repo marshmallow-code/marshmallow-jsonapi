@@ -1,14 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from hashlib import md5
-
 import pytest
 from marshmallow import validate, ValidationError
 
 from marshmallow_jsonapi import Schema, fields
 from marshmallow_jsonapi.exceptions import IncorrectTypeError
 from marshmallow_jsonapi.utils import _MARSHMALLOW_VERSION_INFO
-from tests.base import unpack, AuthorSchema, CommentSchema, PostSchema, PolygonSchema, ArticleSchema
+from tests.base import unpack
+from tests.base import AuthorSchema, CommentSchema, PostSchema, PolygonSchema, ArticleSchema
+
+
+def make_serialized_author(attributes):
+    return {
+        'data': {
+            'type': 'people',
+            'attributes': attributes,
+        }
+    }
+
+
+def make_serialized_authors(items):
+    return {
+        'data': [
+            {'type': 'people', 'attributes': each} for each in items
+        ]
+    }
 
 
 def test_type_is_required():
@@ -368,26 +384,10 @@ def get_error_by_field(errors, field):
     return None
 
 
-def make_author(attributes, type_='people'):
-    return {
-        'data': {
-            'type': type_,
-            'attributes': attributes,
-        }
-    }
-
-
-def make_authors(items, type_='people'):
-    return {
-        'data': [
-            {'type': type_, 'attributes': each} for each in items
-        ]
-    }
-
 class TestErrorFormatting:
 
     def test_validate(self):
-        author = make_author({'first_name': 'Dan', 'password': 'short'})
+        author = make_serialized_author({'first_name': 'Dan', 'password': 'short'})
         try:
             errors = AuthorSchema().validate(author)
         except ValidationError as err:  # marshmallow 2
@@ -404,7 +404,7 @@ class TestErrorFormatting:
         assert lname_err['detail'] == 'Missing data for required field.'
 
     def test_errors_in_strict_mode(self):
-        author = make_author({'first_name': 'Dan', 'password': 'short'})
+        author = make_serialized_author({'first_name': 'Dan', 'password': 'short'})
         with pytest.raises(ValidationError) as excinfo:
             AuthorSchema().load(author)
         errors = excinfo.value.messages
@@ -505,7 +505,7 @@ class TestErrorFormatting:
 
     def test_load(self):
         with pytest.raises(ValidationError) as excinfo:
-            AuthorSchema().load(make_author({'first_name': 'Dan', 'password': 'short'}))
+            AuthorSchema().load(make_serialized_author({'first_name': 'Dan', 'password': 'short'}))
         errors = excinfo.value.messages
         assert 'errors' in errors
         assert len(errors['errors']) == 2
@@ -519,12 +519,12 @@ class TestErrorFormatting:
         assert lname_err['detail'] == 'Missing data for required field.'
 
     def test_errors_is_empty_if_valid(self):
-        errors = AuthorSchema().validate(
-            make_author({'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'}))
+        errors = AuthorSchema().validate(make_serialized_author({
+            'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'}))
         assert errors == {}
 
     def test_errors_many(self):
-        authors = make_authors([
+        authors = make_serialized_authors([
             {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'bad'},
             {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'},
         ])
@@ -599,7 +599,7 @@ class TestInflection:
 
     def test_validate_with_inflection(self, schema):
         try:
-            errors = schema.validate(make_author({'first-name': 'd'}))
+            errors = schema.validate(make_serialized_author({'first-name': 'd'}))
         except ValidationError as err:  # marshmallow 2
             errors = err.messages
         lname_err = get_error_by_field(errors, 'last-name')
@@ -613,14 +613,15 @@ class TestInflection:
     def test_load_with_inflection(self, schema):
         # invalid
         with pytest.raises(ValidationError) as excinfo:
-            schema.load(make_author({'first-name': 'd'}))
+            schema.load(make_serialized_author({'first-name': 'd'}))
         errors = excinfo.value.messages
         fname_err = get_error_by_field(errors, 'first-name')
         assert fname_err
         assert fname_err['detail'] == 'Shorter than minimum length 2.'
 
         # valid
-        data = unpack(schema.load(make_author({'first-name': 'Nevets', 'last-name': 'Longoria'})))
+        data = unpack(schema.load(make_serialized_author({
+            'first-name': 'Nevets', 'last-name': 'Longoria'})))
         assert data['first_name'] == 'Nevets'
 
     def test_load_with_inflection_and_load_from_override(self):
@@ -637,7 +638,8 @@ class TestInflection:
 
         sch = AuthorSchemaWithInflection2()
 
-        data = unpack(sch.load(make_author({'firstName': 'Steve', 'last-name': 'Loria'})))
+        data = unpack(sch.load(make_serialized_author({
+            'firstName': 'Steve', 'last-name': 'Loria'})))
         assert data['first_name'] == 'Steve'
         assert data['last_name'] == 'Loria'
 
