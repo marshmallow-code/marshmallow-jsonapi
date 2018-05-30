@@ -7,6 +7,7 @@ from marshmallow_jsonapi import fields
 from marshmallow_jsonapi.flask import Relationship, Schema
 from tests.base import unpack
 
+
 @pytest.yield_fixture()
 def app():
     app_ = Flask('testapp')

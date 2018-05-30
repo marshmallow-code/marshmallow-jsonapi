@@ -116,6 +116,7 @@ def test_type_is_required():
         BadSchema()
     assert excinfo.value.args[0] == 'Must specify type_ class Meta option'
 
+
 def test_id_field_is_required():
     class BadSchema(Schema):
 
@@ -125,6 +126,7 @@ def test_id_field_is_required():
     with pytest.raises(ValueError) as excinfo:
         BadSchema()
     assert excinfo.value.args[0] == 'Must have an `id` field'
+
 
 class TestResponseFormatting:
 
@@ -451,12 +453,14 @@ class TestCompoundDocuments:
                 assert 'from_context' in included['attributes']
                 assert included['attributes']['from_context'] == 'Hello World'
 
+
 def get_error_by_field(errors, field):
     for err in errors['errors']:
         # Relationship error pointers won't match with this.
         if err['source']['pointer'].endswith('/' + field):
             return err
     return None
+
 
 def make_author(attributes, type_='people'):
     return {
@@ -465,6 +469,7 @@ def make_author(attributes, type_='people'):
             'attributes': attributes,
         }
     }
+
 
 def make_authors(items, type_='people'):
     return {
@@ -651,6 +656,7 @@ class TestErrorFormatting:
         assert id_err
         assert id_err['source']['pointer'] == '/data/1/id'
         assert id_err['detail'] == 'Not a valid string.'
+
 
 def dasherize(text):
     return text.replace('_', '-')
