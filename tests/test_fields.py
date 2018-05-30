@@ -28,7 +28,7 @@ class TestGenericRelationshipField:
         assert 'related' not in result['links']
         assert related == 'http://example.com/posts/{id}/relationships/comments'.format(id=post.id)
 
-    def test_include_resource_linkage_requires_type(self, post):
+    def test_include_resource_linkage_requires_type(self):
         with pytest.raises(ValueError) as excinfo:
             Relationship(
                 related_url='/posts/{post_id}',
@@ -110,7 +110,7 @@ class TestGenericRelationshipField:
         ids = [each['id'] for each in result['data']]
         assert ids == [md5(each.keyword.encode('utf-8')).hexdigest() for each in post.keywords]
 
-    def test_deserialize_data_single(self, post):
+    def test_deserialize_data_single(self):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
@@ -120,7 +120,7 @@ class TestGenericRelationshipField:
         result = field.deserialize(value)
         assert result == '1'
 
-    def test_deserialize_data_many(self, post):
+    def test_deserialize_data_many(self):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
@@ -130,7 +130,7 @@ class TestGenericRelationshipField:
         result = field.deserialize(value)
         assert result == ['1']
 
-    def test_deserialize_data_missing_id(self, post):
+    def test_deserialize_data_missing_id(self):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
@@ -141,7 +141,7 @@ class TestGenericRelationshipField:
             field.deserialize(value)
         assert excinfo.value.args[0] == ['Must have an `id` field']
 
-    def test_deserialize_data_missing_type(self, post):
+    def test_deserialize_data_missing_type(self):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
@@ -152,7 +152,7 @@ class TestGenericRelationshipField:
             field.deserialize(value)
         assert excinfo.value.args[0] == ['Must have a `type` field']
 
-    def test_deserialize_data_incorrect_type(self, post):
+    def test_deserialize_data_incorrect_type(self):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
@@ -163,7 +163,7 @@ class TestGenericRelationshipField:
             field.deserialize(value)
         assert excinfo.value.args[0] == ['Invalid `type` specified']
 
-    def test_deserialize_null_data_value(self, post):
+    def test_deserialize_null_data_value(self):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'}, allow_none=True,
@@ -182,7 +182,7 @@ class TestGenericRelationshipField:
             field.deserialize({'data': None})
         assert excinfo.value.args[0] == 'Field may not be null.'
 
-    def test_deserialize_empty_data_list(self, post):
+    def test_deserialize_empty_data_list(self):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
@@ -191,7 +191,7 @@ class TestGenericRelationshipField:
         result = field.deserialize({'data': []})
         assert result == []
 
-    def test_deserialize_empty_data_node(self, post):
+    def test_deserialize_empty_data_node(self):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
@@ -202,7 +202,7 @@ class TestGenericRelationshipField:
         assert excinfo.value.args[0] == [
             'Must have an `id` field', 'Must have a `type` field']
 
-    def test_deserialize_empty_relationship_node(self, post):
+    def test_deserialize_empty_relationship_node(self):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},

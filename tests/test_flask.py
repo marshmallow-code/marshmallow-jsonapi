@@ -64,7 +64,7 @@ class TestSchema:
             self_view_kwargs = {'post_id': '<id>'}
             self_view_many = 'posts'
 
-    def test_schema_requires_view_options(self, post):
+    def test_schema_requires_view_options(self):
         with pytest.raises(ValueError):
             class InvalidFlaskMetaSchema(Schema):
                 id = fields.Int()
