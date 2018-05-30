@@ -466,8 +466,15 @@ class TestErrorFormatting:
         assert errors == expected
 
     def test_validate_type(self):
-        author = {'data':
-                {'type': 'invalid', 'attributes': {'first_name': 'Dan', 'password': 'supersecure'}}}
+        author = {
+            'data': {
+                'type': 'invalid',
+                'attributes': {
+                    'first_name': 'Dan',
+                    'password': 'supersecure'
+                }
+            }
+        }
         with pytest.raises(IncorrectTypeError) as excinfo:
             AuthorSchema().validate(author)
         assert excinfo.value.args[0] == 'Invalid type. Expected "people".'
@@ -484,8 +491,16 @@ class TestErrorFormatting:
 
     def test_validate_id(self):
         """ the pointer for id should be at the data object, not attributes """
-        author = {'data': {'type': 'people', 'id': 123,
-                           'attributes': {'first_name': 'Rob', 'password': 'correcthorses'}}}
+        author = {
+            'data': {
+                'type': 'people',
+                'id': 123,
+                'attributes': {
+                    'first_name': 'Rob',
+                    'password': 'correcthorses'
+                }
+            }
+        }
         try:
             errors = AuthorSchema().validate(author)
         except ValidationError as err:
