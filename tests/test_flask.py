@@ -5,7 +5,8 @@ from werkzeug.routing import BuildError
 
 from marshmallow_jsonapi import fields
 from marshmallow_jsonapi.flask import Relationship, Schema
-from .base import unpack
+from tests.base import unpack
+
 
 @pytest.yield_fixture()
 def app():
@@ -63,7 +64,7 @@ class TestSchema:
             self_view_kwargs = {'post_id': '<id>'}
             self_view_many = 'posts'
 
-    def test_schema_requires_view_options(self, post):
+    def test_schema_requires_view_options(self):
         with pytest.raises(ValueError):
             class InvalidFlaskMetaSchema(Schema):
                 id = fields.Int()

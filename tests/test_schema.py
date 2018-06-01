@@ -1,108 +1,29 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from hashlib import md5
-
 import pytest
-from marshmallow import validate, ValidationError
+from marshmallow import ValidationError
 
 from marshmallow_jsonapi import Schema, fields
 from marshmallow_jsonapi.exceptions import IncorrectTypeError
 from marshmallow_jsonapi.utils import _MARSHMALLOW_VERSION_INFO
-from .base import unpack
+from tests.base import unpack
+from tests.base import AuthorSchema, CommentSchema, PostSchema, PolygonSchema, ArticleSchema
 
 
-class AuthorSchema(Schema):
-    id = fields.Str()
-    first_name = fields.Str(required=True)
-    last_name = fields.Str(required=True)
-    password = fields.Str(load_only=True, validate=validate.Length(6))
-    twitter = fields.Str()
-
-    def get_top_level_links(self, data, many):
-        if many:
-            self_link = '/authors/'
-        else:
-            self_link = '/authors/{}'.format(data['id'])
-        return {'self': self_link}
-
-    class Meta:
-        type_ = 'people'
-        strict = True  # for marshmallow 2
+def make_serialized_author(attributes):
+    return {
+        'data': {
+            'type': 'people',
+            'attributes': attributes,
+        }
+    }
 
 
-class PostSchema(Schema):
-    id = fields.Str()
-    post_title = fields.Str(attribute='title', dump_to='title', data_key='title')
-
-    author = fields.Relationship(
-        'http://test.test/posts/{id}/author/',
-        related_url_kwargs={'id': '<id>'},
-        schema=AuthorSchema, many=False,
-        type_='people'
-    )
-
-    post_comments = fields.Relationship(
-        'http://test.test/posts/{id}/comments/',
-        related_url_kwargs={'id': '<id>'},
-        attribute='comments',
-        load_from='post-comments', dump_to='post-comments',
-        data_key='post-comments',
-        schema='CommentSchema', many=True,
-        type_='comments'
-    )
-
-    post_keywords = fields.Relationship(
-        'http://test.test/posts/{id}/keywords/',
-        related_url_kwargs={'id': '<id>'},
-        attribute='keywords', dump_to='post-keywords',
-        data_key='post-keywords',
-        schema='KeywordSchema', many=True,
-        type_='keywords'
-    )
-
-    class Meta:
-        type_ = 'posts'
-        strict = True
-
-
-class CommentSchema(Schema):
-    id = fields.Str()
-    body = fields.Str(required=True)
-
-    author = fields.Relationship(
-        'http://test.test/comments/{id}/author/',
-        related_url_kwargs={'id': '<id>'},
-        schema=AuthorSchema, many=False
-    )
-
-    class Meta:
-        type_ = 'comments'
-        strict = True
-
-
-class KeywordSchema(Schema):
-    id = fields.Str()
-    keyword = fields.Str(required=True)
-
-    def get_attribute(self, attr, obj, default):
-        if _MARSHMALLOW_VERSION_INFO[0] >= 3:
-            if obj == 'id':
-                return md5(super(Schema, self)
-                           .get_attribute(attr, 'keyword', default)
-                           .encode('utf-8')).hexdigest()
-            else:
-                return super(Schema, self).get_attribute(attr, obj, default)
-        else:
-            if attr == 'id':
-                return md5(super(Schema, self)
-                           .get_attribute('keyword', obj, default)
-                           .encode('utf-8')).hexdigest()
-            else:
-                return super(Schema, self).get_attribute(attr, obj, default)
-
-    class Meta:
-        type_ = 'keywords'
-        strict = True
+def make_serialized_authors(items):
+    return {
+        'data': [
+            {'type': 'people', 'attributes': each} for each in items
+        ]
+    }
 
 
 def test_type_is_required():
@@ -116,6 +37,7 @@ def test_type_is_required():
         BadSchema()
     assert excinfo.value.args[0] == 'Must specify type_ class Meta option'
 
+
 def test_id_field_is_required():
     class BadSchema(Schema):
 
@@ -125,6 +47,7 @@ def test_id_field_is_required():
     with pytest.raises(ValueError) as excinfo:
         BadSchema()
     assert excinfo.value.args[0] == 'Must have an `id` field'
+
 
 class TestResponseFormatting:
 
@@ -451,6 +374,7 @@ class TestCompoundDocuments:
                 assert 'from_context' in included['attributes']
                 assert included['attributes']['from_context'] == 'Hello World'
 
+
 def get_error_by_field(errors, field):
     for err in errors['errors']:
         # Relationship error pointers won't match with this.
@@ -458,25 +382,11 @@ def get_error_by_field(errors, field):
             return err
     return None
 
-def make_author(attributes, type_='people'):
-    return {
-        'data': {
-            'type': type_,
-            'attributes': attributes,
-        }
-    }
-
-def make_authors(items, type_='people'):
-    return {
-        'data': [
-            {'type': type_, 'attributes': each} for each in items
-        ]
-    }
 
 class TestErrorFormatting:
 
     def test_validate(self):
-        author = make_author({'first_name': 'Dan', 'password': 'short'})
+        author = make_serialized_author({'first_name': 'Dan', 'password': 'short'})
         try:
             errors = AuthorSchema().validate(author)
         except ValidationError as err:  # marshmallow 2
@@ -493,7 +403,7 @@ class TestErrorFormatting:
         assert lname_err['detail'] == 'Missing data for required field.'
 
     def test_errors_in_strict_mode(self):
-        author = make_author({'first_name': 'Dan', 'password': 'short'})
+        author = make_serialized_author({'first_name': 'Dan', 'password': 'short'})
         with pytest.raises(ValidationError) as excinfo:
             AuthorSchema().load(author)
         errors = excinfo.value.messages
@@ -555,8 +465,15 @@ class TestErrorFormatting:
         assert errors == expected
 
     def test_validate_type(self):
-        author = {'data':
-                {'type': 'invalid', 'attributes': {'first_name': 'Dan', 'password': 'supersecure'}}}
+        author = {
+            'data': {
+                'type': 'invalid',
+                'attributes': {
+                    'first_name': 'Dan',
+                    'password': 'supersecure'
+                }
+            }
+        }
         with pytest.raises(IncorrectTypeError) as excinfo:
             AuthorSchema().validate(author)
         assert excinfo.value.args[0] == 'Invalid type. Expected "people".'
@@ -573,8 +490,16 @@ class TestErrorFormatting:
 
     def test_validate_id(self):
         """ the pointer for id should be at the data object, not attributes """
-        author = {'data': {'type': 'people', 'id': 123,
-                           'attributes': {'first_name': 'Rob', 'password': 'correcthorses'}}}
+        author = {
+            'data': {
+                'type': 'people',
+                'id': 123,
+                'attributes': {
+                    'first_name': 'Rob',
+                    'password': 'correcthorses'
+                }
+            }
+        }
         try:
             errors = AuthorSchema().validate(author)
         except ValidationError as err:
@@ -594,7 +519,7 @@ class TestErrorFormatting:
 
     def test_load(self):
         with pytest.raises(ValidationError) as excinfo:
-            AuthorSchema().load(make_author({'first_name': 'Dan', 'password': 'short'}))
+            AuthorSchema().load(make_serialized_author({'first_name': 'Dan', 'password': 'short'}))
         errors = excinfo.value.messages
         assert 'errors' in errors
         assert len(errors['errors']) == 2
@@ -608,12 +533,12 @@ class TestErrorFormatting:
         assert lname_err['detail'] == 'Missing data for required field.'
 
     def test_errors_is_empty_if_valid(self):
-        errors = AuthorSchema().validate(
-            make_author({'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'}))
+        errors = AuthorSchema().validate(make_serialized_author({
+            'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'}))
         assert errors == {}
 
     def test_errors_many(self):
-        authors = make_authors([
+        authors = make_serialized_authors([
             {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'bad'},
             {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'},
         ])
@@ -651,180 +576,6 @@ class TestErrorFormatting:
         assert id_err
         assert id_err['source']['pointer'] == '/data/1/id'
         assert id_err['detail'] == 'Not a valid string.'
-
-def dasherize(text):
-    return text.replace('_', '-')
-
-
-class TestInflection:
-
-    class AuthorSchemaWithInflection(Schema):
-        id = fields.Int(dump_only=True)
-        first_name = fields.Str(required=True, validate=validate.Length(min=2))
-        last_name = fields.Str(required=True)
-
-        class Meta:
-            type_ = 'people'
-            inflect = dasherize
-            strict = True
-
-    @pytest.fixture()
-    def schema(self):
-        return self.AuthorSchemaWithInflection()
-
-    def test_dump(self, schema, author):
-        data = unpack(schema.dump(author))
-
-        assert data['data']['id'] == author.id
-        assert data['data']['type'] == 'people'
-        attribs = data['data']['attributes']
-
-        assert 'first-name' in attribs
-        assert 'last-name' in attribs
-
-        assert attribs['first-name'] == author.first_name
-        assert attribs['last-name'] == author.last_name
-
-    def test_validate_with_inflection(self, schema):
-        try:
-            errors = schema.validate(make_author({'first-name': 'd'}))
-        except ValidationError as err:  # marshmallow 2
-            errors = err.messages
-        lname_err = get_error_by_field(errors, 'last-name')
-        assert lname_err
-        assert lname_err['detail'] == 'Missing data for required field.'
-
-        fname_err = get_error_by_field(errors, 'first-name')
-        assert fname_err
-        assert fname_err['detail'] == 'Shorter than minimum length 2.'
-
-    def test_load_with_inflection(self, schema):
-        # invalid
-        with pytest.raises(ValidationError) as excinfo:
-            schema.load(make_author({'first-name': 'd'}))
-        errors = excinfo.value.messages
-        fname_err = get_error_by_field(errors, 'first-name')
-        assert fname_err
-        assert fname_err['detail'] == 'Shorter than minimum length 2.'
-
-        # valid
-        data = unpack(schema.load(make_author({'first-name': 'Nevets', 'last-name': 'Longoria'})))
-        assert data['first_name'] == 'Nevets'
-
-    def test_load_with_inflection_and_load_from_override(self):
-        class AuthorSchemaWithInflection2(Schema):
-            id = fields.Str(dump_only=True)
-            # data_key and load_from takes precedence over inflected attribute
-            first_name = fields.Str(data_key='firstName', load_from='firstName')
-            last_name = fields.Str()
-
-            class Meta:
-                type_ = 'people'
-                inflect = dasherize
-                strict = True
-
-        sch = AuthorSchemaWithInflection2()
-
-        data = unpack(sch.load(make_author({'firstName': 'Steve', 'last-name': 'Loria'})))
-        assert data['first_name'] == 'Steve'
-        assert data['last_name'] == 'Loria'
-
-    def test_load_bulk_id_fields(self):
-        request = {'data': [{'id': '1', 'type': 'people'}]}
-
-        result = unpack(AuthorSchema(only=('id',), many=True).load(request))
-        assert type(result) is list
-
-        response = result[0]
-        assert response['id'] == request['data'][0]['id']
-
-    def test_relationship_keys_get_inflected(self, post):
-        class PostSchema(Schema):
-            id = fields.Int()
-            post_title = fields.Str(attribute='title')
-
-            post_comments = fields.Relationship(
-                'http://test.test/posts/{id}/comments/',
-                related_url_kwargs={'id': '<id>'},
-                attribute='comments'
-            )
-
-            class Meta:
-                type_ = 'posts'
-                inflect = dasherize
-                strict = True
-
-        data = unpack(PostSchema().dump(post))
-        assert 'post-title' in data['data']['attributes']
-        assert 'post-comments' in data['data']['relationships']
-        related_href = data['data']['relationships']['post-comments']['links']['related']
-        assert related_href == 'http://test.test/posts/{}/comments/'.format(post.id)
-
-
-class TestAutoSelfUrls:
-    class AuthorAutoSelfLinkSchema(Schema):
-        id = fields.Int(dump_only=True)
-        first_name = fields.Str(required=True)
-        last_name = fields.Str(required=True)
-        password = fields.Str(load_only=True, validate=validate.Length(6))
-        twitter = fields.Str()
-
-        class Meta:
-            type_ = 'people'
-            self_url = '/authors/{id}'
-            self_url_kwargs = {'id': '<id>'}
-            self_url_many = '/authors/'
-
-    def test_self_url_kwargs_requires_self_url(self, author):
-        class InvalidSelfLinkSchema(Schema):
-            id = fields.Int()
-
-            class Meta:
-                type_ = 'people'
-                self_url_kwargs = {'id': '<id>'}
-
-        with pytest.raises(ValueError):
-            InvalidSelfLinkSchema().dump(author)
-
-    def test_self_link_single(self, author):
-        data = unpack(self.AuthorAutoSelfLinkSchema().dump(author))
-        assert 'links' in data
-        assert data['links']['self'] == '/authors/{}'.format(author.id)
-
-    def test_self_link_many(self, authors):
-        data = unpack(self.AuthorAutoSelfLinkSchema(many=True).dump(authors))
-        assert 'links' in data
-        assert data['links']['self'] == '/authors/'
-
-        assert 'links' in data['data'][0]
-        assert data['data'][0]['links']['self'] == '/authors/{}'.format(authors[0].id)
-
-    def test_without_self_link(self, comments):
-        data = unpack(CommentSchema(many=True).dump(comments))
-
-        assert 'data' in data
-        assert type(data['data']) is list
-
-        first = data['data'][0]
-        assert first['id'] == str(comments[0].id)
-        assert first['type'] == 'comments'
-
-        assert 'links' not in data
-
-
-class PolygonSchema(Schema):
-    id = fields.Integer(as_string=True)
-    sides = fields.Integer()
-    # This is an attribute that uses the 'meta' key: /data/attributes/meta
-    meta = fields.String()
-    # This is the document's top level meta object: /meta
-    document_meta = fields.DocumentMeta()
-    # This is the resource object's meta object: /data/meta
-    resource_meta = fields.ResourceMeta()
-
-    class Meta:
-        type_ = 'shapes'
-        strict = True
 
 
 class TestMeta(object):
@@ -896,19 +647,6 @@ class TestMeta(object):
         assert second['document_meta'] == self.shapes[1]['document_meta']
 
 
-class ArticleSchema(Schema):
-    id = fields.Integer()
-    body = fields.String()
-    author = fields.Relationship(
-        dump_only=False, include_resource_linkage=True, many=False, type_='people')
-    comments = fields.Relationship(
-        dump_only=False, include_resource_linkage=True, many=True, type_='comments')
-
-    class Meta:
-        type_ = 'articles'
-        strict = True
-
-
 def assert_relationship_error(pointer, errors):
     """Walk through the dictionary and determine if a specific
     relationship pointer exists
@@ -921,7 +659,6 @@ def assert_relationship_error(pointer, errors):
 
 
 class TestRelationshipLoading(object):
-
     article = {
         'data': {
             "id": "1",
