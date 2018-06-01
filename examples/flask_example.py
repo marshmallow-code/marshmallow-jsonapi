@@ -38,7 +38,7 @@ db = {
 
 ### SCHEMAS ###
 
-from marshmallow import validate  # flake8: noqa
+from marshmallow import validate, ValidationError  # flake8: noqa
 from marshmallow_jsonapi import fields  # flake8: noqa
 from marshmallow_jsonapi.flask import Relationship, Schema  # flake8: noqa
 
@@ -48,7 +48,9 @@ class CommentSchema(Schema):
 
     class Meta:
         type_ = 'comments'
-        self_view_many = 'posts_comments'
+        self_view = 'comment_detail'
+        self_view_kwargs = {'comment_id': '<id>', '_external': True}
+        self_view_many = 'comments_list'
 
 class AuthorSchema(Schema):
     id = fields.Str(dump_only=True)
@@ -105,46 +107,59 @@ def J(*args, **kwargs):
 @app.route('/posts/', methods=['GET'])
 def posts_list():
     posts = db['posts']
-    data, errs = PostSchema(many=True).dump(posts)
+    data = PostSchema(many=True).dump(posts)
     return J(data)
 
 @app.route('/posts/<int:post_id>')
 def posts_detail(post_id):
     post = db['posts'][post_id - 1]
-    data, errs = PostSchema().dump(post)
+    data = PostSchema().dump(post)
     return J(data)
 
 @app.route('/posts/<int:post_id>/comments/')
 def posts_comments(post_id):
     post = db['posts'][post_id - 1]
     comments = post.comments
-    data, errs = CommentSchema(many=True).dump(comments)
+    data = CommentSchema(many=True).dump(comments)
     return J(data)
 
 @app.route('/authors/')
 def authors_list():
     author = db['authors']
-    data, errs = AuthorSchema(many=True).dump(author)
+    data = AuthorSchema(many=True).dump(author)
     return J(data)
 
 @app.route('/authors/<int:author_id>')
 def author_detail(author_id):
     author = db['authors'][author_id - 1]
-    data, errs = AuthorSchema().dump(author)
+    data = AuthorSchema().dump(author)
     return J(data)
 
 @app.route('/authors/', methods=['POST'])
 def author_create():
     schema = AuthorSchema()
     input_data = request.get_json() or {}
-    data, errs = schema.load(input_data)
-    if errs:
-        return J(errs), 422
+    try:
+        data = schema.load(input_data)
+    except ValidationError as err:
+        return J(err.messages), 422
     id_ = len(db['authors'])
     author = Author(id=id_, **data)
     db['authors'].append(author)
-    result = schema.dump(author)
-    return J(result.data)
+    data = schema.dump(author)
+    return J(data)
+
+@app.route('/comments/')
+def comments_list():
+    comment = db['comments']
+    data = CommentSchema(many=True).dump(comment)
+    return J(data)
+
+@app.route('/comments/<int:comment_id>')
+def comment_detail(comment_id):
+    comment = db['comments'][comment_id - 1]
+    data = CommentSchema().dump(comment)
+    return J(data)
 
 if __name__ == "__main__":
     app.run()
