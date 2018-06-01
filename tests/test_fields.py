@@ -3,7 +3,8 @@ import pytest
 
 from hashlib import md5
 from marshmallow import ValidationError
-from marshmallow_jsonapi.fields import DocumentMeta, Meta, ResourceMeta, Relationship
+from marshmallow_jsonapi import Schema
+from marshmallow_jsonapi.fields import Str, DocumentMeta, Meta, ResourceMeta, Relationship
 
 
 class TestGenericRelationshipField:
@@ -76,6 +77,33 @@ class TestGenericRelationshipField:
         )
         result = field.serialize('author_id', post)
         assert result['data']['id'] == str(post.author_id)
+
+    def test_include_resource_linkage_id_field_from_string(self):
+        field = Relationship(
+            include_resource_linkage=True, type_='authors',
+            id_field='name',
+        )
+        result = field.serialize('author', {'author': {'name': 'Ray Bradbury'}})
+        assert 'data' in result
+        assert result['data']
+        assert result['data']['id'] == 'Ray Bradbury'
+
+    def test_include_resource_linkage_id_field_from_schema(self):
+        class AuthorSchema(Schema):
+            id = Str(attribute='name')
+
+            class Meta:
+                type_ = 'authors'
+                strict = True
+
+        field = Relationship(
+            include_resource_linkage=True, type_='authors',
+            schema=AuthorSchema,
+        )
+        result = field.serialize('author', {'author': {'name': 'Ray Bradbury'}})
+        assert 'data' in result
+        assert result['data']
+        assert result['data']['id'] == 'Ray Bradbury'
 
     def test_include_resource_linkage_many(self, post):
         field = Relationship(

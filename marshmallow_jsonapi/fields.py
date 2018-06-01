@@ -79,7 +79,7 @@ class Relationship(BaseRelationship):
     :param str id_field: Attribute name to pull ids from if a resource linkage is included.
     """
 
-    id_field = 'id'
+    default_id_field = 'id'
 
     def __init__(
         self,
@@ -97,10 +97,20 @@ class Relationship(BaseRelationship):
         self.many = many
         self.include_resource_linkage = include_resource_linkage
         self.include_data = False
-        self.__schema = schema
         self.type_ = type_
-        self.id_field = id_field or self.id_field
+        self.__id_field = id_field
+        self.__schema = schema
         super(Relationship, self).__init__(**kwargs)
+
+    @property
+    def id_field(self):
+        if self.__id_field:
+            return self.__id_field
+        if self.__schema:
+            field = self.schema.fields['id']
+            return field.attribute or self.default_id_field
+        else:
+            return self.default_id_field
 
     @property
     def schema(self):
