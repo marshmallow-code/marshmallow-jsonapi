@@ -49,13 +49,13 @@ marshmallow-jsonapi provides a simple way to produce JSON API-compliant data in 
     #                 }
     #             },
     #             "comments": {
-    #                 "links": {
-    #                     "related": "/posts/1/comments/"
-    #                 }
     #                 "data": [
     #                     {"id": 5, "type": "comments"},
     #                     {"id": 12, "type": "comments"}
     #                 ],
+    #                 "links": {
+    #                     "related": "/posts/1/comments/"
+    #                 }
     #             }
     #         },
     #     }
