@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from .schema import Schema, SchemaOpts
 
-__version__ = '0.19.0.post0'
+__version__ = '0.20.0.dev0'
 __author__ = 'Steven Loria'
 __license__ = 'MIT'
 

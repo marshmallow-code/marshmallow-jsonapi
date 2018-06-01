@@ -2,6 +2,14 @@
 Changelog
 *********
 
+0.20.0 (unreleased)
+===================
+
+Support:
+
+* Test refactoring and various doc improvements (:issue:`86`,
+  :issue:`121,` and :issue:`122`). Thanks :user:`scottwernervt`.
+
 0.19.0 (2018-05-27)
 ===================
 
