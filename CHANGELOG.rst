@@ -5,6 +5,26 @@ Changelog
 0.20.0 (unreleased)
 ===================
 
+Bug fixes:
+
+* Fix serialization of ``id`` for ``Relationship`` fields when
+  ``attribute`` is set (:issue:`69`). Thanks :user:`jordal` for
+  reporting and thanks :user:`scottwernervt` for the fix.
+  
+Note: The above fix could break some code that set
+``Relationship.id_field`` before instantiating it.
+Set ``Relationship.default_id_field`` instead.
+
+.. code-block:: python
+
+  
+    # before
+    fields.Relationship.id_field = 'item_id'
+
+    # after
+    fields.Relationship.default_id_field = 'item_id'
+
+
 Support:
 
 * Test refactoring and various doc improvements (:issue:`86`,
