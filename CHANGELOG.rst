@@ -2,7 +2,7 @@
 Changelog
 *********
 
-0.20.0 (unreleased)
+0.20.0 (2018-06-10)
 ===================
 
 Bug fixes:
@@ -27,7 +27,7 @@ Set ``Relationship.default_id_field`` instead.
 
 Support:
 
-* Test refactoring and various doc improvements (:issue:`86`,
+* Test refactoring and various doc improvements (:issue:`63`, :issue:`86`,
   :issue:`121,` and :issue:`122`). Thanks :user:`scottwernervt`.
 
 0.19.0 (2018-05-27)
