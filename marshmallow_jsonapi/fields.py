@@ -190,7 +190,7 @@ class Relationship(BaseRelationship):
         # relationship. Unserialize it if we have a schema set; otherwise we
         # fall back below to old behaviour of only IDs.
         if 'attributes' in data and self.__schema:
-            result = self.schema.load({'data': data})
+            result = self.schema.load({'data': data, 'included': self.root.included_data})
             return result.data if _MARSHMALLOW_VERSION_INFO[0] < 3 else result
 
         return data.get('id')

@@ -25,3 +25,4 @@ Contributors (chronological)
 - Mark Hall `@scmmmh <https://github.com/scmmmh>`_
 - Scott Werner `@scottwernervt <https://github.com/scottwernervt>`_
 - Michael Dodsworth `@mdodsworth <https://github.com/mdodsworth>`_
+- Robert Sawicki `@ww3pl <https://github.com/ww3pl>`_
