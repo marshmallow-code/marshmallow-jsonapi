@@ -733,7 +733,8 @@ class TestRelationshipLoading(object):
             }
         ]
 
-        included_author = list(filter(lambda item: item['type'] == 'people', article['included']))[0]
+        included_author = filter(lambda item: item['type'] == 'people', article['included'])
+        included_author = list(included_author)[0]
 
         data = unpack(RelationshipWithSchemaArticleSchema().load(article))
         author = data['comments'][0]['author']
