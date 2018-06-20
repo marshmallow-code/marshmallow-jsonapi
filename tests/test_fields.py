@@ -2,7 +2,7 @@
 import pytest
 
 from hashlib import md5
-from marshmallow import ValidationError
+from marshmallow import ValidationError, missing
 from marshmallow_jsonapi import Schema
 from marshmallow_jsonapi.fields import Str, DocumentMeta, Meta, ResourceMeta, Relationship
 
@@ -238,6 +238,16 @@ class TestGenericRelationshipField:
         )
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize({})
+        assert excinfo.value.args[0] == 'Must include a `data` key'
+
+    def test_deserialize_missing_relationship_node(self):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'},
+            many=False, include_resource_linkage=True, type_='comments'
+        )
+        with pytest.raises(ValidationError) as excinfo:
+            field.deserialize(missing)
         assert excinfo.value.args[0] == 'Must include a `data` key'
 
     def test_deserialize_many_non_list_relationship(self):
