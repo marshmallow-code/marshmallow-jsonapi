@@ -2,6 +2,14 @@
 Changelog
 *********
 
+0.20.1 (2018-07-15)
+===================
+
+Bug fixes:
+
+* Fix deserializing ``missing`` with a `Relationship` field (:issue:`130`).
+  Thanks :user:`kumy` for the catch and patch.
+
 0.20.0 (2018-06-10)
 ===================
 
