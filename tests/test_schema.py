@@ -693,3 +693,28 @@ class TestRelationshipLoading(object):
 
         assert assert_relationship_error('author', errors['errors'])
         assert assert_relationship_error('comments', errors['errors'])
+
+    def test_deserializing_missing_required_relationship(self):
+        class ArticleSchemaRequiredRelationships(Schema):
+            id = fields.Integer()
+            body = fields.String()
+            author = fields.Relationship(
+                dump_only=False, include_resource_linkage=True,
+                many=False, type_='people', required=True)
+            comments = fields.Relationship(
+                dump_only=False, include_resource_linkage=True,
+                many=True, type_='comments', required=True)
+
+            class Meta:
+                type_ = 'articles'
+                strict = True
+
+        article = self.article.copy()
+        article['data']['relationships'] = {}
+
+        with pytest.raises(ValidationError) as excinfo:
+            unpack(ArticleSchemaRequiredRelationships().load(article))
+        errors = excinfo.value.messages
+
+        assert assert_relationship_error('author', errors['errors'])
+        assert assert_relationship_error('comments', errors['errors'])

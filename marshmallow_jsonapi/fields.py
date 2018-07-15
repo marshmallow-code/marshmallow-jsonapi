@@ -204,7 +204,7 @@ class Relationship(BaseRelationship):
         """
         if not isinstance(value, dict) or 'data' not in value:
             # a relationships object does not need 'data' if 'links' is present
-            if 'links' in value:
+            if value and 'links' in value:
                 return missing
             else:
                 raise ValidationError('Must include a `data` key')
