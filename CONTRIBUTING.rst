@@ -33,9 +33,6 @@ Setting Up for Local Development
     # After activating your virtualenv
     $ pip install -r dev-requirements.txt
 
-3. Install marshmallow-jsonapi in develop mode. ::
-
-   $ pip install -e .
 
 Git Branch Structure
 ++++++++++++++++++++
