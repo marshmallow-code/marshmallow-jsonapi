@@ -1,5 +1,5 @@
 # Build tasks
-invoke==1.1.0
+invoke==1.1.1
 
 # Soft deps
 Flask==1.0.2
