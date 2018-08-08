@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+try:
+    from urllib.parse import quote
+except ImportError:
+    # Python 2.7 compatibility
+    from urllib import quote
 
 import marshmallow as ma
 from marshmallow.exceptions import ValidationError
@@ -413,4 +418,4 @@ class Schema(ma.Schema):
 
     def generate_url(self, link, **kwargs):
         """Generate URL with any kwargs interpolated."""
-        return link.format(**kwargs) if link else None
+        return quote(link.format(**kwargs)) if link else None
