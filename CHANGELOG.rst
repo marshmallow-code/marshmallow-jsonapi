@@ -2,13 +2,17 @@
 Changelog
 *********
 
-0.20.2 (unreleased)
+0.20.2 (2018-08-15)
 ===================
 
 Bug fixes:
 
 * Fix issues where generated URLs are unquoted (:pr:`147`). Thanks
   :user:`grantHarris`.
+
+Other changes:
+
+* Fix tests against marshmallow 3.0.0b13.
 
 0.20.1 (2018-07-15)
 ===================
