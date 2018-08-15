@@ -2,6 +2,14 @@
 Changelog
 *********
 
+0.20.2 (unreleased)
+===================
+
+Bug fixes:
+
+* Fix issues where generated URLs are unquoted (:pr:`147`). Thanks
+  :user:`grantHarris`.
+
 0.20.1 (2018-07-15)
 ===================
 
