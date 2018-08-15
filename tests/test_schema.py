@@ -336,7 +336,13 @@ class TestCompoundDocuments:
             include_data=('author', 'post_comments')
         ).dump(post))
 
-        loaded = unpack(PostInnerSchemalessSchema().load(serialized))
+        if _MARSHMALLOW_VERSION_INFO[0] >= 3:
+            from marshmallow import INCLUDE
+            load_kwargs = {'unknown': INCLUDE}
+        else:
+            load_kwargs = {}
+
+        loaded = unpack(PostInnerSchemalessSchema(**load_kwargs).load(serialized))
 
         assert 'comments' in loaded
         assert len(loaded['comments']) == len(post.comments)
