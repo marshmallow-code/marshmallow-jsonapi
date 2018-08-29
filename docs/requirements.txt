@@ -1,5 +1,5 @@
 marshmallow>=2.0.0rc1
 Flask==1.0.2
-sphinx==1.7.6
+sphinx==1.7.8
 sphinx-rtd-theme==0.4.1
 sphinx-issues>=0.2.0
