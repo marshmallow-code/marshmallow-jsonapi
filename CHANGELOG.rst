@@ -2,6 +2,15 @@
 Changelog
 *********
 
+0.20.3 (2018-09-13)
+===================
+
+Bug fixes:
+
+* Fix missing load validation when data is not a collection
+  but many=True (:pr:`161`).
+  :user:`grantHarris`.
+
 0.20.2 (2018-08-15)
 ===================
 
