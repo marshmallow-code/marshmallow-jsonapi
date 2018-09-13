@@ -207,6 +207,13 @@ class Schema(ma.Schema):
 
         data = data['data']
         if many:
+            if not is_collection(data):
+                raise ma.ValidationError([{
+                    'detail': '`data` expected to be a collection.',
+                    'source': {
+                        'pointer': '/data',
+                    },
+                }])
             return [self.unwrap_item(each) for each in data]
         return self.unwrap_item(data)
 

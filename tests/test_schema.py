@@ -559,6 +559,22 @@ class TestErrorFormatting:
         assert 'source' in err
         assert err['source']['pointer'] == '/data/0/attributes/password'
 
+    def test_errors_many_not_list(self):
+        authors = make_serialized_author(
+            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'bad'},
+        )
+        try:
+            errors = AuthorSchema(many=True).validate(authors)['errors']
+        except ValidationError as err:
+            errors = err.messages['errors']
+
+        assert len(errors) == 1
+
+        err = errors[0]
+        assert 'source' in err
+        assert err['source']['pointer'] == '/data'
+        assert err['detail'] == '`data` expected to be a collection.'
+
     def test_many_id_errors(self):
         """ the pointer for id should be at the data object, not attributes """
         author = {'data': [{'type': 'people', 'id': 'invalid',
