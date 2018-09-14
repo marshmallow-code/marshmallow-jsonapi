@@ -10,7 +10,7 @@ from marshmallow.compat import iteritems
 from marshmallow.utils import get_value as _get_value, missing
 
 _MARSHMALLOW_VERSION_INFO = tuple(
-    [int(part) for part in marshmallow.__version__.split('.') if part.isdigit()]
+    [int(part) for part in marshmallow.__version__.split('.') if part.isdigit()],
 )
 
 
@@ -49,7 +49,7 @@ def resolve_params(obj, params, default=missing):
             else:
                 raise AttributeError(
                     '{attr_name!r} is not a valid '
-                    'attribute of {obj!r}'.format(attr_name=attr_name, obj=obj)
+                    'attribute of {obj!r}'.format(attr_name=attr_name, obj=obj),
                 )
         else:
             param_values[name] = attr_tpl

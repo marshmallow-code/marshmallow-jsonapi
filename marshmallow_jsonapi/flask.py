@@ -19,19 +19,27 @@ class SchemaOpts(DefaultOpts):
 
     def __init__(self, meta, *args, **kwargs):
         if getattr(meta, 'self_url', None):
-            raise ValueError('Use `self_view` instead of `self_url` '
-                             'using the Flask extension.')
+            raise ValueError(
+                'Use `self_view` instead of `self_url` '
+                'using the Flask extension.',
+            )
         if getattr(meta, 'self_url_kwargs', None):
-            raise ValueError('Use `self_view_kwargs` instead of `self_url_kwargs` '
-                             'when using the Flask extension.')
+            raise ValueError(
+                'Use `self_view_kwargs` instead of `self_url_kwargs` '
+                'when using the Flask extension.',
+            )
         if getattr(meta, 'self_url_many', None):
-            raise ValueError('Use `self_view_many` instead of `self_url_many` '
-                             'when using the Flask extension.')
+            raise ValueError(
+                'Use `self_view_many` instead of `self_url_many` '
+                'when using the Flask extension.',
+            )
 
         if getattr(meta, 'self_view_kwargs', None) \
                 and not getattr(meta, 'self_view', None):
-            raise ValueError('Must specify `self_view` Meta option when '
-                             '`self_view_kwargs` is specified.')
+            raise ValueError(
+                'Must specify `self_view` Meta option when '
+                '`self_view_kwargs` is specified.',
+            )
 
         # Transfer Flask options to URL options, to piggy-back on its handling
         setattr(meta, 'self_url', getattr(meta, 'self_view', None))

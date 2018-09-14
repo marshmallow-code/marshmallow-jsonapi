@@ -55,7 +55,7 @@ class TestSchema:
         field = Relationship(
             related_view='author_detail',
             related_view_kwargs={'author_id': '<author.last_name>'},
-            default=None
+            default=None,
         )
 
         class Meta:
@@ -131,7 +131,7 @@ class TestRelationshipField:
             Relationship(
                 related_view='posts_comments',
                 related_view_kwargs={'post_id': '<id>'},
-                include_resource_linkage=True
+                include_resource_linkage=True,
             )
         assert excinfo.value.args[0] == 'include_resource_linkage=True requires the type_ argument.'
 
@@ -149,7 +149,7 @@ class TestRelationshipField:
     def test_empty_relationship(self, app, post_with_null_author):
         field = Relationship(
             related_view='author_detail',
-            related_view_kwargs={'author_id': '<author>'}
+            related_view_kwargs={'author_id': '<author>'},
         )
         result = field.serialize('author', post_with_null_author)
 
@@ -158,7 +158,7 @@ class TestRelationshipField:
     def test_non_existing_view(self, app, post):
         field = Relationship(
             related_view='non_existing_view',
-            related_view_kwargs={'author_id': '<author>'}
+            related_view_kwargs={'author_id': '<author>'},
         )
         with pytest.raises(BuildError):
             field.serialize('author', post)
@@ -167,7 +167,7 @@ class TestRelationshipField:
         field = Relationship(
             related_view='author_detail',
             related_view_kwargs={'author_id': '<author.last_name>'},
-            default=None
+            default=None,
         )
         result = field.serialize('author', post_with_null_author)
 

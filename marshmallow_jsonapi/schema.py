@@ -96,8 +96,10 @@ class Schema(ma.Schema):
             raise ValueError('Must have an `id` field')
 
         if self.opts.self_url_kwargs and not self.opts.self_url:
-            raise ValueError('Must specify `self_url` Meta option when '
-                             '`self_url_kwargs` is specified')
+            raise ValueError(
+                'Must specify `self_url` Meta option when '
+                '`self_url_kwargs` is specified',
+            )
         self.included_data = {}
         self.document_meta = {}
 
@@ -153,9 +155,9 @@ class Schema(ma.Schema):
                 {
                     'detail': '`data` object must include `type` key.',
                     'source': {
-                        'pointer': '/data'
-                    }
-                }
+                        'pointer': '/data',
+                    },
+                },
             ])
         if item['type'] != self.opts.type_:
             raise IncorrectTypeError(actual=item['type'], expected=self.opts.type_)
@@ -182,12 +184,13 @@ class Schema(ma.Schema):
                     if not is_collection(inner_data):
                         included_data = next(
                             self._extract_from_included(inner_data),
-                            None
+                            None,
                         )
                     else:
                         for data in inner_data:
                             included_data.extend(
-                                self._extract_from_included(data))
+                                self._extract_from_included(data),
+                            )
 
                 if included_data:
                     value['data'] = included_data
@@ -314,7 +317,8 @@ class Schema(ma.Schema):
             pointer.append(str(index))
 
         relationship = isinstance(
-            self.declared_fields.get(field_name), BaseRelationship)
+            self.declared_fields.get(field_name), BaseRelationship,
+        )
         if relationship:
             pointer.append('relationships')
         elif field_name != 'id':
@@ -329,8 +333,8 @@ class Schema(ma.Schema):
         return {
             'detail': message,
             'source': {
-                'pointer': '/'.join(pointer)
-            }
+                'pointer': '/'.join(pointer),
+            },
         }
 
     def format_item(self, item):

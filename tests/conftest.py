@@ -5,8 +5,10 @@ from tests.base import Author, Post, Comment, Keyword, fake
 
 
 def make_author():
-    return Author(id=fake.random_int(), first_name=fake.first_name(),
-                  last_name=fake.last_name(), twitter=fake.domain_word())
+    return Author(
+        id=fake.random_int(), first_name=fake.first_name(),
+        last_name=fake.last_name(), twitter=fake.domain_word(),
+    )
 
 
 def make_post(with_comments=True, with_author=True, with_keywords=True):
@@ -19,7 +21,8 @@ def make_post(with_comments=True, with_author=True, with_keywords=True):
         author=author,
         author_id=author.id if with_author else None,
         comments=comments,
-        keywords=keywords)
+        keywords=keywords,
+    )
 
 
 def make_comment(with_author=True):
