@@ -82,13 +82,15 @@ class TestInflection:
 
         # valid
         data = unpack(schema.load(make_serialized_author({
-            'first-name': 'Nevets', 'last-name': 'Longoria'})))
+            'first-name': 'Nevets', 'last-name': 'Longoria',
+        })))
         assert data['first_name'] == 'Nevets'
 
     def test_load_with_inflection_and_load_from_override(self):
         schema = AuthorSchemaWithOverrideInflection()
         data = unpack(schema.load(make_serialized_author({
-            'firstName': 'Steve', 'last-name': 'Loria'})))
+            'firstName': 'Steve', 'last-name': 'Loria',
+        })))
         assert data['first_name'] == 'Steve'
         assert data['last_name'] == 'Loria'
 
@@ -109,7 +111,7 @@ class TestInflection:
             post_comments = fields.Relationship(
                 'http://test.test/posts/{id}/comments/',
                 related_url_kwargs={'id': '<id>'},
-                attribute='comments'
+                attribute='comments',
             )
 
             class Meta:
@@ -188,5 +190,5 @@ class TestAutoSelfUrls:
         assert 'links' in data
         assert data['links']['self'] == quote('/authors/{} {}'.format(
             author.first_name,
-            author.last_name
+            author.last_name,
         ))

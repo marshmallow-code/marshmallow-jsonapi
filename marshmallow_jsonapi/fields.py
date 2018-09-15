@@ -128,15 +128,20 @@ class Relationship(BaseRelationship):
                 parent_class = self.parent.__class__
                 self.__schema = parent_class(
                     only=only, exclude=exclude, context=context,
-                    include_data=self.parent.include_data)
+                    include_data=self.parent.include_data,
+                )
             else:
                 schema_class = class_registry.get_class(self.__schema)
-                self.__schema = schema_class(only=only, exclude=exclude,
-                                             context=context)
+                self.__schema = schema_class(
+                    only=only, exclude=exclude,
+                    context=context,
+                )
             return self.__schema
         else:
-            raise ValueError(('A Schema is required to serialize a nested '
-                              'relationship with include_data'))
+            raise ValueError((
+                'A Schema is required to serialize a nested '
+                'relationship with include_data'
+            ))
 
     def get_related_url(self, obj):
         if self.related_url:
@@ -162,14 +167,16 @@ class Relationship(BaseRelationship):
 
     def get_resource_linkage(self, value):
         if self.many:
-            resource_object = [{
-                'type': self.type_,
-                'id': _stringify(self._get_id(each))
-            } for each in value]
+            resource_object = [
+                {
+                    'type': self.type_,
+                    'id': _stringify(self._get_id(each)),
+                } for each in value
+            ]
         else:
             resource_object = {
                 'type': self.type_,
-                'id': _stringify(self._get_id(value))
+                'id': _stringify(self._get_id(value)),
             }
         return resource_object
 
@@ -293,7 +300,7 @@ class DocumentMeta(Field):
     """
 
     default_error_messages = {
-        'invalid': 'Not a valid mapping type.'
+        'invalid': 'Not a valid mapping type.',
     }
 
     def __init__(self, **kwargs):
@@ -335,7 +342,7 @@ class ResourceMeta(Field):
     """
 
     default_error_messages = {
-        'invalid': 'Not a valid mapping type.'
+        'invalid': 'Not a valid mapping type.',
     }
 
     def __init__(self, **kwargs):
@@ -381,5 +388,6 @@ class Meta(DocumentMeta):
     def __init__(self, **kwargs):
         warnings.warn(
             'The Meta field is deprecated. Use DocumentMeta field instead.',
-            DeprecationWarning)
+            DeprecationWarning,
+        )
         super(DocumentMeta, self).__init__(**kwargs)

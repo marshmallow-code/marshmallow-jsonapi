@@ -3,4 +3,3 @@ License
 *******
 
 .. literalinclude:: ../LICENSE
-

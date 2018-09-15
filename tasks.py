@@ -10,15 +10,15 @@ build_dir = os.path.join(docs_dir, '_build')
 
 @task
 def test(ctx):
-    flake(ctx)
+    syntax(ctx)
     import pytest
     errcode = pytest.main(['tests'])
     sys.exit(errcode)
 
 @task
-def flake(ctx):
-    """Run flake8 on codebase."""
-    run('flake8 .', echo=True)
+def syntax(ctx):
+    """Run pre-commit hooks on codebase. Checks formatting and syntax."""
+    ctx.run('pre-commit run --all-files --show-diff-on-failure', echo=True)
 
 @task
 def watch(ctx):
@@ -29,15 +29,15 @@ def watch(ctx):
 
 @task
 def clean(ctx):
-    run("rm -rf build")
-    run("rm -rf dist")
-    run("rm -rf marshmallow-jsonapi.egg-info")
+    run('rm -rf build')
+    run('rm -rf dist')
+    run('rm -rf marshmallow-jsonapi.egg-info')
     clean_docs(ctx)
-    print("Cleaned up.")
+    print('Cleaned up.')
 
 @task
 def clean_docs(ctx):
-    run("rm -rf %s" % build_dir, echo=True)
+    run('rm -rf %s' % build_dir, echo=True)
 
 @task
 def browse_docs(ctx):
@@ -45,7 +45,7 @@ def browse_docs(ctx):
     webbrowser.open_new_tab(path)
 
 def build_docs(ctx, browse):
-    ctx.run("sphinx-build %s %s" % (docs_dir, build_dir), echo=True)
+    ctx.run('sphinx-build %s %s' % (docs_dir, build_dir), echo=True)
     if browse:
         browse_docs(ctx)
 
@@ -69,11 +69,14 @@ def watch_docs(ctx, browse=False):
         print('Install it with:')
         print('    pip install sphinx-autobuild')
         sys.exit(1)
-    ctx.run('sphinx-autobuild {0} {1} {2} -z marshmallow_jsonapi'.format(
-        '--open-browser' if browse else '', docs_dir, build_dir), echo=True, pty=True)
+    ctx.run(
+        'sphinx-autobuild {0} {1} {2} -z marshmallow_jsonapi'.format(
+            '--open-browser' if browse else '', docs_dir, build_dir,
+        ), echo=True, pty=True,
+    )
 
 @task
 def readme(ctx, browse=False):
-    run("rst2html.py README.rst > README.html", echo=True)
+    run('rst2html.py README.rst > README.html', echo=True)
     if browse:
         webbrowser.open_new_tab('README.html')
