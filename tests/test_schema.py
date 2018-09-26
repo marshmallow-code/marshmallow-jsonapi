@@ -739,6 +739,9 @@ class TestRelationshipLoading(object):
             comments = fields.Relationship(
                 schema=RelationshipWithSchemaCommentSchema, many=True, type_='comments',
             )
+            author = fields.Relationship(
+                dump_only=False, include_resource_linkage=True, many=False, type_='people',
+            )
 
             class Meta:
                 type_ = 'articles'
