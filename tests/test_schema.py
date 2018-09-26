@@ -726,7 +726,7 @@ class TestRelationshipLoading(object):
             id = fields.Str()
             body = fields.Str(required=True)
             author = fields.Relationship(
-                schema=AuthorSchema, many=False, type_='people'
+                schema=AuthorSchema, many=False, type_='people',
             )
 
             class Meta:
@@ -737,7 +737,7 @@ class TestRelationshipLoading(object):
             id = fields.Integer()
             body = fields.String()
             comments = fields.Relationship(
-                schema=RelationshipWithSchemaCommentSchema, many=True, type_='comments'
+                schema=RelationshipWithSchemaCommentSchema, many=True, type_='comments',
             )
 
             class Meta:
@@ -747,28 +747,28 @@ class TestRelationshipLoading(object):
         article = self.article.copy()
         article['included'] = [
             {
-                "id": "1",
-                "type": "comments",
-                "attributes": {
-                    "body": "Test comment"
+                'id': '1',
+                'type': 'comments',
+                'attributes': {
+                    'body': 'Test comment',
                 },
-                "relationships": {
-                    "author": {
+                'relationships': {
+                    'author': {
                         'data': {
-                            "type": "people",
-                            "id": "2"
-                        }
-                    }
-                }
+                            'type': 'people',
+                            'id': '2',
+                        },
+                    },
+                },
             },
             {
-                'id': "2",
-                'type': "people",
+                'id': '2',
+                'type': 'people',
                 'attributes': {
-                    "first_name": "Marshmallow Jr",
-                    "last_name": "JsonAPI"
-                }
-            }
+                    'first_name': 'Marshmallow Jr',
+                    'last_name': 'JsonAPI',
+                },
+            },
         ]
 
         included_author = next(filter(lambda item: item['type'] == 'people', article['included']))
