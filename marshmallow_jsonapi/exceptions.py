@@ -28,8 +28,8 @@ class IncorrectTypeError(JSONAPIError, ValueError):
                 {
                     'detail': self.detail,
                     'source': {
-                        'pointer': self.pointer
-                    }
-                }
-            ]
+                        'pointer': self.pointer,
+                    },
+                },
+            ],
         }

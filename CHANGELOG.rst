@@ -2,6 +2,34 @@
 Changelog
 *********
 
+0.20.3 (2018-09-13)
+===================
+
+Bug fixes:
+
+* Fix missing load validation when data is not a collection
+  but many=True (:pr:`161`). Thanks :user:`grantHarris`.
+
+0.20.2 (2018-08-15)
+===================
+
+Bug fixes:
+
+* Fix issues where generated URLs are unquoted (:pr:`147`). Thanks
+  :user:`grantHarris`.
+
+Other changes:
+
+* Fix tests against marshmallow 3.0.0b13.
+
+0.20.1 (2018-07-15)
+===================
+
+Bug fixes:
+
+* Fix deserializing ``missing`` with a `Relationship` field (:issue:`130`).
+  Thanks :user:`kumy` for the catch and patch.
+
 0.20.0 (2018-06-10)
 ===================
 
@@ -10,14 +38,14 @@ Bug fixes:
 * Fix serialization of ``id`` for ``Relationship`` fields when
   ``attribute`` is set (:issue:`69`). Thanks :user:`jordal` for
   reporting and thanks :user:`scottwernervt` for the fix.
-  
+
 Note: The above fix could break some code that set
 ``Relationship.id_field`` before instantiating it.
 Set ``Relationship.default_id_field`` instead.
 
 .. code-block:: python
 
-  
+
     # before
     fields.Relationship.id_field = 'item_id'
 

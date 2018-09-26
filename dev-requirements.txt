@@ -1,13 +1,17 @@
 # Build tasks
-invoke==1.0.0
+invoke==1.2.0
 
 # Soft deps
 Flask==1.0.2
 
 # Testing
-pytest==3.6.1
-tox==3.0.0
-faker==0.8.16
+pytest==3.8.1
+tox==3.4.0
+faker==0.9.0
 
 # Syntax checking
+pre-commit==1.11.1
 flake8==3.5.0
+
+# Install this package in development mode
+-e '.'

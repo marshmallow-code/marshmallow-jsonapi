@@ -87,7 +87,7 @@ class CommentSchema(Schema):
     author = fields.Relationship(
         'http://test.test/comments/{id}/author/',
         related_url_kwargs={'id': '<id>'},
-        schema=AuthorSchema, many=False
+        schema=AuthorSchema, many=False,
     )
 
     class Meta:
@@ -99,9 +99,11 @@ class ArticleSchema(Schema):
     id = fields.Integer()
     body = fields.String()
     author = fields.Relationship(
-        dump_only=False, include_resource_linkage=True, many=False, type_='people')
+        dump_only=False, include_resource_linkage=True, many=False, type_='people',
+    )
     comments = fields.Relationship(
-        dump_only=False, include_resource_linkage=True, many=True, type_='comments')
+        dump_only=False, include_resource_linkage=True, many=True, type_='comments',
+    )
 
     class Meta:
         type_ = 'articles'
@@ -110,14 +112,16 @@ class ArticleSchema(Schema):
 
 class PostSchema(Schema):
     id = fields.Str()
-    post_title = fields.Str(attribute='title', dump_to='title',
-                            data_key='title')
+    post_title = fields.Str(
+        attribute='title', dump_to='title',
+        data_key='title',
+    )
 
     author = fields.Relationship(
         'http://test.test/posts/{id}/author/',
         related_url_kwargs={'id': '<id>'},
         schema=AuthorSchema, many=False,
-        type_='people'
+        type_='people',
     )
 
     post_comments = fields.Relationship(
@@ -127,7 +131,7 @@ class PostSchema(Schema):
         load_from='post-comments', dump_to='post-comments',
         data_key='post-comments',
         schema='CommentSchema', many=True,
-        type_='comments'
+        type_='comments',
     )
 
     post_keywords = fields.Relationship(
@@ -136,7 +140,7 @@ class PostSchema(Schema):
         attribute='keywords', dump_to='post-keywords',
         data_key='post-keywords',
         schema='KeywordSchema', many=True,
-        type_='keywords'
+        type_='keywords',
     )
 
     class Meta:

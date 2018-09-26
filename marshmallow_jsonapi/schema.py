@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+try:
+    from urllib.parse import quote
+except ImportError:
+    # Python 2.7 compatibility
+    from urllib import quote
 
 import marshmallow as ma
 from marshmallow.exceptions import ValidationError
@@ -91,8 +96,10 @@ class Schema(ma.Schema):
             raise ValueError('Must have an `id` field')
 
         if self.opts.self_url_kwargs and not self.opts.self_url:
-            raise ValueError('Must specify `self_url` Meta option when '
-                             '`self_url_kwargs` is specified')
+            raise ValueError(
+                'Must specify `self_url` Meta option when '
+                '`self_url_kwargs` is specified',
+            )
         self.included_data = {}
         self.document_meta = {}
 
@@ -148,9 +155,9 @@ class Schema(ma.Schema):
                 {
                     'detail': '`data` object must include `type` key.',
                     'source': {
-                        'pointer': '/data'
-                    }
-                }
+                        'pointer': '/data',
+                    },
+                },
             ])
         if item['type'] != self.opts.type_:
             raise IncorrectTypeError(actual=item['type'], expected=self.opts.type_)
@@ -177,12 +184,13 @@ class Schema(ma.Schema):
                     if not is_collection(inner_data):
                         included_data = next(
                             self._extract_from_included(inner_data),
-                            None
+                            None,
                         )
                     else:
                         for data in inner_data:
                             included_data.extend(
-                                self._extract_from_included(data))
+                                self._extract_from_included(data),
+                            )
 
                 if included_data:
                     value['data'] = included_data
@@ -202,6 +210,13 @@ class Schema(ma.Schema):
 
         data = data['data']
         if many:
+            if not is_collection(data):
+                raise ma.ValidationError([{
+                    'detail': '`data` expected to be a collection.',
+                    'source': {
+                        'pointer': '/data',
+                    },
+                }])
             return [self.unwrap_item(each) for each in data]
         return self.unwrap_item(data)
 
@@ -302,7 +317,8 @@ class Schema(ma.Schema):
             pointer.append(str(index))
 
         relationship = isinstance(
-            self.declared_fields.get(field_name), BaseRelationship)
+            self.declared_fields.get(field_name), BaseRelationship,
+        )
         if relationship:
             pointer.append('relationships')
         elif field_name != 'id':
@@ -317,8 +333,8 @@ class Schema(ma.Schema):
         return {
             'detail': message,
             'source': {
-                'pointer': '/'.join(pointer)
-            }
+                'pointer': '/'.join(pointer),
+            },
         }
 
     def format_item(self, item):
@@ -413,4 +429,4 @@ class Schema(ma.Schema):
 
     def generate_url(self, link, **kwargs):
         """Generate URL with any kwargs interpolated."""
-        return link.format(**kwargs) if link else None
+        return quote(link.format(**kwargs)) if link else None

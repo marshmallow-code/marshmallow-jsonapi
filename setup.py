@@ -3,7 +3,7 @@ import re
 from setuptools import setup, find_packages
 
 REQUIRES = [
-    'marshmallow>=2.8.0'
+    'marshmallow>=2.8.0',
 ]
 
 
@@ -41,19 +41,21 @@ setup(
     author='Steven Loria',
     author_email='sloria1@gmail.com',
     url='https://github.com/marshmallow-code/marshmallow-jsonapi',
-    packages=find_packages(exclude=("test*", )),
+    packages=find_packages(exclude=('test*', )),
     package_dir={'marshmallow-jsonapi': 'marshmallow-jsonapi'},
     include_package_data=True,
     install_requires=REQUIRES,
     license='MIT',
     zip_safe=False,
-    keywords=('marshmallow-jsonapi marshmallow marshalling serialization '
-            'jsonapi deserialization validation'),
+    keywords=(
+        'marshmallow-jsonapi marshmallow marshalling serialization '
+        'jsonapi deserialization validation'
+    ),
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        "Programming Language :: Python :: 2",
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
@@ -63,5 +65,5 @@ setup(
     project_urls={
         'Bug Reports': 'https://github.com/marshmallow-code/marshmallow-jsonapi/issues',
         'Funding': 'https://opencollective.com/marshmallow',
-    }
+    },
 )

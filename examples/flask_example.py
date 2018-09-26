@@ -23,16 +23,18 @@ comment2 = Comment(id=2, body='I like XML better!')
 
 author1 = Author(id=1, first_name='Dan', last_name='Gebhardt', twitter='dgeb')
 
-post1 = Post(id=1, title='JSON API paints my bikeshed!',
-        author=author1, comments=[comment1, comment2])
+post1 = Post(
+    id=1, title='JSON API paints my bikeshed!',
+    author=author1, comments=[comment1, comment2],
+)
 
 db = {
     'comments': [
         comment1,
-        comment2
+        comment2,
     ],
     'authors': [author1],
-    'posts': [post1]
+    'posts': [post1],
 }
 
 
@@ -81,7 +83,7 @@ class PostSchema(Schema):
         related_view_kwargs={'post_id': '<id>', '_external': True},
         many=True,
         include_data=True,
-        type_='comments'
+        type_='comments',
     )
 
     class Meta:
@@ -161,5 +163,5 @@ def comment_detail(comment_id):
     data = CommentSchema().dump(comment)
     return J(data)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run()

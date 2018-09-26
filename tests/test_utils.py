@@ -9,12 +9,14 @@ def test_get_dump_key():
     assert utils.get_dump_key(field) == 'new_key'
 
 
-@pytest.mark.parametrize('tag,val', [
-    ('<id>', 'id'),
-    ('<author.last_name>', 'author.last_name'),
-    ('<comment.author.first_name>', 'comment.author.first_name'),
-    ('True', None),
-    ('', None),
-])
+@pytest.mark.parametrize(
+    'tag,val', [
+        ('<id>', 'id'),
+        ('<author.last_name>', 'author.last_name'),
+        ('<comment.author.first_name>', 'comment.author.first_name'),
+        ('True', None),
+        ('', None),
+    ],
+)
 def test_tpl(tag, val):
     assert utils.tpl(tag) == val

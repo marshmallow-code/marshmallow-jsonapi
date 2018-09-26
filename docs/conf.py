@@ -29,7 +29,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 project = 'marshmallow-jsonapi'
 copyright = 'Steven Loria {0:%Y}'.format(
-    dt.datetime.utcnow()
+    dt.datetime.utcnow(),
 )
 
 version = release = marshmallow_jsonapi.__version__

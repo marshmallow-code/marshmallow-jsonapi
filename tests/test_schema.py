@@ -14,7 +14,7 @@ def make_serialized_author(attributes):
         'data': {
             'type': 'people',
             'attributes': attributes,
-        }
+        },
     }
 
 
@@ -22,7 +22,7 @@ def make_serialized_authors(items):
     return {
         'data': [
             {'type': 'people', 'attributes': each} for each in items
-        ]
+        ],
     }
 
 
@@ -132,9 +132,11 @@ class TestCompoundDocuments:
         assert 'first_name' in author['attributes']
 
     def test_include_data_with_all_relations(self, post):
-        data = unpack(PostSchema(include_data=('author',
-                                               'post_comments',
-                                               'post_comments.author')).dump(post))
+        data = unpack(PostSchema(include_data=(
+            'author',
+            'post_comments',
+            'post_comments.author',
+        )).dump(post))
         assert 'included' in data
         assert len(data['included']) == 5
         for included in data['included']:
@@ -163,8 +165,8 @@ class TestCompoundDocuments:
             'id': 1, 'data': 'data1',
             'parent': {
                 'id': 2,
-                'data': 'data2'
-            }
+                'data': 'data2',
+            },
         }
         data = unpack(RefSchema(include_data=('parent',)).dump(obj))
         assert 'included' in data
@@ -185,13 +187,13 @@ class TestCompoundDocuments:
             'children': [
                 {
                     'id': '2',
-                    'data': 'data2'
+                    'data': 'data2',
                 },
                 {
                     'id': '3',
-                    'data': 'data3'
-                }
-            ]
+                    'data': 'data3',
+                },
+            ],
         }
         data = unpack(RefSchema(include_data=('children', )).dump(obj))
         assert 'included' in data
@@ -203,8 +205,10 @@ class TestCompoundDocuments:
         class RefSchema(Schema):
             id = fields.Str()
             data = fields.Str()
-            children = fields.Relationship(schema='self', type_='refs',
-                                           many=True)
+            children = fields.Relationship(
+                schema='self', type_='refs',
+                many=True,
+            )
 
             class Meta:
                 type_ = 'refs'
@@ -225,16 +229,16 @@ class TestCompoundDocuments:
                         {
                             'id': '4',
                             'data': 'data4',
-                            'children': []
+                            'children': [],
                         },
                         {
                             'id': '5',
                             'data': 'data5',
-                            'children': []
-                        }
-                    ]
-                }
-            ]
+                            'children': [],
+                        },
+                    ],
+                },
+            ],
         }
         data = unpack(RefSchema(include_data=('children', )).dump(obj))
         assert 'included' in data
@@ -248,7 +252,7 @@ class TestCompoundDocuments:
                 'http://test.test/posts/{id}/comments/',
                 related_url_kwargs={'id': '<id>'},
                 attribute='comments', dump_to='post-comments',
-                schema=CommentSchema, many=True
+                schema=CommentSchema, many=True,
             )
 
             class Meta(PostSchema.Meta):
@@ -263,9 +267,11 @@ class TestCompoundDocuments:
 
     def test_include_data_with_nested_only_arg(self, post):
         data = unpack(PostSchema(
-            only=('id', 'post_comments.id',
-                  'post_comments.author.id', 'post_comments.author.twitter'),
-            include_data=('post_comments', 'post_comments.author')
+            only=(
+                'id', 'post_comments.id',
+                'post_comments.author.id', 'post_comments.author.twitter',
+            ),
+            include_data=('post_comments', 'post_comments.author'),
         ).dump(post))
 
         assert 'included' in data
@@ -279,7 +285,7 @@ class TestCompoundDocuments:
     def test_include_data_with_nested_exclude_arg(self, post):
         data = unpack(PostSchema(
             exclude=('post_comments.author.twitter',),
-            include_data=('post_comments', 'post_comments.author')
+            include_data=('post_comments', 'post_comments.author'),
         ).dump(post))
 
         assert 'included' in data
@@ -292,7 +298,7 @@ class TestCompoundDocuments:
 
     def test_include_data_load(self, post):
         serialized = unpack(PostSchema(
-            include_data=('author', 'post_comments', 'post_comments.author')
+            include_data=('author', 'post_comments', 'post_comments.author'),
         ).dump(post))
         loaded = unpack(PostSchema().load(serialized))
 
@@ -308,7 +314,7 @@ class TestCompoundDocuments:
 
     def test_include_data_load_null(self, post_with_null_author):
         serialized = unpack(PostSchema(
-            include_data=('author', 'post_comments')
+            include_data=('author', 'post_comments'),
         ).dump(post_with_null_author))
 
         with pytest.raises(ValidationError) as excinfo:
@@ -317,7 +323,8 @@ class TestCompoundDocuments:
         assert 'author' in err.field_names
 
     def test_include_data_load_without_schema_loads_only_ids(
-            self, post):
+            self, post,
+    ):
         class PostInnerSchemalessSchema(Schema):
             id = fields.Str()
             comments = fields.Relationship(
@@ -325,7 +332,7 @@ class TestCompoundDocuments:
                 related_url_kwargs={'id': '<id>'},
                 data_key='post-comments',
                 load_from='post-comments',
-                many=True, type_='comments'
+                many=True, type_='comments',
             )
 
             class Meta:
@@ -333,10 +340,16 @@ class TestCompoundDocuments:
                 strict = True
 
         serialized = unpack(PostSchema(
-            include_data=('author', 'post_comments')
+            include_data=('author', 'post_comments'),
         ).dump(post))
 
-        loaded = unpack(PostInnerSchemalessSchema().load(serialized))
+        if _MARSHMALLOW_VERSION_INFO[0] >= 3:
+            from marshmallow import INCLUDE
+            load_kwargs = {'unknown': INCLUDE}
+        else:
+            load_kwargs = {}
+
+        loaded = unpack(PostInnerSchemalessSchema(**load_kwargs).load(serialized))
 
         assert 'comments' in loaded
         assert len(loaded['comments']) == len(post.comments)
@@ -358,7 +371,7 @@ class TestCompoundDocuments:
             author = fields.Relationship(
                 'http://test.test/posts/{id}/author/',
                 related_url_kwargs={'id': '<id>'},
-                schema=ContextTestSchema, many=False
+                schema=ContextTestSchema, many=False,
             )
 
             class Meta(PostSchema.Meta):
@@ -366,7 +379,7 @@ class TestCompoundDocuments:
 
         serialized = unpack(PostContextTestSchema(
             include_data=('author',),
-            context={'some_value': 'Hello World'}
+            context={'some_value': 'Hello World'},
         ).dump(post))
 
         for included in serialized['included']:
@@ -427,10 +440,10 @@ class TestErrorFormatting:
                 {
                     'detail': '`data` object must include `type` key.',
                     'source': {
-                        'pointer': '/data'
-                    }
-                }
-            ]
+                        'pointer': '/data',
+                    },
+                },
+            ],
         }
         assert excinfo.value.messages == expected
 
@@ -456,10 +469,10 @@ class TestErrorFormatting:
                 {
                     'detail': 'Object must include `data` key.',
                     'source': {
-                        'pointer': '/'
-                    }
-                }
-            ]
+                        'pointer': '/',
+                    },
+                },
+            ],
         }
 
         assert errors == expected
@@ -470,9 +483,9 @@ class TestErrorFormatting:
                 'type': 'invalid',
                 'attributes': {
                     'first_name': 'Dan',
-                    'password': 'supersecure'
-                }
-            }
+                    'password': 'supersecure',
+                },
+            },
         }
         with pytest.raises(IncorrectTypeError) as excinfo:
             AuthorSchema().validate(author)
@@ -482,10 +495,10 @@ class TestErrorFormatting:
                 {
                     'detail': 'Invalid type. Expected "people".',
                     'source': {
-                        'pointer': '/data/type'
-                    }
-                }
-            ]
+                        'pointer': '/data/type',
+                    },
+                },
+            ],
         }
 
     def test_validate_id(self):
@@ -496,9 +509,9 @@ class TestErrorFormatting:
                 'id': 123,
                 'attributes': {
                     'first_name': 'Rob',
-                    'password': 'correcthorses'
-                }
-            }
+                    'password': 'correcthorses',
+                },
+            },
         }
         try:
             errors = AuthorSchema().validate(author)
@@ -534,7 +547,8 @@ class TestErrorFormatting:
 
     def test_errors_is_empty_if_valid(self):
         errors = AuthorSchema().validate(make_serialized_author({
-            'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret'}))
+            'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret',
+        }))
         assert errors == {}
 
     def test_errors_many(self):
@@ -553,13 +567,37 @@ class TestErrorFormatting:
         assert 'source' in err
         assert err['source']['pointer'] == '/data/0/attributes/password'
 
+    def test_errors_many_not_list(self):
+        authors = make_serialized_author(
+            {'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'bad'},
+        )
+        try:
+            errors = AuthorSchema(many=True).validate(authors)['errors']
+        except ValidationError as err:
+            errors = err.messages['errors']
+
+        assert len(errors) == 1
+
+        err = errors[0]
+        assert 'source' in err
+        assert err['source']['pointer'] == '/data'
+        assert err['detail'] == '`data` expected to be a collection.'
+
     def test_many_id_errors(self):
         """ the pointer for id should be at the data object, not attributes """
-        author = {'data': [{'type': 'people', 'id': 'invalid',
-                            'attributes': {'first_name': 'Rob', 'password': 'correcthorses'}},
-                           {'type': 'people', 'id': 37,
-                            'attributes': {'first_name': 'Dan', 'last_name': 'Gebhardt',
-                                           'password': 'supersecret'}}]}
+        author = {'data': [
+            {
+                'type': 'people', 'id': 'invalid',
+                'attributes': {'first_name': 'Rob', 'password': 'correcthorses'},
+            },
+            {
+                'type': 'people', 'id': 37,
+                'attributes': {
+                    'first_name': 'Dan', 'last_name': 'Gebhardt',
+                    'password': 'supersecret',
+                },
+            },
+        ]}
         try:
             errors = AuthorSchema(many=True).validate(author)
         except ValidationError as err:  # marshmallow 2
@@ -600,8 +638,8 @@ class TestMeta(object):
             'sides': 4,
             'meta': 'quadrilateral',
             'resource_meta': {'concave': True},
-            'document_meta': {'page': 1}
-        }
+            'document_meta': {'page': 1},
+        },
     ]
 
     def test_dump_single(self):
@@ -661,27 +699,27 @@ def assert_relationship_error(pointer, errors):
 class TestRelationshipLoading(object):
     article = {
         'data': {
-            "id": "1",
-            "type": "articles",
-            "attributes": {
-                "body": "Test"
+            'id': '1',
+            'type': 'articles',
+            'attributes': {
+                'body': 'Test',
             },
-            "relationships": {
+            'relationships': {
                 'author': {
-                    "data": {"type": "people", "id": "1"}
+                    'data': {'type': 'people', 'id': '1'},
                 },
                 'comments': {
-                    "data": [{"type": "comments", "id": "1"}]
-                }
-            }
-        }
+                    'data': [{'type': 'comments', 'id': '1'}],
+                },
+            },
+        },
     }
 
     def test_deserializing_relationship_fields(self):
         data = unpack(ArticleSchema().load(self.article))
-        assert data['body'] == "Test"
-        assert data['author'] == "1"
-        assert data['comments'] == ["1"]
+        assert data['body'] == 'Test'
+        assert data['author'] == '1'
+        assert data['comments'] == ['1']
 
     def test_deserializing_nested_relationship_fields(self):
         class RelationshipWithSchemaCommentSchema(Schema):
@@ -748,6 +786,33 @@ class TestRelationshipLoading(object):
         data['data']['relationships']['comments']['data'] = [{}]
         with pytest.raises(ValidationError) as excinfo:
             ArticleSchema().load(data)
+        errors = excinfo.value.messages
+
+        assert assert_relationship_error('author', errors['errors'])
+        assert assert_relationship_error('comments', errors['errors'])
+
+    def test_deserializing_missing_required_relationship(self):
+        class ArticleSchemaRequiredRelationships(Schema):
+            id = fields.Integer()
+            body = fields.String()
+            author = fields.Relationship(
+                dump_only=False, include_resource_linkage=True,
+                many=False, type_='people', required=True,
+            )
+            comments = fields.Relationship(
+                dump_only=False, include_resource_linkage=True,
+                many=True, type_='comments', required=True,
+            )
+
+            class Meta:
+                type_ = 'articles'
+                strict = True
+
+        article = self.article.copy()
+        article['data']['relationships'] = {}
+
+        with pytest.raises(ValidationError) as excinfo:
+            unpack(ArticleSchemaRequiredRelationships().load(article))
         errors = excinfo.value.messages
 
         assert assert_relationship_error('author', errors['errors'])
