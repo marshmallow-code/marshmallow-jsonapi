@@ -5,7 +5,7 @@ invoke==1.2.0
 Flask==1.0.2
 
 # Testing
-pytest==3.8.1
+pytest==3.8.2
 tox==3.4.0
 faker==0.9.1
 
