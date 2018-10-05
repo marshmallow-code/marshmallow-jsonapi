@@ -27,3 +27,4 @@ Contributors (chronological)
 - Michael Dodsworth `@mdodsworth <https://github.com/mdodsworth>`_
 - Mathieu Alorent `@kumy <https://github.com/kumy>`_
 - Grant Harris `@grantHarris <https://github.com/grantHarris>`_
+- Robert Sawicki `@ww3pl <https://github.com/ww3pl>`_

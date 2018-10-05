@@ -721,6 +721,68 @@ class TestRelationshipLoading(object):
         assert data['author'] == '1'
         assert data['comments'] == ['1']
 
+    def test_deserializing_nested_relationship_fields(self):
+        class RelationshipWithSchemaCommentSchema(Schema):
+            id = fields.Str()
+            body = fields.Str(required=True)
+            author = fields.Relationship(
+                schema=AuthorSchema, many=False, type_='people',
+            )
+
+            class Meta:
+                type_ = 'comments'
+                strict = True
+
+        class RelationshipWithSchemaArticleSchema(Schema):
+            id = fields.Integer()
+            body = fields.String()
+            comments = fields.Relationship(
+                schema=RelationshipWithSchemaCommentSchema, many=True, type_='comments',
+            )
+            author = fields.Relationship(
+                dump_only=False, include_resource_linkage=True, many=False, type_='people',
+            )
+
+            class Meta:
+                type_ = 'articles'
+                strict = True
+
+        article = self.article.copy()
+        article['included'] = [
+            {
+                'id': '1',
+                'type': 'comments',
+                'attributes': {
+                    'body': 'Test comment',
+                },
+                'relationships': {
+                    'author': {
+                        'data': {
+                            'type': 'people',
+                            'id': '2',
+                        },
+                    },
+                },
+            },
+            {
+                'id': '2',
+                'type': 'people',
+                'attributes': {
+                    'first_name': 'Marshmallow Jr',
+                    'last_name': 'JsonAPI',
+                },
+            },
+        ]
+
+        included_author = filter(lambda item: item['type'] == 'people', article['included'])
+        included_author = list(included_author)[0]
+
+        data = unpack(RelationshipWithSchemaArticleSchema().load(article))
+        author = data['comments'][0]['author']
+
+        assert isinstance(author, dict)
+        assert author['first_name'] == included_author['attributes']['first_name']
+
     def test_deserializing_relationship_errors(self):
         data = self.article
         data['data']['relationships']['author']['data'] = {}
