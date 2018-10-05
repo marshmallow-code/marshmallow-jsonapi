@@ -2,6 +2,15 @@
 Changelog
 *********
 
+0.20.4 (2018-10-04)
+===================
+
+Bug fixes:
+
+* Fix bug where multi-level nested relationships would not be properly
+  deserialized (:issue:`127`). Thanks :user:`ww3pl` for the catch and
+  patch.
+
 0.20.3 (2018-09-13)
 ===================
 
