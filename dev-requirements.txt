@@ -6,7 +6,7 @@ Flask==1.0.2
 
 # Testing
 pytest==3.8.2
-tox==3.5.1
+tox==3.5.2
 faker==0.9.1
 
 # Syntax checking
