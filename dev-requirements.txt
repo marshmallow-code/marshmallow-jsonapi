@@ -10,7 +10,7 @@ tox==3.5.2
 faker==0.9.1
 
 # Syntax checking
-pre-commit==1.11.1
+pre-commit==1.11.2
 flake8==3.5.0
 
 # Install this package in development mode
