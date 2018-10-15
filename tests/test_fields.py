@@ -3,6 +3,8 @@ import pytest
 
 from hashlib import md5
 from marshmallow import ValidationError, missing
+from marshmallow.fields import Int
+
 from marshmallow_jsonapi import Schema
 from marshmallow_jsonapi.fields import Str, DocumentMeta, Meta, ResourceMeta, Relationship
 
@@ -303,6 +305,39 @@ class TestGenericRelationshipField:
 
         assert not result
 
+    def test_resource_linkage_id_type_from_schema(self):
+        class AuthorSchema(Schema):
+            id = Int(attribute='author_id', as_string=True)
+
+            class Meta:
+                type_ = 'authors'
+                strict = True
+
+        field = Relationship(
+            include_resource_linkage=True, type_='authors',
+            schema=AuthorSchema,
+        )
+
+        result = field.deserialize({'data': {'type': 'authors', 'id': '1'}})
+
+        assert result == 1
+
+    def test_resource_linkage_id_of_invalid_type(self):
+        class AuthorSchema(Schema):
+            id = Int(attribute='author_id', as_string=True)
+
+            class Meta:
+                type_ = 'authors'
+                strict = True
+
+        field = Relationship(
+            include_resource_linkage=True, type_='authors',
+            schema=AuthorSchema,
+        )
+
+        with pytest.raises(ValidationError) as excinfo:
+            field.deserialize({'data': {'type': 'authors', 'id': 'not_a_number'}})
+        assert excinfo.value.args[0] == 'Not a valid integer.'
 
 class TestMetaField:
     def test_deprecation(self):
