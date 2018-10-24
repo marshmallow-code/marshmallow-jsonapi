@@ -11,7 +11,7 @@ faker==0.9.2
 
 # Syntax checking
 pre-commit==1.11.2
-flake8==3.5.0
+flake8==3.6.0
 
 # Install this package in development mode
 -e '.'
