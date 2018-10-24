@@ -429,4 +429,4 @@ class Schema(ma.Schema):
 
     def generate_url(self, link, **kwargs):
         """Generate URL with any kwargs interpolated."""
-        return quote(link.format(**kwargs)) if link else None
+        return quote(link.format(**kwargs), safe='/:?=&') if link else None
