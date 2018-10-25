@@ -1,4 +1,4 @@
-from flask import Flask, url_for, request, jsonify
+from flask import Flask, request, jsonify
 
 ### MODELS ###
 
@@ -17,6 +17,7 @@ class Post(Model):
     pass
 
 ### MOCK DATABASE ###
+
 
 comment1 = Comment(id=1, body='First!')
 comment2 = Comment(id=2, body='I like XML better!')
@@ -40,9 +41,9 @@ db = {
 
 ### SCHEMAS ###
 
-from marshmallow import validate, ValidationError  # flake8: noqa
-from marshmallow_jsonapi import fields  # flake8: noqa
-from marshmallow_jsonapi.flask import Relationship, Schema  # flake8: noqa
+from marshmallow import validate, ValidationError  # noqa: E402
+from marshmallow_jsonapi import fields  # noqa: E402
+from marshmallow_jsonapi.flask import Relationship, Schema  # noqa: E402
 
 class CommentSchema(Schema):
     id = fields.Str(dump_only=True)
@@ -162,6 +163,7 @@ def comment_detail(comment_id):
     comment = db['comments'][comment_id - 1]
     data = CommentSchema().dump(comment)
     return J(data)
+
 
 if __name__ == '__main__':
     app.run()
