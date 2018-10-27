@@ -200,7 +200,12 @@ class Relationship(BaseRelationship):
             result = self.schema.load({'data': data, 'included': self.root.included_data})
             return result.data if _MARSHMALLOW_VERSION_INFO[0] < 3 else result
 
-        return data.get('id')
+        id_value = data.get('id')
+
+        if self.__schema:
+            id_value = self.schema.fields['id'].deserialize(id_value)
+
+        return id_value
 
     def deserialize(self, value, attr=None, data=None):
         """Deserialize ``value``.
