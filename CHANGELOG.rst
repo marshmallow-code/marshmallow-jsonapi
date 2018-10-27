@@ -2,6 +2,14 @@
 Changelog
 *********
 
+0.20.5 (unreleased)
+===================
+
+Bug fixes:
+
+* Fix deserializing ``id`` field to non-string types (:pr:`179`).
+  Thanks :user:`aberres` for the catch and patch.
+
 0.20.4 (2018-10-04)
 ===================
 
