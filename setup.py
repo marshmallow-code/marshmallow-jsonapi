@@ -2,9 +2,26 @@
 import re
 from setuptools import setup, find_packages
 
-REQUIRES = [
+INSTALL_REQUIRES = (
     'marshmallow>=2.8.0',
-]
+)
+EXTRAS_REQUIRE = {
+    'tests': [
+        'pytest',
+        'mock',
+        'faker==0.9.2',
+        'Flask==1.0.2',
+    ],
+    'lint': [
+        'flake8==3.6.0',
+        'pre-commit==1.12.0',
+    ],
+}
+EXTRAS_REQUIRE['dev'] = (
+    EXTRAS_REQUIRE['tests'] +
+    EXTRAS_REQUIRE['lint'] +
+    ['tox']
+)
 
 
 def find_version(fname):
@@ -44,7 +61,8 @@ setup(
     packages=find_packages(exclude=('test*', )),
     package_dir={'marshmallow-jsonapi': 'marshmallow-jsonapi'},
     include_package_data=True,
-    install_requires=REQUIRES,
+    install_requires=INSTALL_REQUIRES,
+    extras_require=EXTRAS_REQUIRE,
     license='MIT',
     zip_safe=False,
     keywords=(
@@ -59,6 +77,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.6',
     ],
     test_suite='tests',
