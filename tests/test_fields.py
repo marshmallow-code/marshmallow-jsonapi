@@ -2,7 +2,7 @@
 import pytest
 
 from hashlib import md5
-from marshmallow import ValidationError, missing
+from marshmallow import ValidationError, missing as missing_
 from marshmallow.fields import Int
 
 from marshmallow_jsonapi import Schema
@@ -233,15 +233,44 @@ class TestGenericRelationshipField:
             'Must have an `id` field', 'Must have a `type` field',
         ]
 
-    def test_deserialize_empty_relationship_node(self):
+    def test_deserialize_required(self):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
-            related_url_kwargs={'post_id': '<id>'},
+            related_url_kwargs={'post_id': '<id>'}, required=True,
+            many=False, include_resource_linkage=True, type_='comments',
+
+        )
+        with pytest.raises(ValidationError) as excinfo:
+            field.deserialize(missing_)
+        assert excinfo.value.args[0] == 'Missing data for required field.'
+
+    def test_deserialize_required_empty(self):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'}, required=True,
             many=False, include_resource_linkage=False, type_='comments',
         )
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize({})
         assert excinfo.value.args[0] == 'Must include a `data` key'
+
+    def test_deserialize_missing(self):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'},
+            many=False, include_resource_linkage=True, type_='comments',
+        )
+        result = field.deserialize(missing_)
+        assert result is missing_
+
+    def test_deserialize_missing_with_missing_param(self):
+        field = Relationship(
+            related_url='/posts/{post_id}/comments',
+            related_url_kwargs={'post_id': '<id>'}, missing='value',
+            many=False, include_resource_linkage=True, type_='comments',
+        )
+        result = field.deserialize(missing_)
+        assert result == 'value'
 
     def test_deserialize_missing_relationship_node(self):
         field = Relationship(
@@ -250,7 +279,7 @@ class TestGenericRelationshipField:
             many=False, include_resource_linkage=True, type_='comments',
         )
         with pytest.raises(ValidationError) as excinfo:
-            field.deserialize(missing)
+            field.deserialize(missing_)
         assert excinfo.value.args[0] == 'Must include a `data` key'
 
     def test_deserialize_many_non_list_relationship(self):
