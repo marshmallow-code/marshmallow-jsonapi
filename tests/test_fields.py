@@ -221,7 +221,7 @@ class TestGenericRelationshipField:
         result = field.deserialize({'data': []})
         assert result == []
 
-    def test_deserialize_empty_data_node(self):
+    def test_deserialize_empty_data(self):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'},
@@ -233,7 +233,7 @@ class TestGenericRelationshipField:
             'Must have an `id` field', 'Must have a `type` field',
         ]
 
-    def test_deserialize_required(self):
+    def test_deserialize_required_missing(self):
         field = Relationship(
             related_url='/posts/{post_id}/comments',
             related_url_kwargs={'post_id': '<id>'}, required=True,
@@ -271,16 +271,6 @@ class TestGenericRelationshipField:
         )
         result = field.deserialize(missing_)
         assert result == 'value'
-
-    def test_deserialize_missing_relationship_node(self):
-        field = Relationship(
-            related_url='/posts/{post_id}/comments',
-            related_url_kwargs={'post_id': '<id>'},
-            many=False, include_resource_linkage=True, type_='comments',
-        )
-        with pytest.raises(ValidationError) as excinfo:
-            field.deserialize(missing_)
-        assert excinfo.value.args[0] == 'Must include a `data` key'
 
     def test_deserialize_many_non_list_relationship(self):
         field = Relationship(many=True, include_resource_linkage=True, type_='comments')
@@ -368,7 +358,9 @@ class TestGenericRelationshipField:
             field.deserialize({'data': {'type': 'authors', 'id': 'not_a_number'}})
         assert excinfo.value.args[0] == 'Not a valid integer.'
 
+
 class TestMetaField:
+
     def test_deprecation(self):
         with pytest.warns(DeprecationWarning, match='deprecated'):
             Meta()
