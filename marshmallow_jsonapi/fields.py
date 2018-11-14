@@ -7,12 +7,12 @@ import warnings
 
 from marshmallow.compat import basestring
 
-from marshmallow import ValidationError, class_registry, missing
+from marshmallow import ValidationError, class_registry
 from marshmallow.fields import Field
 # Make core fields importable from marshmallow_jsonapi
 from marshmallow.fields import *  # noqa
 from marshmallow.base import SchemaABC
-from marshmallow.utils import is_collection
+from marshmallow.utils import is_collection, missing as missing_
 
 from .utils import get_value, resolve_params, iteritems, _MARSHMALLOW_VERSION_INFO
 
@@ -214,10 +214,12 @@ class Relationship(BaseRelationship):
             value does not contain a `data` key, and if the value is
             required but unspecified.
         """
+        if value is missing_:
+            return super(Relationship, self).deserialize(value, attr, data)
         if not isinstance(value, dict) or 'data' not in value:
             # a relationships object does not need 'data' if 'links' is present
             if value and 'links' in value:
-                return missing
+                return missing_
             else:
                 raise ValidationError('Must include a `data` key')
         return super(Relationship, self).deserialize(value['data'], attr, data)
