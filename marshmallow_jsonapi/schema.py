@@ -85,6 +85,9 @@ class Schema(ma.Schema):
 
     def __init__(self, *args, **kwargs):
         self.include_data = kwargs.pop('include_data', ())
+        self.resource_identifier = kwargs.pop('resource_identifier', False)
+        self.override_self_url = kwargs.pop('self_url', None)
+        self.override_related_url = kwargs.pop('related_url', None)
         super(Schema, self).__init__(*args, **kwargs)
         if self.include_data:
             self.check_relations(self.include_data)
@@ -375,13 +378,19 @@ class Schema(ma.Schema):
                         ret['relationships'] = self.dict_class()
                     ret['relationships'][self.inflect(field_name)] = value
             else:
+                # Resource identifier objects don't get attributes.
+                if self.resource_identifier:
+                    continue
+
                 if 'attributes' not in ret:
                     ret['attributes'] = self.dict_class()
                 ret['attributes'][self.inflect(field_name)] = value
 
-        links = self.get_resource_links(item)
-        if links:
-            ret['links'] = links
+        # Resource identifier objects don't get links
+        if not self.resource_identifier:
+            links = self.get_resource_links(item)
+            if links:
+                ret['links'] = links
         return ret
 
     def format_items(self, data, many):
@@ -402,10 +411,21 @@ class Schema(ma.Schema):
             if self.opts.self_url_many:
                 self_link = self.generate_url(self.opts.self_url_many)
         else:
-            if self.opts.self_url:
+            if self.opts.self_url and data is not None:
                 self_link = data.get('links', {}).get('self', None)
 
-        return {'self': self_link}
+        if self.override_self_url is not None:
+            self_link = self.override_self_url
+
+        links = dict()
+
+        if self_link is not None:
+            links['self'] = self_link
+
+        if self.override_related_url:
+            links['related'] = self.override_related_url
+
+        return links
 
     def get_resource_links(self, item):
         """Hook for adding links to a resource object."""
@@ -423,7 +443,7 @@ class Schema(ma.Schema):
         # may only be included if there is data in the ret
         if many or data:
             top_level_links = self.get_top_level_links(data, many)
-            if top_level_links['self']:
+            if top_level_links:
                 ret['links'] = top_level_links
         return ret
 

@@ -48,7 +48,12 @@ class AuthorSchema(Schema):
             self_link = '/authors/'
         else:
             self_link = '/authors/{}'.format(data['id'])
-        return {'self': self_link}
+        links = {'self': self_link}
+
+        schema_links = super(AuthorSchema, self).get_top_level_links(data, many)
+        links.update(schema_links)
+
+        return links
 
     class Meta:
         type_ = 'people'

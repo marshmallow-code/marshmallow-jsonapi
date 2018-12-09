@@ -112,6 +112,34 @@ class TestResponseFormatting:
         assert 'links' in data
         assert data['links']['self'] == '/authors/'
 
+    def test_dump_single_resource_identifer(self, author):
+        data = unpack(AuthorSchema(resource_identifier=True).dump(author))
+
+        assert data == {
+            'data': {'id': str(author.id), 'type': 'people'},
+            'links': {'self': '/authors/' + str(author.id)}
+        }
+
+    def test_dump_many_resource_identifer(self, authors):
+        schema = AuthorSchema(many=True, resource_identifier=True)
+        data = unpack(schema.dump(authors))
+
+        assert set(data.keys()) == {'data', 'links'}
+        assert data['links'] == {'self': '/authors/'}
+        for i, author in enumerate(authors):
+            assert data['data'][i] == {'id': str(authors[i].id), 'type': 'people'}
+
+    def test_dump_none_resource_identifier(self):
+        data = unpack(AuthorSchema(resource_identifier=True).dump(None))
+
+        assert 'data' in data
+        assert data['data'] is None
+        assert 'links' not in data
+
+    def test_dump_empty_list_resource_identifier(self):
+        data = unpack(AuthorSchema(many=True, resource_identifier=True).dump([]))
+        assert data == {'data': [], 'links': {'self': '/authors/'}}
+
 
 class TestCompoundDocuments:
 
@@ -820,3 +848,24 @@ class TestRelationshipLoading(object):
 
         assert assert_relationship_error('author', errors['errors'])
         assert assert_relationship_error('comments', errors['errors'])
+
+
+class TestOverrideUrls(object):
+    def test_self_url(self, author):
+        url = '/articles/1/author'
+        schema = AuthorSchema(self_url=url)
+        data = unpack(schema.dump(author))
+
+        assert data['links']['self'] == url
+
+    def test_related_url(self, author):
+        self_url = '/articles/1/relationships/author'
+        related_url = '/articles/1/author'
+        schema = AuthorSchema(
+            resource_identifier=True,
+            self_url=self_url,
+            related_url=related_url)
+        data = unpack(schema.dump(author))
+
+        assert data['links']['self'] == self_url
+        assert data['links']['related'] == related_url
