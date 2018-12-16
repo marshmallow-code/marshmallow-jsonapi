@@ -1,9 +1,3 @@
-try:
-    from urllib.parse import quote
-except ImportError:
-    # Python 2.7 compatibility
-    from urllib import quote
-
 import pytest
 from marshmallow import validate, ValidationError
 
@@ -143,9 +137,9 @@ class AuthorAutoSelfLinkFirstLastSchema(AuthorAutoSelfLinkSchema):
 
     class Meta:
         type_ = 'people'
-        self_url = '/authors/{first_name} {last_name}'
+        self_url = 'http://example.com/authors/{first_name} {last_name}'
         self_url_kwargs = {'first_name': '<first_name>', 'last_name': '<last_name>'}
-        self_url_many = '/authors/'
+        self_url_many = 'http://example.com/authors/'
 
 
 class TestAutoSelfUrls:
@@ -184,11 +178,3 @@ class TestAutoSelfUrls:
         assert first['type'] == 'comments'
 
         assert 'links' not in data
-
-    def test_self_link_quoted(self, author):
-        data = unpack(AuthorAutoSelfLinkFirstLastSchema().dump(author))
-        assert 'links' in data
-        assert data['links']['self'] == quote('/authors/{} {}'.format(
-            author.first_name,
-            author.last_name,
-        ))
