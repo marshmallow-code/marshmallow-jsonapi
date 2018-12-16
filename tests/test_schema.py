@@ -320,7 +320,7 @@ class TestCompoundDocuments:
         with pytest.raises(ValidationError) as excinfo:
             PostSchema().load(serialized)
         err = excinfo.value
-        assert 'author' in err.field_names
+        assert 'author' in err.args[0]
 
     def test_include_data_load_without_schema_loads_only_ids(
             self, post,
