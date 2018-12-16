@@ -2,8 +2,31 @@
 Changelog
 *********
 
-0.21.0 (unreleased)
+0.21.0 (2018-12-16)
 ===================
+
+Bug fixes:
+
+* *Backwards-incompatible*: Revert URL quoting introduced in 0.20.2
+  (:issue:`184`). If you need quoting, override `Schema.generate_url`.
+
+.. code-block:: python
+
+  from marshmallow_jsonapi import Schema
+  from werkzeug.urls import url_fix
+
+  class MySchema(Schema):
+      def generate_url(self, link, **kwargs):
+          url = super().generate_url(link, **kwargs)
+          return url_fix(url)
+
+Thanks :user:`kgutwin` for reporting the issue.
+
+* Fix `Relationship` deserialization behavior when ``required=False`` (:issue:`177`).
+  Thanks :user:`aberres` for reporting and :user:`scottwernervt` for the
+  fix.
+
+Other changes:
 
 * Test against Python 3.7.
 
@@ -95,7 +118,7 @@ Features:
 Features:
 
 * Add ``fields.ResourceMeta`` for serializing a resource-level meta
-  object (:issue:``). Thanks :user:`scottwernervt`.
+  object (:issue:`107`). Thanks :user:`scottwernervt`.
 
 Other changes:
 
