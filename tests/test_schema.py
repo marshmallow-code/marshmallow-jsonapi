@@ -820,3 +820,48 @@ class TestRelationshipLoading(object):
 
         assert assert_relationship_error('author', errors['errors'])
         assert assert_relationship_error('comments', errors['errors'])
+
+    def test_deserializing_relationship_with_missing_param(self):
+        if _MARSHMALLOW_VERSION_INFO[0] >= 3:
+            author_missing = '1'
+            comments_missing = ['2', '3']
+        else:
+            author_missing = {
+                'data': {
+                    'type': 'people',
+                    'id': '1',
+                },
+            }
+            comments_missing = {
+                'data': [
+                    {'type': 'comments', 'id': '2'},
+                    {'type': 'comments', 'id': '3'},
+                ],
+            }
+
+        class ArticleMissingParamSchema(Schema):
+            id = fields.Integer()
+            body = fields.String()
+            author = fields.Relationship(
+                dump_only=False, include_resource_linkage=True,
+                many=False, type_='people', missing=author_missing,
+            )
+            comments = fields.Relationship(
+                dump_only=False, include_resource_linkage=True,
+                many=True, type_='comments',
+                missing=comments_missing,
+            )
+
+            class Meta:
+                type_ = 'articles'
+                strict = True
+
+        article = self.article.copy()
+        article['data']['relationships'] = {}
+
+        data = unpack(ArticleMissingParamSchema().load(article))
+
+        assert 'author' in data
+        assert data['author'] == '1'
+        assert 'comments' in data
+        assert data['comments'] == ['2', '3']
