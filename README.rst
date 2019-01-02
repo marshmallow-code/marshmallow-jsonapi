@@ -2,17 +2,21 @@
 marshmallow-jsonapi
 *******************
 
-.. image:: https://badge.fury.io/py/marshmallow-jsonapi.svg
-    :target: http://badge.fury.io/py/marshmallow-jsonapi
-    :alt: Latest version
+.. image:: https://badgen.net/pypi/v/marshmallow-jsonapi
+    :target: https://badge.fury.io/py/marshmallow-jsonapi
+    :alt: PyPI version
 
-.. image:: https://travis-ci.org/marshmallow-code/marshmallow-jsonapi.svg
+.. image:: https://badgen.net/travis/marshmallow-code/marshmallow-jsonapi
     :target: https://travis-ci.org/marshmallow-code/marshmallow-jsonapi
-    :alt: Travis-CI
+    :alt: TravisCI build status
 
-.. image:: https://img.shields.io/badge/marshmallow-3-blue.svg
+.. image:: https://readthedocs.org/projects/marshmallow-jsonapi/badge/
+   :target: https://marshmallow-jsonapi.readthedocs.io/
+   :alt: Documentation
+
+.. image:: https://badgen.net/badge/marshmallow/2,3?list=1
     :target: https://marshmallow.readthedocs.io/en/latest/upgrading.html
-    :alt: marshmallow 3 compatible
+    :alt: marshmallow 2/3 compatible
 
 Homepage: http://marshmallow-jsonapi.readthedocs.io/
 
