@@ -13,7 +13,7 @@ EXTRAS_REQUIRE = {
         'Flask==1.0.2',
     ],
     'lint': [
-        'flake8==3.7.0',
+        'flake8==3.7.3',
         'pre-commit==1.14.2',
     ],
 }
