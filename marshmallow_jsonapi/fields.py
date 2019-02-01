@@ -249,6 +249,8 @@ class Relationship(BaseRelationship):
 
         # resource linkage is required when including the data
         if self.include_resource_linkage or self.include_data:
+            if not self.many and value is None:
+                ret['data'] = None
             if value is not None:
                 ret['data'] = self.get_resource_linkage(value)
 
