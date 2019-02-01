@@ -301,7 +301,7 @@ class TestGenericRelationshipField:
         )
         result = field.serialize('author', post_with_null_author)
         assert result and result['links']['related']
-        assert result['data'] is None
+        assert 'data' not in result
 
     def test_include_null_data_many(self, post_with_null_comment):
         field = Relationship(
