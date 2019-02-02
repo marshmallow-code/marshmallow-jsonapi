@@ -3,7 +3,7 @@ marshmallow-jsonapi
 *******************
 
 .. image:: https://badgen.net/pypi/v/marshmallow-jsonapi
-    :target: https://badge.fury.io/py/marshmallow-jsonapi
+    :target: https://pypi.org/project/marshmallow-jsonapi/
     :alt: PyPI version
 
 .. image:: https://badgen.net/travis/marshmallow-code/marshmallow-jsonapi
