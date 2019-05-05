@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import marshmallow as ma
 from marshmallow.exceptions import ValidationError
-from marshmallow.compat import iteritems, PY2
 from marshmallow.utils import is_collection
 
+from .compat import iteritems, PY2
 from .fields import BaseRelationship, DocumentMeta, ResourceMeta
 from .fields import _RESOURCE_META_LOAD_FROM, _DOCUMENT_META_LOAD_FROM
 from .exceptions import IncorrectTypeError

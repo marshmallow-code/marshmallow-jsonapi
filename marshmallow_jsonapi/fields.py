@@ -5,8 +5,6 @@ fields for serializing JSON API-formatted hyperlinks.
 import collections
 import warnings
 
-from marshmallow.compat import basestring
-
 from marshmallow import ValidationError, class_registry
 from marshmallow.fields import Field
 # Make core fields importable from marshmallow_jsonapi
@@ -14,6 +12,7 @@ from marshmallow.fields import *  # noqa
 from marshmallow.base import SchemaABC
 from marshmallow.utils import is_collection, missing as missing_
 
+from .compat import basestring
 from .utils import get_value, resolve_params, iteritems, _MARSHMALLOW_VERSION_INFO
 
 
