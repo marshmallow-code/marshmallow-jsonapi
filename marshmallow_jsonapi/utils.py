@@ -6,8 +6,9 @@ This module should be considered private API.
 import re
 
 import marshmallow
-from marshmallow.compat import iteritems
 from marshmallow.utils import get_value as _get_value, missing
+
+from .compat import iteritems
 
 _MARSHMALLOW_VERSION_INFO = tuple(
     [int(part) for part in marshmallow.__version__.split('.') if part.isdigit()],
