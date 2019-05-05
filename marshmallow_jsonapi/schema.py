@@ -112,8 +112,10 @@ class Schema(ma.Schema):
 
             field = self.fields[local_field]
             if not isinstance(field, BaseRelationship):
-                raise ValueError('Can only include relationships. "{}" is a "{}"'
-                                 .format(field.name, field.__class__.__name__))
+                raise ValueError(
+                    'Can only include relationships. "{}" is a "{}"'
+                    .format(field.name, field.__class__.__name__),
+                )
 
             field.include_data = True
             if len(fields) > 1:
@@ -265,9 +267,11 @@ class Schema(ma.Schema):
         For each item in ``data``, extract the full data from the included
         data.
         """
-        return (item for item in self.included_data
-                if item['type'] == data['type'] and
-                str(item['id']) == str(data['id']))
+        return (
+            item for item in self.included_data
+            if item['type'] == data['type'] and
+            str(item['id']) == str(data['id'])
+        )
 
     def inflect(self, text):
         """Inflect ``text`` if the ``inflect`` class Meta option is defined, otherwise

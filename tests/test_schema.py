@@ -132,20 +132,26 @@ class TestCompoundDocuments:
         assert 'first_name' in author['attributes']
 
     def test_include_data_with_all_relations(self, post):
-        data = unpack(PostSchema(include_data=(
-            'author',
-            'post_comments',
-            'post_comments.author',
-        )).dump(post))
+        data = unpack(
+            PostSchema(
+                include_data=(
+                    'author',
+                    'post_comments',
+                    'post_comments.author',
+                ),
+            ).dump(post),
+        )
         assert 'included' in data
         assert len(data['included']) == 5
         for included in data['included']:
             assert included['id']
             assert included['type'] in ('people', 'comments')
         expected_comments_author_ids = set([str(comment.author.id) for comment in post.comments])
-        included_comments_author_ids = set([i['id'] for i in data['included']
-                                            if i['type'] == 'people' and
-                                            i['id'] != str(post.author.id)])
+        included_comments_author_ids = set([
+            i['id'] for i in data['included']
+            if i['type'] == 'people' and
+            i['id'] != str(post.author.id)
+        ])
         assert included_comments_author_ids == expected_comments_author_ids
 
     def test_include_no_data(self, post):
@@ -266,13 +272,15 @@ class TestCompoundDocuments:
         assert 'body' in first_comment['attributes']
 
     def test_include_data_with_nested_only_arg(self, post):
-        data = unpack(PostSchema(
-            only=(
-                'id', 'post_comments.id',
-                'post_comments.author.id', 'post_comments.author.twitter',
-            ),
-            include_data=('post_comments', 'post_comments.author'),
-        ).dump(post))
+        data = unpack(
+            PostSchema(
+                only=(
+                    'id', 'post_comments.id',
+                    'post_comments.author.id', 'post_comments.author.twitter',
+                ),
+                include_data=('post_comments', 'post_comments.author'),
+            ).dump(post),
+        )
 
         assert 'included' in data
         assert len(data['included']) == 4
@@ -283,10 +291,12 @@ class TestCompoundDocuments:
             assert attribute not in first_author['attributes']
 
     def test_include_data_with_nested_exclude_arg(self, post):
-        data = unpack(PostSchema(
-            exclude=('post_comments.author.twitter',),
-            include_data=('post_comments', 'post_comments.author'),
-        ).dump(post))
+        data = unpack(
+            PostSchema(
+                exclude=('post_comments.author.twitter',),
+                include_data=('post_comments', 'post_comments.author'),
+            ).dump(post),
+        )
 
         assert 'included' in data
         assert len(data['included']) == 4
@@ -297,9 +307,11 @@ class TestCompoundDocuments:
             assert attribute in first_author['attributes']
 
     def test_include_data_load(self, post):
-        serialized = unpack(PostSchema(
-            include_data=('author', 'post_comments', 'post_comments.author'),
-        ).dump(post))
+        serialized = unpack(
+            PostSchema(
+                include_data=('author', 'post_comments', 'post_comments.author'),
+            ).dump(post),
+        )
         loaded = unpack(PostSchema().load(serialized))
 
         assert 'author' in loaded
@@ -313,9 +325,11 @@ class TestCompoundDocuments:
             assert comment['id'] in [str(c.id) for c in post.comments]
 
     def test_include_data_load_null(self, post_with_null_author):
-        serialized = unpack(PostSchema(
-            include_data=('author', 'post_comments'),
-        ).dump(post_with_null_author))
+        serialized = unpack(
+            PostSchema(
+                include_data=('author', 'post_comments'),
+            ).dump(post_with_null_author),
+        )
 
         with pytest.raises(ValidationError) as excinfo:
             PostSchema().load(serialized)
@@ -339,9 +353,11 @@ class TestCompoundDocuments:
                 type_ = 'posts'
                 strict = True
 
-        serialized = unpack(PostSchema(
-            include_data=('author', 'post_comments'),
-        ).dump(post))
+        serialized = unpack(
+            PostSchema(
+                include_data=('author', 'post_comments'),
+            ).dump(post),
+        )
 
         if _MARSHMALLOW_VERSION_INFO[0] >= 3:
             from marshmallow import INCLUDE
@@ -377,10 +393,12 @@ class TestCompoundDocuments:
             class Meta(PostSchema.Meta):
                 pass
 
-        serialized = unpack(PostContextTestSchema(
-            include_data=('author',),
-            context={'some_value': 'Hello World'},
-        ).dump(post))
+        serialized = unpack(
+            PostContextTestSchema(
+                include_data=('author',),
+                context={'some_value': 'Hello World'},
+            ).dump(post),
+        )
 
         for included in serialized['included']:
             if included['type'] == 'people':
@@ -546,9 +564,11 @@ class TestErrorFormatting:
         assert lname_err['detail'] == 'Missing data for required field.'
 
     def test_errors_is_empty_if_valid(self):
-        errors = AuthorSchema().validate(make_serialized_author({
-            'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret',
-        }))
+        errors = AuthorSchema().validate(
+            make_serialized_author({
+                'first_name': 'Dan', 'last_name': 'Gebhardt', 'password': 'supersecret',
+            }),
+        )
         assert errors == {}
 
     def test_errors_many(self):
@@ -585,19 +605,21 @@ class TestErrorFormatting:
 
     def test_many_id_errors(self):
         """ the pointer for id should be at the data object, not attributes """
-        author = {'data': [
-            {
-                'type': 'people', 'id': 'invalid',
-                'attributes': {'first_name': 'Rob', 'password': 'correcthorses'},
-            },
-            {
-                'type': 'people', 'id': 37,
-                'attributes': {
-                    'first_name': 'Dan', 'last_name': 'Gebhardt',
-                    'password': 'supersecret',
+        author = {
+            'data': [
+                {
+                    'type': 'people', 'id': 'invalid',
+                    'attributes': {'first_name': 'Rob', 'password': 'correcthorses'},
                 },
-            },
-        ]}
+                {
+                    'type': 'people', 'id': 37,
+                    'attributes': {
+                        'first_name': 'Dan', 'last_name': 'Gebhardt',
+                        'password': 'supersecret',
+                    },
+                },
+            ],
+        }
         try:
             errors = AuthorSchema(many=True).validate(author)
         except ValidationError as err:  # marshmallow 2

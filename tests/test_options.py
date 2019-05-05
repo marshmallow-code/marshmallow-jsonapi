@@ -75,16 +75,24 @@ class TestInflection:
         assert fname_err['detail'] == 'Shorter than minimum length 2.'
 
         # valid
-        data = unpack(schema.load(make_serialized_author({
-            'first-name': 'Nevets', 'last-name': 'Longoria',
-        })))
+        data = unpack(
+            schema.load(
+                make_serialized_author({
+                    'first-name': 'Nevets', 'last-name': 'Longoria',
+                }),
+            ),
+        )
         assert data['first_name'] == 'Nevets'
 
     def test_load_with_inflection_and_load_from_override(self):
         schema = AuthorSchemaWithOverrideInflection()
-        data = unpack(schema.load(make_serialized_author({
-            'firstName': 'Steve', 'last-name': 'Loria',
-        })))
+        data = unpack(
+            schema.load(
+                make_serialized_author({
+                    'firstName': 'Steve', 'last-name': 'Loria',
+                }),
+            ),
+        )
         assert data['first_name'] == 'Steve'
         assert data['last_name'] == 'Loria'
 
