@@ -9,7 +9,7 @@ EXTRAS_REQUIRE = {
     'tests': [
         'pytest',
         'mock',
-        'faker==1.0.6',
+        'faker==1.0.7',
         'Flask==1.0.2',
     ],
     'lint': [
