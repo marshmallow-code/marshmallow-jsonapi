@@ -277,6 +277,17 @@ class Schema(ma.Schema):
 
     ### Overridable hooks ###
 
+    def _extract_error_from_dict(self, field_name, field_errors):
+        if field_errors and isinstance(field_errors, dict):
+            k, field_errors = list(field_errors.items()).pop()
+            field_name = f"{field_name}/{k}"
+            if isinstance(field_errors, dict):
+                field_name, field_errors = self._extract_error_from_dict(
+                    field_name, field_errors
+                )
+                return field_name, field_errors
+        return field_name, field_errors
+
     def format_errors(self, errors, many):
         """Format validation errors as JSON Error objects."""
         if not errors:
@@ -288,16 +299,25 @@ class Schema(ma.Schema):
         if many:
             for index, errors in errors.items():
                 for field_name, field_errors in errors.items():
+                    field_name_, field_errors_ = self._extract_error_from_dict(
+                        field_name, field_errors
+                    )
                     formatted_errors.extend(
                         [
-                            self.format_error(field_name, message, index=index)
-                            for message in field_errors
+                            self.format_error(field_name_, message, index=index)
+                            for message in field_errors_
                         ]
                     )
         else:
             for field_name, field_errors in errors.items():
+                field_name_, field_errors_ = self._extract_error_from_dict(
+                    field_name, field_errors
+                )
                 formatted_errors.extend(
-                    [self.format_error(field_name, message) for message in field_errors]
+                    [
+                        self.format_error(field_name_, message)
+                        for message in field_errors_
+                    ]
                 )
         return {"errors": formatted_errors}
 

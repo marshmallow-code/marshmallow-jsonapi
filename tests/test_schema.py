@@ -1,4 +1,5 @@
 import pytest
+import marshmallow as ma
 from marshmallow import ValidationError
 
 from marshmallow_jsonapi import Schema, fields
@@ -607,6 +608,43 @@ class TestErrorFormatting:
         assert id_err
         assert id_err["source"]["pointer"] == "/data/1/id"
         assert id_err["detail"] == "Not a valid string."
+
+    def test_nested_fields_error(self):
+        from marshmallow.validate import Range
+
+        class ThirdLevel(ma.Schema):
+            number = fields.Int(required=True, validate=Range(min=10))
+
+        class SecondLevel(ma.Schema):
+            third = fields.Nested(ThirdLevel)
+
+        class FirstLevel(Schema):
+            class Meta:
+                type_ = "first"
+
+            id = fields.Int()
+            second = fields.Nested(SecondLevel)
+
+        schema = FirstLevel()
+        errors = schema.validate(
+            {
+                "data": {
+                    "type": "first",
+                    "attributes": {"second": {"third": {"number": 5}}},
+                }
+            }
+        )
+
+        assert errors == {
+            "errors": [
+                {
+                    "detail": "Must be greater than or equal to 10."
+                    if _MARSHMALLOW_VERSION_INFO[0] >= 3
+                    else "Must be at least 10.",
+                    "source": {"pointer": "/data/attributes/second/third/number"},
+                }
+            ]
+        }
 
 
 class TestMeta:
