@@ -122,7 +122,7 @@ class Schema(ma.Schema):
                 field.schema.check_relations(fields[1:])
 
     @ma.post_dump(pass_many=True)
-    def format_json_api_response(self, data, many):
+    def format_json_api_response(self, data, many, **kwargs):
         """Post-dump hook that formats serialized data as a top-level JSON API object.
 
         See: http://jsonapi.org/format/#document-top-level
@@ -195,7 +195,7 @@ class Schema(ma.Schema):
         return payload
 
     @ma.pre_load(pass_many=True)
-    def unwrap_request(self, data, many):
+    def unwrap_request(self, data, many, **kwargs):
         if 'data' not in data:
             raise ma.ValidationError([{
                 'detail': 'Object must include `data` key.',
@@ -243,7 +243,7 @@ class Schema(ma.Schema):
         self.document_meta = data.get('meta', {})
 
         try:
-            result = super(Schema, self)._do_load(data, many, **kwargs)
+            result = super(Schema, self)._do_load(data, many=many, **kwargs)
         except ValidationError as err:  # strict mode
             error_messages = err.messages
             if '_schema' in error_messages:
