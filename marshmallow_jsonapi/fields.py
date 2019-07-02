@@ -206,7 +206,7 @@ class Relationship(BaseRelationship):
 
         return id_value
 
-    def deserialize(self, value, attr=None, data=None):
+    def deserialize(self, value, attr=None, data=None, **kwargs):
         """Deserialize ``value``.
 
         :raise ValidationError: If the value is not type `dict`, if the
@@ -221,9 +221,9 @@ class Relationship(BaseRelationship):
                 return missing_
             else:
                 raise ValidationError('Must include a `data` key')
-        return super(Relationship, self).deserialize(value['data'], attr, data)
+        return super(Relationship, self).deserialize(value['data'], attr, data, **kwargs)
 
-    def _deserialize(self, value, attr, obj):
+    def _deserialize(self, value, attr, obj, **kwargs):
         if self.many:
             if not is_collection(value):
                 raise ValidationError('Relationship is list-like')
@@ -316,7 +316,7 @@ class DocumentMeta(Field):
         else:
             self.data_key = _DOCUMENT_META_LOAD_FROM
 
-    def _deserialize(self, value, attr, data):
+    def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, collections.Mapping):
             return value
         else:
@@ -358,7 +358,7 @@ class ResourceMeta(Field):
         else:
             self.data_key = _RESOURCE_META_LOAD_FROM
 
-    def _deserialize(self, value, attr, data):
+    def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, collections.Mapping):
             return value
         else:
