@@ -2,6 +2,13 @@
 Changelog
 *********
 
+0.21.2 (unreleased)
+===================
+
+Bug fixes:
+
+* marshmallow 3.0.0rc7 compatibility (:pr:`233`).
+
 0.21.1 (2019-05-05)
 ===================
 
