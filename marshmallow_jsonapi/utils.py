@@ -11,7 +11,7 @@ from marshmallow.utils import get_value as _get_value, missing
 from .compat import iteritems
 
 _MARSHMALLOW_VERSION_INFO = tuple(
-    [int(part) for part in marshmallow.__version__.split('.') if part.isdigit()],
+    [int(part) for part in marshmallow.__version__.split(".") if part.isdigit()]
 )
 
 
@@ -25,16 +25,21 @@ def get_dump_key(field):
 if _MARSHMALLOW_VERSION_INFO[0] >= 3:
     get_value = _get_value
 else:
+
     def get_value(obj, attr, *args, **kwargs):
         return _get_value(attr, obj, *args, **kwargs)
 
-_tpl_pattern = re.compile(r'\s*<\s*(\S*)\s*>\s*')
+
+_tpl_pattern = re.compile(r"\s*<\s*(\S*)\s*>\s*")
+
+
 def tpl(val):
     """Return value within ``< >`` if possible, else return ``None``."""
     match = _tpl_pattern.match(val)
     if match:
         return match.groups()[0]
     return None
+
 
 def resolve_params(obj, params, default=missing):
     """Given a dictionary of keyword arguments, return the same dictionary except with
@@ -49,8 +54,8 @@ def resolve_params(obj, params, default=missing):
                 param_values[name] = attribute_value
             else:
                 raise AttributeError(
-                    '{attr_name!r} is not a valid '
-                    'attribute of {obj!r}'.format(attr_name=attr_name, obj=obj),
+                    "{attr_name!r} is not a valid "
+                    "attribute of {obj!r}".format(attr_name=attr_name, obj=obj)
                 )
         else:
             param_values[name] = attr_tpl

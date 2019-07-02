@@ -28,26 +28,28 @@ marshmallow-jsonapi provides a simple way to produce JSON API-compliant data in 
 
     from marshmallow_jsonapi import Schema, fields
 
+
     class PostSchema(Schema):
         id = fields.Str(dump_only=True)
         title = fields.Str()
 
         author = fields.Relationship(
-            '/authors/{author_id}',
-            related_url_kwargs={'author_id': '<author.id>'},
+            "/authors/{author_id}", related_url_kwargs={"author_id": "<author.id>"}
         )
 
         comments = fields.Relationship(
-            '/posts/{post_id}/comments',
-            related_url_kwargs={'post_id': '<id>'},
+            "/posts/{post_id}/comments",
+            related_url_kwargs={"post_id": "<id>"},
             # Include resource linkage
-            many=True, include_resource_linkage=True,
-            type_='comments'
+            many=True,
+            include_resource_linkage=True,
+            type_="comments",
         )
 
         class Meta:
-            type_ = 'posts'
+            type_ = "posts"
             strict = True
+
 
     post_schema = PostSchema()
     post_schema.dump(post).data

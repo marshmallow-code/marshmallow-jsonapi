@@ -29,6 +29,7 @@ Bug fixes:
   from marshmallow_jsonapi import Schema
   from werkzeug.urls import url_fix
 
+
   class MySchema(Schema):
       def generate_url(self, link, **kwargs):
           url = super().generate_url(link, **kwargs)
@@ -106,10 +107,10 @@ Set ``Relationship.default_id_field`` instead.
 
 
     # before
-    fields.Relationship.id_field = 'item_id'
+    fields.Relationship.id_field = "item_id"
 
     # after
-    fields.Relationship.default_id_field = 'item_id'
+    fields.Relationship.default_id_field = "item_id"
 
 
 Support:

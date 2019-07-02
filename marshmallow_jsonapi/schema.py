@@ -9,8 +9,9 @@ from .fields import _RESOURCE_META_LOAD_FROM, _DOCUMENT_META_LOAD_FROM
 from .exceptions import IncorrectTypeError
 from .utils import resolve_params, _MARSHMALLOW_VERSION_INFO, get_dump_key
 
-TYPE = 'type'
-ID = 'id'
+TYPE = "type"
+ID = "id"
+
 
 def plain_function(f):
     """Ensure that ``callable`` is a plain function rather than an unbound method."""
@@ -19,15 +20,16 @@ def plain_function(f):
     # Python 3 doesn't have bound/unbound methods, so don't need to do anything
     return f
 
-class SchemaOpts(ma.SchemaOpts):
 
+class SchemaOpts(ma.SchemaOpts):
     def __init__(self, meta, *args, **kwargs):
         super(SchemaOpts, self).__init__(meta, *args, **kwargs)
-        self.type_ = getattr(meta, 'type_', None)
-        self.inflect = plain_function(getattr(meta, 'inflect', None))
-        self.self_url = getattr(meta, 'self_url', None)
-        self.self_url_kwargs = getattr(meta, 'self_url_kwargs', None)
-        self.self_url_many = getattr(meta, 'self_url_many', None)
+        self.type_ = getattr(meta, "type_", None)
+        self.inflect = plain_function(getattr(meta, "inflect", None))
+        self.self_url = getattr(meta, "self_url", None)
+        self.self_url_kwargs = getattr(meta, "self_url_kwargs", None)
+        self.self_url_many = getattr(meta, "self_url_many", None)
+
 
 class Schema(ma.Schema):
     """Schema class that formats data according to JSON API 1.0.
@@ -62,6 +64,7 @@ class Schema(ma.Schema):
                 inflect = dasherize
 
     """
+
     class Meta:
         """Options object for `Schema`. Takes the same options as `marshmallow.Schema.Meta` with
         the addition of:
@@ -75,24 +78,25 @@ class Schema(ma.Schema):
         * ``self_url_many`` - optional, URL to use to `self` in top-level ``links``
           when a collection of resources is returned.
         """
+
         pass
 
     def __init__(self, *args, **kwargs):
-        self.include_data = kwargs.pop('include_data', ())
+        self.include_data = kwargs.pop("include_data", ())
         super(Schema, self).__init__(*args, **kwargs)
         if self.include_data:
             self.check_relations(self.include_data)
 
         if not self.opts.type_:
-            raise ValueError('Must specify type_ class Meta option')
+            raise ValueError("Must specify type_ class Meta option")
 
-        if 'id' not in self.fields:
-            raise ValueError('Must have an `id` field')
+        if "id" not in self.fields:
+            raise ValueError("Must have an `id` field")
 
         if self.opts.self_url_kwargs and not self.opts.self_url:
             raise ValueError(
-                'Must specify `self_url` Meta option when '
-                '`self_url_kwargs` is specified',
+                "Must specify `self_url` Meta option when "
+                "`self_url_kwargs` is specified"
             )
         self.included_data = {}
         self.document_meta = {}
@@ -104,7 +108,7 @@ class Schema(ma.Schema):
         for rel in relations:
             if not rel:
                 continue
-            fields = rel.split('.', 1)
+            fields = rel.split(".", 1)
 
             local_field = fields[0]
             if local_field not in self.fields:
@@ -113,8 +117,9 @@ class Schema(ma.Schema):
             field = self.fields[local_field]
             if not isinstance(field, BaseRelationship):
                 raise ValueError(
-                    'Can only include relationships. "{}" is a "{}"'
-                    .format(field.name, field.__class__.__name__),
+                    'Can only include relationships. "{}" is a "{}"'.format(
+                        field.name, field.__class__.__name__
+                    )
                 )
 
             field.include_data = True
@@ -136,83 +141,84 @@ class Schema(ma.Schema):
     def render_included_data(self, data):
         if not self.included_data:
             return data
-        data['included'] = list(self.included_data.values())
+        data["included"] = list(self.included_data.values())
         return data
 
     def render_meta_document(self, data):
         if not self.document_meta:
             return data
-        data['meta'] = self.document_meta
+        data["meta"] = self.document_meta
         return data
 
     def unwrap_item(self, item):
-        if 'type' not in item:
-            raise ma.ValidationError([
-                {
-                    'detail': '`data` object must include `type` key.',
-                    'source': {
-                        'pointer': '/data',
-                    },
-                },
-            ])
-        if item['type'] != self.opts.type_:
-            raise IncorrectTypeError(actual=item['type'], expected=self.opts.type_)
+        if "type" not in item:
+            raise ma.ValidationError(
+                [
+                    {
+                        "detail": "`data` object must include `type` key.",
+                        "source": {"pointer": "/data"},
+                    }
+                ]
+            )
+        if item["type"] != self.opts.type_:
+            raise IncorrectTypeError(actual=item["type"], expected=self.opts.type_)
 
         payload = self.dict_class()
-        if 'id' in item:
-            payload['id'] = item['id']
-        if 'meta' in item:
-            payload[_RESOURCE_META_LOAD_FROM] = item['meta']
+        if "id" in item:
+            payload["id"] = item["id"]
+        if "meta" in item:
+            payload[_RESOURCE_META_LOAD_FROM] = item["meta"]
         if self.document_meta:
             payload[_DOCUMENT_META_LOAD_FROM] = self.document_meta
-        for key, value in iteritems(item.get('attributes', {})):
+        for key, value in iteritems(item.get("attributes", {})):
             payload[key] = value
-        for key, value in iteritems(item.get('relationships', {})):
+        for key, value in iteritems(item.get("relationships", {})):
             # Fold included data related to this relationship into the item, so
             # that we can deserialize the whole objects instead of just IDs.
             if self.included_data:
                 included_data = []
-                inner_data = value.get('data', [])
+                inner_data = value.get("data", [])
 
                 # Data may be ``None`` (for empty relationships), but we only
                 # need to process it when it's present.
                 if inner_data:
                     if not is_collection(inner_data):
                         included_data = next(
-                            self._extract_from_included(inner_data),
-                            None,
+                            self._extract_from_included(inner_data), None
                         )
                     else:
                         for data in inner_data:
-                            included_data.extend(
-                                self._extract_from_included(data),
-                            )
+                            included_data.extend(self._extract_from_included(data))
 
                 if included_data:
-                    value['data'] = included_data
+                    value["data"] = included_data
 
             payload[key] = value
         return payload
 
     @ma.pre_load(pass_many=True)
     def unwrap_request(self, data, many, **kwargs):
-        if 'data' not in data:
-            raise ma.ValidationError([{
-                'detail': 'Object must include `data` key.',
-                'source': {
-                    'pointer': '/',
-                },
-            }])
+        if "data" not in data:
+            raise ma.ValidationError(
+                [
+                    {
+                        "detail": "Object must include `data` key.",
+                        "source": {"pointer": "/"},
+                    }
+                ]
+            )
 
-        data = data['data']
+        data = data["data"]
         if many:
             if not is_collection(data):
-                raise ma.ValidationError([{
-                    'detail': '`data` expected to be a collection.',
-                    'source': {
-                        'pointer': '/data',
-                    },
-                }])
+                raise ma.ValidationError(
+                    [
+                        {
+                            "detail": "`data` expected to be a collection.",
+                            "source": {"pointer": "/data"},
+                        }
+                    ]
+                )
             return [self.unwrap_item(each) for each in data]
         return self.unwrap_item(data)
 
@@ -239,15 +245,15 @@ class Schema(ma.Schema):
         # Store this on the instance so we have access to the included data
         # when processing relationships (``included`` is outside of the
         # ``data``).
-        self.included_data = data.get('included', {})
-        self.document_meta = data.get('meta', {})
+        self.included_data = data.get("included", {})
+        self.document_meta = data.get("meta", {})
 
         try:
             result = super(Schema, self)._do_load(data, many=many, **kwargs)
         except ValidationError as err:  # strict mode
             error_messages = err.messages
-            if '_schema' in error_messages:
-                error_messages = error_messages['_schema']
+            if "_schema" in error_messages:
+                error_messages = error_messages["_schema"]
             formatted_messages = self.format_errors(error_messages, many=many)
             err.messages = formatted_messages
             raise err
@@ -255,8 +261,8 @@ class Schema(ma.Schema):
             # On marshmallow 2, _do_load returns a tuple (load_data, errors)
             if _MARSHMALLOW_VERSION_INFO[0] < 3:
                 data, error_messages = result
-                if '_schema' in error_messages:
-                    error_messages = error_messages['_schema']
+                if "_schema" in error_messages:
+                    error_messages = error_messages["_schema"]
                 formatted_messages = self.format_errors(error_messages, many=many)
                 return data, formatted_messages
         return result
@@ -268,9 +274,9 @@ class Schema(ma.Schema):
         data.
         """
         return (
-            item for item in self.included_data
-            if item['type'] == data['type'] and
-            str(item['id']) == str(data['id'])
+            item
+            for item in self.included_data
+            if item["type"] == data["type"] and str(item["id"]) == str(data["id"])
         )
 
     def inflect(self, text):
@@ -286,54 +292,50 @@ class Schema(ma.Schema):
         if not errors:
             return {}
         if isinstance(errors, (list, tuple)):
-            return {'errors': errors}
+            return {"errors": errors}
 
         formatted_errors = []
         if many:
             for index, errors in iteritems(errors):
                 for field_name, field_errors in iteritems(errors):
-                    formatted_errors.extend([
-                        self.format_error(field_name, message, index=index)
-                        for message in field_errors
-                    ])
+                    formatted_errors.extend(
+                        [
+                            self.format_error(field_name, message, index=index)
+                            for message in field_errors
+                        ]
+                    )
         else:
             for field_name, field_errors in iteritems(errors):
-                formatted_errors.extend([
-                    self.format_error(field_name, message)
-                    for message in field_errors
-                ])
-        return {'errors': formatted_errors}
+                formatted_errors.extend(
+                    [self.format_error(field_name, message) for message in field_errors]
+                )
+        return {"errors": formatted_errors}
 
     def format_error(self, field_name, message, index=None):
         """Override-able hook to format a single error message as an Error object.
 
         See: http://jsonapi.org/format/#error-objects
         """
-        pointer = ['/data']
+        pointer = ["/data"]
 
         if index is not None:
             pointer.append(str(index))
 
         relationship = isinstance(
-            self.declared_fields.get(field_name), BaseRelationship,
+            self.declared_fields.get(field_name), BaseRelationship
         )
         if relationship:
-            pointer.append('relationships')
-        elif field_name != 'id':
+            pointer.append("relationships")
+        elif field_name != "id":
             # JSONAPI identifier is a special field that exists above the attribute object.
-            pointer.append('attributes')
+            pointer.append("attributes")
 
         pointer.append(self.inflect(field_name))
 
         if relationship:
-            pointer.append('data')
+            pointer.append("data")
 
-        return {
-            'detail': message,
-            'source': {
-                'pointer': '/'.join(pointer),
-            },
-        }
+        return {"detail": message, "source": {"pointer": "/".join(pointer)}}
 
     def format_item(self, item):
         """Format a single datum as a Resource object.
@@ -351,8 +353,7 @@ class Schema(ma.Schema):
 
         # Get the schema attributes so we can confirm `dump-to` values exist
         attributes = {
-            (get_dump_key(self.fields[field]) or field): field
-            for field in self.fields
+            (get_dump_key(self.fields[field]) or field): field for field in self.fields
         }
 
         for field_name, value in iteritems(item):
@@ -364,22 +365,22 @@ class Schema(ma.Schema):
                     self.document_meta = self.dict_class()
                 self.document_meta.update(value)
             elif isinstance(self.fields[attribute], ResourceMeta):
-                if 'meta' not in ret:
-                    ret['meta'] = self.dict_class()
-                ret['meta'].update(value)
+                if "meta" not in ret:
+                    ret["meta"] = self.dict_class()
+                ret["meta"].update(value)
             elif isinstance(self.fields[attribute], BaseRelationship):
                 if value:
-                    if 'relationships' not in ret:
-                        ret['relationships'] = self.dict_class()
-                    ret['relationships'][self.inflect(field_name)] = value
+                    if "relationships" not in ret:
+                        ret["relationships"] = self.dict_class()
+                    ret["relationships"][self.inflect(field_name)] = value
             else:
-                if 'attributes' not in ret:
-                    ret['attributes'] = self.dict_class()
-                ret['attributes'][self.inflect(field_name)] = value
+                if "attributes" not in ret:
+                    ret["attributes"] = self.dict_class()
+                ret["attributes"][self.inflect(field_name)] = value
 
         links = self.get_resource_links(item)
         if links:
-            ret['links'] = links
+            ret["links"] = links
         return ret
 
     def format_items(self, data, many):
@@ -401,28 +402,28 @@ class Schema(ma.Schema):
                 self_link = self.generate_url(self.opts.self_url_many)
         else:
             if self.opts.self_url:
-                self_link = data.get('links', {}).get('self', None)
+                self_link = data.get("links", {}).get("self", None)
 
-        return {'self': self_link}
+        return {"self": self_link}
 
     def get_resource_links(self, item):
         """Hook for adding links to a resource object."""
         if self.opts.self_url:
             ret = self.dict_class()
             kwargs = resolve_params(item, self.opts.self_url_kwargs or {})
-            ret['self'] = self.generate_url(self.opts.self_url, **kwargs)
+            ret["self"] = self.generate_url(self.opts.self_url, **kwargs)
             return ret
         return None
 
     def wrap_response(self, data, many):
         """Wrap data and links according to the JSON API """
-        ret = {'data': data}
+        ret = {"data": data}
         # self_url_many is still valid when there isn't any data, but self_url
         # may only be included if there is data in the ret
         if many or data:
             top_level_links = self.get_top_level_links(data, many)
-            if top_level_links['self']:
-                ret['links'] = top_level_links
+            if top_level_links["self"]:
+                ret["links"] = top_level_links
         return ret
 
     def generate_url(self, link, **kwargs):
