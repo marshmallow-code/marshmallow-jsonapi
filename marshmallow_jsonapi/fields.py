@@ -7,6 +7,7 @@ import warnings
 
 from marshmallow import ValidationError, class_registry
 from marshmallow.fields import Field
+
 # Make core fields importable from marshmallow_jsonapi
 from marshmallow.fields import *  # noqa
 from marshmallow.base import SchemaABC
@@ -16,12 +17,12 @@ from .compat import basestring
 from .utils import get_value, resolve_params, iteritems, _MARSHMALLOW_VERSION_INFO
 
 
-_RECURSIVE_NESTED = 'self'
+_RECURSIVE_NESTED = "self"
 # JSON API disallows U+005F LOW LINE at the start of a member name, so we can
 #  use it to load the Meta type from since it can't clash with an attribute
 # named meta (which isn't disallowed by the spec).
-_DOCUMENT_META_LOAD_FROM = '_document_meta'
-_RESOURCE_META_LOAD_FROM = '_resource_meta'
+_DOCUMENT_META_LOAD_FROM = "_document_meta"
+_RESOURCE_META_LOAD_FROM = "_resource_meta"
 
 
 class BaseRelationship(Field):
@@ -78,21 +79,29 @@ class Relationship(BaseRelationship):
     :param str id_field: Attribute name to pull ids from if a resource linkage is included.
     """
 
-    default_id_field = 'id'
+    default_id_field = "id"
 
     def __init__(
         self,
-        related_url='', related_url_kwargs=None,
-        self_url='', self_url_kwargs=None,
-        include_resource_linkage=False, schema=None,
-        many=False, type_=None, id_field=None, **kwargs
+        related_url="",
+        related_url_kwargs=None,
+        self_url="",
+        self_url_kwargs=None,
+        include_resource_linkage=False,
+        schema=None,
+        many=False,
+        type_=None,
+        id_field=None,
+        **kwargs
     ):
         self.related_url = related_url
         self.related_url_kwargs = related_url_kwargs or {}
         self.self_url = self_url
         self.self_url_kwargs = self_url_kwargs or {}
         if include_resource_linkage and not type_:
-            raise ValueError('include_resource_linkage=True requires the type_ argument.')
+            raise ValueError(
+                "include_resource_linkage=True requires the type_ argument."
+            )
         self.many = many
         self.include_resource_linkage = include_resource_linkage
         self.include_data = False
@@ -106,16 +115,16 @@ class Relationship(BaseRelationship):
         if self.__id_field:
             return self.__id_field
         if self.__schema:
-            field = self.schema.fields['id']
+            field = self.schema.fields["id"]
             return field.attribute or self.default_id_field
         else:
             return self.default_id_field
 
     @property
     def schema(self):
-        only = getattr(self, 'only', None)
-        exclude = getattr(self, 'exclude', ())
-        context = getattr(self, 'context', {})
+        only = getattr(self, "only", None)
+        exclude = getattr(self, "exclude", ())
+        context = getattr(self, "context", {})
 
         if isinstance(self.__schema, SchemaABC):
             return self.__schema
@@ -126,28 +135,28 @@ class Relationship(BaseRelationship):
             if self.__schema == _RECURSIVE_NESTED:
                 parent_class = self.parent.__class__
                 self.__schema = parent_class(
-                    only=only, exclude=exclude, context=context,
+                    only=only,
+                    exclude=exclude,
+                    context=context,
                     include_data=self.parent.include_data,
                 )
             else:
                 schema_class = class_registry.get_class(self.__schema)
                 self.__schema = schema_class(
-                    only=only, exclude=exclude,
-                    context=context,
+                    only=only, exclude=exclude, context=context
                 )
             return self.__schema
         else:
-            raise ValueError((
-                'A Schema is required to serialize a nested '
-                'relationship with include_data'
-            ))
+            raise ValueError(
+                "A Schema is required to serialize a nested "
+                "relationship with include_data"
+            )
 
     def get_related_url(self, obj):
         if self.related_url:
             params = resolve_params(obj, self.related_url_kwargs, default=self.default)
             non_null_params = {
-                key: value for key, value in params.items()
-                if value is not None
+                key: value for key, value in params.items() if value is not None
             }
             if non_null_params:
                 return self.related_url.format(**non_null_params)
@@ -157,8 +166,7 @@ class Relationship(BaseRelationship):
         if self.self_url:
             params = resolve_params(obj, self.self_url_kwargs, default=self.default)
             non_null_params = {
-                key: value for key, value in params.items()
-                if value is not None
+                key: value for key, value in params.items() if value is not None
             }
             if non_null_params:
                 return self.self_url.format(**non_null_params)
@@ -167,27 +175,25 @@ class Relationship(BaseRelationship):
     def get_resource_linkage(self, value):
         if self.many:
             resource_object = [
-                {
-                    'type': self.type_,
-                    'id': _stringify(self._get_id(each)),
-                } for each in value
+                {"type": self.type_, "id": _stringify(self._get_id(each))}
+                for each in value
             ]
         else:
             resource_object = {
-                'type': self.type_,
-                'id': _stringify(self._get_id(value)),
+                "type": self.type_,
+                "id": _stringify(self._get_id(value)),
             }
         return resource_object
 
     def extract_value(self, data):
         """Extract the id key and validate the request structure."""
         errors = []
-        if 'id' not in data:
-            errors.append('Must have an `id` field')
-        if 'type' not in data:
-            errors.append('Must have a `type` field')
-        elif data['type'] != self.type_:
-            errors.append('Invalid `type` specified')
+        if "id" not in data:
+            errors.append("Must have an `id` field")
+        if "type" not in data:
+            errors.append("Must have a `type` field")
+        elif data["type"] != self.type_:
+            errors.append("Invalid `type` specified")
 
         if errors:
             raise ValidationError(errors)
@@ -195,14 +201,16 @@ class Relationship(BaseRelationship):
         # If ``attributes`` is set, we've folded included data into this
         # relationship. Unserialize it if we have a schema set; otherwise we
         # fall back below to old behaviour of only IDs.
-        if 'attributes' in data and self.__schema:
-            result = self.schema.load({'data': data, 'included': self.root.included_data})
+        if "attributes" in data and self.__schema:
+            result = self.schema.load(
+                {"data": data, "included": self.root.included_data}
+            )
             return result.data if _MARSHMALLOW_VERSION_INFO[0] < 3 else result
 
-        id_value = data.get('id')
+        id_value = data.get("id")
 
         if self.__schema:
-            id_value = self.schema.fields['id'].deserialize(id_value)
+            id_value = self.schema.fields["id"].deserialize(id_value)
 
         return id_value
 
@@ -215,22 +223,24 @@ class Relationship(BaseRelationship):
         """
         if value is missing_:
             return super(Relationship, self).deserialize(value, attr, data)
-        if not isinstance(value, dict) or 'data' not in value:
+        if not isinstance(value, dict) or "data" not in value:
             # a relationships object does not need 'data' if 'links' is present
-            if value and 'links' in value:
+            if value and "links" in value:
                 return missing_
             else:
-                raise ValidationError('Must include a `data` key')
-        return super(Relationship, self).deserialize(value['data'], attr, data, **kwargs)
+                raise ValidationError("Must include a `data` key")
+        return super(Relationship, self).deserialize(
+            value["data"], attr, data, **kwargs
+        )
 
     def _deserialize(self, value, attr, obj, **kwargs):
         if self.many:
             if not is_collection(value):
-                raise ValidationError('Relationship is list-like')
+                raise ValidationError("Relationship is list-like")
             return [self.extract_value(item) for item in value]
 
         if is_collection(value):
-            raise ValidationError('Relationship is not list-like')
+            raise ValidationError("Relationship is not list-like")
         return self.extract_value(value)
 
     def _serialize(self, value, attr, obj):
@@ -240,18 +250,18 @@ class Relationship(BaseRelationship):
         self_url = self.get_self_url(obj)
         related_url = self.get_related_url(obj)
         if self_url or related_url:
-            ret['links'] = dict_class()
+            ret["links"] = dict_class()
             if self_url:
-                ret['links']['self'] = self_url
+                ret["links"]["self"] = self_url
             if related_url:
-                ret['links']['related'] = related_url
+                ret["links"]["related"] = related_url
 
         # resource linkage is required when including the data
         if self.include_resource_linkage or self.include_data:
             if value is None:
-                ret['data'] = [] if self.many else None
+                ret["data"] = [] if self.many else None
             else:
-                ret['data'] = self.get_resource_linkage(value)
+                ret["data"] = self.get_resource_linkage(value)
 
         if self.include_data and value is not None:
             if self.many:
@@ -269,8 +279,8 @@ class Relationship(BaseRelationship):
         else:
             data = result
 
-        item = data['data']
-        self.root.included_data[(item['type'], item['id'])] = item
+        item = data["data"]
+        self.root.included_data[(item["type"], item["id"])] = item
         for key, value in iteritems(self.schema.included_data):
             self.root.included_data[key] = value
 
@@ -305,9 +315,7 @@ class DocumentMeta(Field):
     See: http://jsonapi.org/format/#document-meta
     """
 
-    default_error_messages = {
-        'invalid': 'Not a valid mapping type.',
-    }
+    default_error_messages = {"invalid": "Not a valid mapping type."}
 
     def __init__(self, **kwargs):
         super(DocumentMeta, self).__init__(**kwargs)
@@ -320,13 +328,13 @@ class DocumentMeta(Field):
         if isinstance(value, collections.Mapping):
             return value
         else:
-            self.fail('invalid')
+            self.fail("invalid")
 
     def _serialize(self, value, *args, **kwargs):
         if isinstance(value, collections.Mapping):
             return super(DocumentMeta, self)._serialize(value, *args, **kwargs)
         else:
-            self.fail('invalid')
+            self.fail("invalid")
 
 
 class ResourceMeta(Field):
@@ -347,9 +355,7 @@ class ResourceMeta(Field):
     See: http://jsonapi.org/format/#document-resource-objects
     """
 
-    default_error_messages = {
-        'invalid': 'Not a valid mapping type.',
-    }
+    default_error_messages = {"invalid": "Not a valid mapping type."}
 
     def __init__(self, **kwargs):
         super(ResourceMeta, self).__init__(**kwargs)
@@ -362,13 +368,13 @@ class ResourceMeta(Field):
         if isinstance(value, collections.Mapping):
             return value
         else:
-            self.fail('invalid')
+            self.fail("invalid")
 
     def _serialize(self, value, *args, **kwargs):
         if isinstance(value, collections.Mapping):
             return super(ResourceMeta, self)._serialize(value, *args, **kwargs)
         else:
-            self.fail('invalid')
+            self.fail("invalid")
 
 
 class Meta(DocumentMeta):
@@ -391,9 +397,10 @@ class Meta(DocumentMeta):
 
     See: http://jsonapi.org/format/#document-meta
     """
+
     def __init__(self, **kwargs):
         warnings.warn(
-            'The Meta field is deprecated. Use DocumentMeta field instead.',
+            "The Meta field is deprecated. Use DocumentMeta field instead.",
             DeprecationWarning,
         )
         super(DocumentMeta, self).__init__(**kwargs)

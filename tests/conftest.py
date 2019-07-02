@@ -6,8 +6,10 @@ from tests.base import Author, Post, Comment, Keyword, fake
 
 def make_author():
     return Author(
-        id=fake.random_int(), first_name=fake.first_name(),
-        last_name=fake.last_name(), twitter=fake.domain_word(),
+        id=fake.random_int(),
+        first_name=fake.first_name(),
+        last_name=fake.last_name(),
+        twitter=fake.domain_word(),
     )
 
 
