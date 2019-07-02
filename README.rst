@@ -6,9 +6,9 @@ marshmallow-jsonapi
     :target: https://pypi.org/project/marshmallow-jsonapi/
     :alt: PyPI version
 
-.. image:: https://badgen.net/travis/marshmallow-code/marshmallow-jsonapi
-    :target: https://travis-ci.org/marshmallow-code/marshmallow-jsonapi
-    :alt: TravisCI build status
+.. image:: https://dev.azure.com/sloria/sloria/_apis/build/status/marshmallow-code.marshmallow-jsonapi?branchName=dev
+    :target: https://dev.azure.com/sloria/sloria/_build/latest?definitionId=7&branchName=dev
+    :alt: Build status
 
 .. image:: https://readthedocs.org/projects/marshmallow-jsonapi/badge/
    :target: https://marshmallow-jsonapi.readthedocs.io/
@@ -17,6 +17,10 @@ marshmallow-jsonapi
 .. image:: https://badgen.net/badge/marshmallow/2,3?list=1
     :target: https://marshmallow.readthedocs.io/en/latest/upgrading.html
     :alt: marshmallow 2/3 compatible
+
+.. image:: https://badgen.net/badge/code%20style/black/000
+    :target: https://github.com/ambv/black
+    :alt: code style: black
 
 Homepage: http://marshmallow-jsonapi.readthedocs.io/
 

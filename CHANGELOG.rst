@@ -9,6 +9,11 @@ Bug fixes:
 
 * marshmallow 3.0.0rc7 compatibility (:pr:`233`).
 
+Other changes:
+
+* Format with pyupgrade and black (:pr:`235`).
+* Switch to Azure Pipelines for CI (:pr:`234`).
+
 0.21.1 (2019-05-05)
 ===================
 
