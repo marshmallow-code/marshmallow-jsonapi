@@ -6,7 +6,7 @@ INSTALL_REQUIRES = ("marshmallow>=2.8.0",)
 EXTRAS_REQUIRE = {
     "tests": ["pytest", "mock", "faker==1.0.7", "Flask==1.1.1"],
     "lint": [
-        "flake8==3.7.7",
+        "flake8==3.7.8",
         'flake8-bugbear==19.3.0; python_version >= "3.5"',
         "pre-commit~=1.17",
     ],
