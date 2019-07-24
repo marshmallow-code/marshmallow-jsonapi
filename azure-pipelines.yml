@@ -1,6 +1,6 @@
 trigger:
   branches:
-    include: [dev]
+    include: [dev, test-me-*]
   tags:
     include: ['*']
 
@@ -10,7 +10,7 @@ schedules:
   displayName: Daily midnight build
   branches:
     include:
-      - master
+      - dev
   always: "true"
 
 resources:
