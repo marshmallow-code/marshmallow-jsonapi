@@ -37,7 +37,7 @@ marshmallow-jsonapi provides a simple way to produce JSON API-compliant data in 
 
 
     post_schema = PostSchema()
-    post_schema.dump(post).data
+    post_schema.dump(post)
     # {
     #     "data": {
     #         "id": "1",
