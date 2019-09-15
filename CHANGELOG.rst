@@ -2,7 +2,7 @@
 Changelog
 *********
 
-0.22.0 (unreleased)
+0.22.0 (2019-09-15)
 ===================
 
 Deprecation/Removals:
