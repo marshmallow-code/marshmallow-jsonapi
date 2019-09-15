@@ -9,7 +9,7 @@ Deprecation/Removals:
 
 * Drop support for Python 2.7 and 3.6.
   Only Python>=3.6 is supported (:issue:`251`).
-* Drop support for marshmallow 3 pre-releases. Only stable versions >=2.15.1 are supported.
+* Drop support for marshmallow 3 pre-releases. Only stable versions >=2.15.2 are supported.
 * Remove ``fields.Meta``.
 
 Bug fixes:
