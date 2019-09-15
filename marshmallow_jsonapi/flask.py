@@ -3,8 +3,6 @@
 This includes a Flask-specific schema with custom Meta options and a
 relationship field for linking to related resources.
 """
-from __future__ import absolute_import
-
 import flask
 from werkzeug.routing import BuildError
 
