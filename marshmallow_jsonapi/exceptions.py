@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Exception classes."""
 
 
@@ -22,7 +21,7 @@ class IncorrectTypeError(JSONAPIError, ValueError):
         if expected:
             format_kwargs["expected"] = expected
         self.detail = message.format(**format_kwargs)
-        super(IncorrectTypeError, self).__init__(self.detail)
+        super().__init__(self.detail)
 
     @property
     def messages(self):

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .schema import Schema, SchemaOpts
 
 __version__ = "0.21.2"

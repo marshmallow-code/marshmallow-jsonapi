@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Includes all the fields classes from `marshmallow.fields` as well as
 fields for serializing JSON API-formatted hyperlinks.
 """
@@ -13,8 +12,7 @@ from marshmallow.fields import *  # noqa
 from marshmallow.base import SchemaABC
 from marshmallow.utils import is_collection, missing as missing_
 
-from .compat import basestring
-from .utils import get_value, resolve_params, iteritems, _MARSHMALLOW_VERSION_INFO
+from .utils import get_value, resolve_params, _MARSHMALLOW_VERSION_INFO
 
 
 _RECURSIVE_NESTED = "self"
@@ -85,6 +83,7 @@ class Relationship(BaseRelationship):
         self,
         related_url="",
         related_url_kwargs=None,
+        *,
         self_url="",
         self_url_kwargs=None,
         include_resource_linkage=False,
@@ -108,7 +107,7 @@ class Relationship(BaseRelationship):
         self.type_ = type_
         self.__id_field = id_field
         self.__schema = schema
-        super(Relationship, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @property
     def id_field(self):
@@ -131,7 +130,7 @@ class Relationship(BaseRelationship):
         if isinstance(self.__schema, type) and issubclass(self.__schema, SchemaABC):
             self.__schema = self.__schema(only=only, exclude=exclude, context=context)
             return self.__schema
-        if isinstance(self.__schema, basestring):
+        if isinstance(self.__schema, (str, bytes)):
             if self.__schema == _RECURSIVE_NESTED:
                 parent_class = self.parent.__class__
                 self.__schema = parent_class(
@@ -222,16 +221,14 @@ class Relationship(BaseRelationship):
             required but unspecified.
         """
         if value is missing_:
-            return super(Relationship, self).deserialize(value, attr, data)
+            return super().deserialize(value, attr, data)
         if not isinstance(value, dict) or "data" not in value:
             # a relationships object does not need 'data' if 'links' is present
             if value and "links" in value:
                 return missing_
             else:
                 raise ValidationError("Must include a `data` key")
-        return super(Relationship, self).deserialize(
-            value["data"], attr, data, **kwargs
-        )
+        return super().deserialize(value["data"], attr, data, **kwargs)
 
     def _deserialize(self, value, attr, obj, **kwargs):
         if self.many:
@@ -281,7 +278,7 @@ class Relationship(BaseRelationship):
 
         item = data["data"]
         self.root.included_data[(item["type"], item["id"])] = item
-        for key, value in iteritems(self.schema.included_data):
+        for key, value in self.schema.included_data.items():
             self.root.included_data[key] = value
 
     def _get_id(self, value):
@@ -317,7 +314,7 @@ class DocumentMeta(Field):
     default_error_messages = {"invalid": "Not a valid mapping type."}
 
     def __init__(self, **kwargs):
-        super(DocumentMeta, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if _MARSHMALLOW_VERSION_INFO[0] < 3:
             self.load_from = _DOCUMENT_META_LOAD_FROM
         else:
@@ -331,7 +328,7 @@ class DocumentMeta(Field):
 
     def _serialize(self, value, *args, **kwargs):
         if isinstance(value, collections.Mapping):
-            return super(DocumentMeta, self)._serialize(value, *args, **kwargs)
+            return super()._serialize(value, *args, **kwargs)
         else:
             self.fail("invalid")
 
@@ -356,7 +353,7 @@ class ResourceMeta(Field):
     default_error_messages = {"invalid": "Not a valid mapping type."}
 
     def __init__(self, **kwargs):
-        super(ResourceMeta, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if _MARSHMALLOW_VERSION_INFO[0] < 3:
             self.load_from = _RESOURCE_META_LOAD_FROM
         else:
@@ -370,7 +367,7 @@ class ResourceMeta(Field):
 
     def _serialize(self, value, *args, **kwargs):
         if isinstance(value, collections.Mapping):
-            return super(ResourceMeta, self)._serialize(value, *args, **kwargs)
+            return super()._serialize(value, *args, **kwargs)
         else:
             self.fail("invalid")
 

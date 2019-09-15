@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 
 from tests.base import Author, Post, Comment, Keyword, fake
