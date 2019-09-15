@@ -104,6 +104,7 @@ Project Links
 
 - Docs: http://marshmallow-jsonapi.readthedocs.io/
 - Changelog: http://marshmallow-jsonapi.readthedocs.io/en/latest/changelog.html
+- Contributing Guidelines: https://marshmallow-jsonapi.readthedocs.io/en/latest/contributing.html
 - PyPI: https://pypi.python.org/pypi/marshmallow-jsonapi
 - Issues: https://github.com/marshmallow-code/marshmallow-jsonapi/issues
 
