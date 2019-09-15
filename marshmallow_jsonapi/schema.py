@@ -2,7 +2,6 @@ import marshmallow as ma
 from marshmallow.exceptions import ValidationError
 from marshmallow.utils import is_collection
 
-from .compat import iteritems, PY2
 from .fields import BaseRelationship, DocumentMeta, ResourceMeta
 from .fields import _RESOURCE_META_LOAD_FROM, _DOCUMENT_META_LOAD_FROM
 from .exceptions import IncorrectTypeError
@@ -12,19 +11,11 @@ TYPE = "type"
 ID = "id"
 
 
-def plain_function(f):
-    """Ensure that ``callable`` is a plain function rather than an unbound method."""
-    if PY2 and f:
-        return f.im_func
-    # Python 3 doesn't have bound/unbound methods, so don't need to do anything
-    return f
-
-
 class SchemaOpts(ma.SchemaOpts):
     def __init__(self, meta, *args, **kwargs):
         super().__init__(meta, *args, **kwargs)
         self.type_ = getattr(meta, "type_", None)
-        self.inflect = plain_function(getattr(meta, "inflect", None))
+        self.inflect = getattr(meta, "inflect", None)
         self.self_url = getattr(meta, "self_url", None)
         self.self_url_kwargs = getattr(meta, "self_url_kwargs", None)
         self.self_url_many = getattr(meta, "self_url_many", None)
@@ -169,9 +160,9 @@ class Schema(ma.Schema):
             payload[_RESOURCE_META_LOAD_FROM] = item["meta"]
         if self.document_meta:
             payload[_DOCUMENT_META_LOAD_FROM] = self.document_meta
-        for key, value in iteritems(item.get("attributes", {})):
+        for key, value in item.get("attributes", {}).items():
             payload[key] = value
-        for key, value in iteritems(item.get("relationships", {})):
+        for key, value in item.get("relationships", {}).items():
             # Fold included data related to this relationship into the item, so
             # that we can deserialize the whole objects instead of just IDs.
             if self.included_data:
@@ -295,8 +286,8 @@ class Schema(ma.Schema):
 
         formatted_errors = []
         if many:
-            for index, errors in iteritems(errors):
-                for field_name, field_errors in iteritems(errors):
+            for index, errors in errors.items():
+                for field_name, field_errors in errors.items():
                     formatted_errors.extend(
                         [
                             self.format_error(field_name, message, index=index)
@@ -304,7 +295,7 @@ class Schema(ma.Schema):
                         ]
                     )
         else:
-            for field_name, field_errors in iteritems(errors):
+            for field_name, field_errors in errors.items():
                 formatted_errors.extend(
                     [self.format_error(field_name, message) for message in field_errors]
                 )
@@ -355,7 +346,7 @@ class Schema(ma.Schema):
             (get_dump_key(self.fields[field]) or field): field for field in self.fields
         }
 
-        for field_name, value in iteritems(item):
+        for field_name, value in item.items():
             attribute = attributes[field_name]
             if attribute == ID:
                 ret[ID] = value

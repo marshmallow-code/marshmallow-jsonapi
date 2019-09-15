@@ -12,8 +12,7 @@ from marshmallow.fields import *  # noqa
 from marshmallow.base import SchemaABC
 from marshmallow.utils import is_collection, missing as missing_
 
-from .compat import basestring
-from .utils import get_value, resolve_params, iteritems, _MARSHMALLOW_VERSION_INFO
+from .utils import get_value, resolve_params, _MARSHMALLOW_VERSION_INFO
 
 
 _RECURSIVE_NESTED = "self"
@@ -130,7 +129,7 @@ class Relationship(BaseRelationship):
         if isinstance(self.__schema, type) and issubclass(self.__schema, SchemaABC):
             self.__schema = self.__schema(only=only, exclude=exclude, context=context)
             return self.__schema
-        if isinstance(self.__schema, basestring):
+        if isinstance(self.__schema, (str, bytes)):
             if self.__schema == _RECURSIVE_NESTED:
                 parent_class = self.parent.__class__
                 self.__schema = parent_class(
@@ -278,7 +277,7 @@ class Relationship(BaseRelationship):
 
         item = data["data"]
         self.root.included_data[(item["type"], item["id"])] = item
-        for key, value in iteritems(self.schema.included_data):
+        for key, value in self.schema.included_data.items():
             self.root.included_data[key] = value
 
     def _get_id(self, value):
