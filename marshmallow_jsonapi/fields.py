@@ -310,7 +310,6 @@ class DocumentMeta(Field):
 
             class Meta:
                 type_ = 'product'
-                strict = True
 
     See: http://jsonapi.org/format/#document-meta
     """
@@ -350,7 +349,6 @@ class ResourceMeta(Field):
 
             class Meta:
                 type_ = 'product'
-                strict = True
 
     See: http://jsonapi.org/format/#document-resource-objects
     """
@@ -393,7 +391,6 @@ class Meta(DocumentMeta):
 
             class Meta:
                 type_ = 'product'
-                strict = True
 
     See: http://jsonapi.org/format/#document-meta
     """

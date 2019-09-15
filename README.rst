@@ -52,7 +52,6 @@ marshmallow-jsonapi provides a simple way to produce JSON API-compliant data in 
 
         class Meta:
             type_ = "posts"
-            strict = True
 
 
     post_schema = PostSchema()
