@@ -81,9 +81,9 @@ class Relationship(BaseRelationship):
 
     def __init__(
         self,
-        *,
         related_url="",
         related_url_kwargs=None,
+        *,
         self_url="",
         self_url_kwargs=None,
         include_resource_linkage=False,
