@@ -8,6 +8,7 @@ Changelog
 * Drop support for Python 2.7 and 3.6.
   Only Python>=3.6 is supported (:issue:`251`).
 * Drop support for marshmallow 3 pre-releases. Only stable versions >=2.15.1 are supported.
+* Address ``DeprecationWarning`` raised by ``Field.fail`` on marshmallow 3.
 
 0.21.2 (2019-07-01)
 ===================

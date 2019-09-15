@@ -324,13 +324,19 @@ class DocumentMeta(Field):
         if isinstance(value, collections.Mapping):
             return value
         else:
-            self.fail("invalid")
+            if _MARSHMALLOW_VERSION_INFO[0] < 3:
+                self.fail("invalid")
+            else:
+                raise self.make_error("invalid")
 
     def _serialize(self, value, *args, **kwargs):
         if isinstance(value, collections.Mapping):
             return super()._serialize(value, *args, **kwargs)
         else:
-            self.fail("invalid")
+            if _MARSHMALLOW_VERSION_INFO[0] < 3:
+                self.fail("invalid")
+            else:
+                raise self.make_error("invalid")
 
 
 class ResourceMeta(Field):
@@ -363,13 +369,19 @@ class ResourceMeta(Field):
         if isinstance(value, collections.Mapping):
             return value
         else:
-            self.fail("invalid")
+            if _MARSHMALLOW_VERSION_INFO[0] < 3:
+                self.fail("invalid")
+            else:
+                raise self.make_error("invalid")
 
     def _serialize(self, value, *args, **kwargs):
         if isinstance(value, collections.Mapping):
             return super()._serialize(value, *args, **kwargs)
         else:
-            self.fail("invalid")
+            if _MARSHMALLOW_VERSION_INFO[0] < 3:
+                self.fail("invalid")
+            else:
+                raise self.make_error("invalid")
 
 
 class Meta(DocumentMeta):
