@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Utility functions.
 
 This module should be considered private API.

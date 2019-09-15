@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 
 from hashlib import md5
@@ -24,7 +23,7 @@ class TestGenericRelationshipField:
         result = field.serialize("comments", post)
         assert field.serialize("comments", post)
         related = result["links"]["related"]
-        assert related == "http://example.com/posts/{id}/comments".format(id=post.id)
+        assert related == f"http://example.com/posts/{post.id}/comments"
 
     def test_serialize_self_link(self, post):
         field = Relationship(

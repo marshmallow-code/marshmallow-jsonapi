@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Flask integration that avoids the need to hard-code URLs for links.
 
 This includes a Flask-specific schema with custom Meta options and a
@@ -46,7 +45,7 @@ class SchemaOpts(DefaultOpts):
         meta.self_url_kwargs = getattr(meta, "self_view_kwargs", None)
         meta.self_url_many = getattr(meta, "self_view_many", None)
 
-        super(SchemaOpts, self).__init__(meta, *args, **kwargs)
+        super().__init__(meta, *args, **kwargs)
 
 
 class Schema(DefaultSchema):
@@ -117,7 +116,7 @@ class Relationship(GenericRelationship):
         self.related_view_kwargs = related_view_kwargs or {}
         self.self_view = self_view
         self.self_view_kwargs = self_view_kwargs or {}
-        super(Relationship, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def get_url(self, obj, view_name, view_kwargs):
         if view_name:

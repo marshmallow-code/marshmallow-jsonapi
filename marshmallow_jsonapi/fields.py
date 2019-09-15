@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Includes all the fields classes from `marshmallow.fields` as well as
 fields for serializing JSON API-formatted hyperlinks.
 """
@@ -108,7 +107,7 @@ class Relationship(BaseRelationship):
         self.type_ = type_
         self.__id_field = id_field
         self.__schema = schema
-        super(Relationship, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @property
     def id_field(self):
@@ -222,16 +221,14 @@ class Relationship(BaseRelationship):
             required but unspecified.
         """
         if value is missing_:
-            return super(Relationship, self).deserialize(value, attr, data)
+            return super().deserialize(value, attr, data)
         if not isinstance(value, dict) or "data" not in value:
             # a relationships object does not need 'data' if 'links' is present
             if value and "links" in value:
                 return missing_
             else:
                 raise ValidationError("Must include a `data` key")
-        return super(Relationship, self).deserialize(
-            value["data"], attr, data, **kwargs
-        )
+        return super().deserialize(value["data"], attr, data, **kwargs)
 
     def _deserialize(self, value, attr, obj, **kwargs):
         if self.many:
@@ -317,7 +314,7 @@ class DocumentMeta(Field):
     default_error_messages = {"invalid": "Not a valid mapping type."}
 
     def __init__(self, **kwargs):
-        super(DocumentMeta, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if _MARSHMALLOW_VERSION_INFO[0] < 3:
             self.load_from = _DOCUMENT_META_LOAD_FROM
         else:
@@ -331,7 +328,7 @@ class DocumentMeta(Field):
 
     def _serialize(self, value, *args, **kwargs):
         if isinstance(value, collections.Mapping):
-            return super(DocumentMeta, self)._serialize(value, *args, **kwargs)
+            return super()._serialize(value, *args, **kwargs)
         else:
             self.fail("invalid")
 
@@ -356,7 +353,7 @@ class ResourceMeta(Field):
     default_error_messages = {"invalid": "Not a valid mapping type."}
 
     def __init__(self, **kwargs):
-        super(ResourceMeta, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if _MARSHMALLOW_VERSION_INFO[0] < 3:
             self.load_from = _RESOURCE_META_LOAD_FROM
         else:
@@ -370,7 +367,7 @@ class ResourceMeta(Field):
 
     def _serialize(self, value, *args, **kwargs):
         if isinstance(value, collections.Mapping):
-            return super(ResourceMeta, self)._serialize(value, *args, **kwargs)
+            return super()._serialize(value, *args, **kwargs)
         else:
             self.fail("invalid")
 

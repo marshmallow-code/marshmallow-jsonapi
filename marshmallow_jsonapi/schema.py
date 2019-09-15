@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import marshmallow as ma
 from marshmallow.exceptions import ValidationError
 from marshmallow.utils import is_collection
@@ -23,7 +22,7 @@ def plain_function(f):
 
 class SchemaOpts(ma.SchemaOpts):
     def __init__(self, meta, *args, **kwargs):
-        super(SchemaOpts, self).__init__(meta, *args, **kwargs)
+        super().__init__(meta, *args, **kwargs)
         self.type_ = getattr(meta, "type_", None)
         self.inflect = plain_function(getattr(meta, "inflect", None))
         self.self_url = getattr(meta, "self_url", None)
@@ -83,7 +82,7 @@ class Schema(ma.Schema):
 
     def __init__(self, *args, **kwargs):
         self.include_data = kwargs.pop("include_data", ())
-        super(Schema, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if self.include_data:
             self.check_relations(self.include_data)
 
@@ -112,7 +111,7 @@ class Schema(ma.Schema):
 
             local_field = fields[0]
             if local_field not in self.fields:
-                raise ValueError('Unknown field "{}"'.format(local_field))
+                raise ValueError(f'Unknown field "{local_field}"')
 
             field = self.fields[local_field]
             if not isinstance(field, BaseRelationship):
@@ -249,7 +248,7 @@ class Schema(ma.Schema):
         self.document_meta = data.get("meta", {})
 
         try:
-            result = super(Schema, self)._do_load(data, many=many, **kwargs)
+            result = super()._do_load(data, many=many, **kwargs)
         except ValidationError as err:  # strict mode
             error_messages = err.messages
             if "_schema" in error_messages:
