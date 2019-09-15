@@ -104,6 +104,7 @@ class Relationship(GenericRelationship):
 
     def __init__(
         self,
+        *,
         related_view=None,
         related_view_kwargs=None,
         self_view=None,
