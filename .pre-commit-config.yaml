@@ -1,8 +1,9 @@
 repos:
 - repo: https://github.com/asottile/pyupgrade
-  rev: v1.22.1
+  rev: v1.23.0
   hooks:
   - id: pyupgrade
+    args: ["--py36-plus"]
 - repo: https://github.com/python/black
   rev: 19.3b0
   hooks:
