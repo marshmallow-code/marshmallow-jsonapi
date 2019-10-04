@@ -1,12 +1,13 @@
 """
 Includes fields designed solely for parsing query/URL parameters from JSON API requests
 """
+import typing
+from enum import Enum
+
+import marshmallow as ma
 import querystring_parser.parser as qsp
-from marshmallow import Schema
 from webargs import core, fields
 from webargs.fields import DelimitedList, String, Dict
-from enum import Enum
-import typing
 
 
 class NestedQueryParserMixin:
@@ -62,57 +63,82 @@ class SortField(fields.Field):
         if value.startswith('-'):
             return SortItem(value[1:], SortDirection.DESCENDING)
         else:
-            return SortItem(value[1:], SortDirection.ASCENDING)
+            return SortItem(value, SortDirection.ASCENDING)
 
 
-class PagePaginationSchema(Schema):
+class PagePaginationSchema(ma.Schema):
     number = fields.Integer()
     size = fields.Integer()
 
 
-class OffsetPaginationSchema(Schema):
+class OffsetPaginationSchema(ma.Schema):
     offset = fields.Integer()
     limit = fields.Integer()
 
 
-class CursorPaginationSchema(Schema):
-    cursor = fields.Raw()
+class Include(DelimitedList):
+    """
+    The value of the include parameter MUST be a comma-separated (U+002C COMMA, “,”) list of relationship paths.
+    A relationship path is a dot-separated (U+002E FULL-STOP, “.”) list of relationship names.
+
+    .. seealso::
+       `JSON API Specification, Inclusion of Related Resources <https://jsonapi.org/format/#fetching-includes>`_
+          JSON API specification for the include request parameter
+    """
+
+    def __init__(self):
+        super().__init__(String(), data_key='include', delimiter=',', as_string=True)
 
 
-include_param = fields.DelimitedList(String(), data_key='include')
-"""
-The value of the include parameter MUST be a comma-separated (U+002C COMMA, “,”) list of relationship paths.
-A relationship path is a dot-separated (U+002E FULL-STOP, “.”) list of relationship names.
+class Fields(Dict):
+    """
+    The value of the fields parameter MUST be a comma-separated (U+002C COMMA, “,”) list that refers to the name(s) of
+    the fields to be returned.
 
-.. seealso::
-   `JSON API Specification, Inclusion of Related Resources <https://jsonapi.org/format/#fetching-includes>`_
-      JSON API specification for the include request parameter
-"""
+    .. seealso::
+       `JSON API Specification, Sparse Fieldsets <https://jsonapi.org/format/#fetching-sparse-fieldsets>`_
+          JSON API specification for the fields request parameter
+    """
 
-fields_param = Dict(keys=String(), values=DelimitedList(String()), data_key='fields')
-"""
-The value of the fields parameter MUST be a comma-separated (U+002C COMMA, “,”) list that refers to the name(s) of
-the fields to be returned.
+    def __init__(self):
+        super().__init__(keys=String(), values=DelimitedList(String(), delimiter=',', as_string=True),
+                         data_key='fields')
 
-.. seealso::
-   `JSON API Specification, Sparse Fieldsets <https://jsonapi.org/format/#fetching-sparse-fieldsets>`_
-      JSON API specification for the fields request parameter
-"""
 
-sort_param = DelimitedList(SortField(), data_key='sort')
-"""
-An endpoint MAY support requests to sort the primary data with a sort query parameter.
-The value for sort MUST represent sort fields.
-An endpoint MAY support multiple sort fields by allowing comma-separated (U+002C COMMA, “,”) sort fields.
-Sort fields SHOULD be applied in the order specified.
+class Sort(DelimitedList):
+    """
+    An endpoint MAY support requests to sort the primary data with a sort query parameter.
+    The value for sort MUST represent sort fields.
+    An endpoint MAY support multiple sort fields by allowing comma-separated (U+002C COMMA, “,”) sort fields.
+    Sort fields SHOULD be applied in the order specified.
 
-.. seealso::
-   `JSON API Specification, Sorting <https://jsonapi.org/format/#fetching-sorting>`_
-      JSON API specification for the sort request parameter
-"""
+    .. seealso::
+       `JSON API Specification, Sorting <https://jsonapi.org/format/#fetching-sorting>`_
+          JSON API specification for the sort request parameter
+    """
 
-filter_param = Dict(keys=String(), values=DelimitedList(String()), data_key='filter')
+    def __init__(self):
+        super().__init__(SortField(), data_key='sort', delimiter=',', as_string=True)
 
-page_pagination_param = fields.Nested(PagePaginationSchema(), data_key='page')
-offset_pagination_param = fields.Nested(OffsetPaginationSchema(), data_key='page')
-cursor_pagination_param = fields.Nested(CursorPaginationSchema(), data_key='page')
+
+class Filter(Dict):
+    def __init__(self):
+        super().__init__(keys=String(), values=DelimitedList(String(), delimiter=',', as_string=True),
+                         data_key='filter')
+
+
+class PagePagination(fields.Nested):
+    def __init__(self):
+        super().__init__(PagePaginationSchema(), data_key='page')
+
+
+class OffsetPagination(fields.Nested):
+    def __init__(self):
+        super().__init__(OffsetPaginationSchema(), data_key='page')
+
+
+class CursorPagination(fields.Nested):
+    def __init__(self, cursor_field):
+        super().__init__(ma.Schema.from_dict({
+            'cursor': cursor_field
+        }), data_key='page')
