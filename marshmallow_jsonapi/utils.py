@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Utility functions.
 
 This module should be considered private API.
@@ -7,8 +6,6 @@ import re
 
 import marshmallow
 from marshmallow.utils import get_value as _get_value, missing
-
-from .compat import iteritems
 
 _MARSHMALLOW_VERSION_INFO = tuple(
     [int(part) for part in marshmallow.__version__.split(".") if part.isdigit()]
@@ -46,7 +43,7 @@ def resolve_params(obj, params, default=missing):
     values enclosed in `< >` resolved to attributes on `obj`.
     """
     param_values = {}
-    for name, attr_tpl in iteritems(params):
+    for name, attr_tpl in params.items():
         attr_name = tpl(str(attr_tpl))
         if attr_name:
             attribute_value = get_value(obj, attr_name, default=default)

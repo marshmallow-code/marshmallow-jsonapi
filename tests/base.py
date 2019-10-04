@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from hashlib import md5
 
 from faker import Factory
@@ -14,7 +13,7 @@ def unpack(return_value):
     return return_value.data if _MARSHMALLOW_VERSION_INFO[0] < 3 else return_value
 
 
-class Bunch(object):
+class Bunch:
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)

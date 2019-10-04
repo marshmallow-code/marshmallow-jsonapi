@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from flask import Flask, url_for
 import pytest
 from werkzeug.routing import BuildError
@@ -20,15 +19,15 @@ def app():
 
     @app_.route("/posts/<post_id>/")
     def post_detail(post_id):
-        return "Detail for post {}".format(post_id)
+        return f"Detail for post {post_id}"
 
     @app_.route("/posts/<post_id>/comments/")
     def posts_comments(post_id):
-        return "Comments for post {}".format(post_id)
+        return f"Comments for post {post_id}"
 
     @app_.route("/authors/<int:author_id>")
     def author_detail(author_id):
-        return "Detail for author {}".format(author_id)
+        return f"Detail for author {author_id}"
 
     ctx = app_.test_request_context()
     ctx.push()
@@ -89,7 +88,7 @@ class TestSchema:
     def test_self_link_single(self, app, post):
         data = unpack(self.PostFlaskSchema().dump(post))
         assert "links" in data
-        assert data["links"]["self"] == "/posts/{}/".format(post.id)
+        assert data["links"]["self"] == f"/posts/{post.id}/"
 
     def test_self_link_many(self, app, posts):
         data = unpack(self.PostFlaskSchema(many=True).dump(posts))

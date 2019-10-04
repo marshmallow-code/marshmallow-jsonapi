@@ -124,7 +124,7 @@ class TestInflection:
         related_href = data["data"]["relationships"]["post-comments"]["links"][
             "related"
         ]
-        assert related_href == "http://test.test/posts/{}/comments/".format(post.id)
+        assert related_href == f"http://test.test/posts/{post.id}/comments/"
 
 
 class AuthorAutoSelfLinkSchema(Schema):
@@ -164,7 +164,7 @@ class TestAutoSelfUrls:
     def test_self_link_single(self, author):
         data = unpack(AuthorAutoSelfLinkSchema().dump(author))
         assert "links" in data
-        assert data["links"]["self"] == "/authors/{}".format(author.id)
+        assert data["links"]["self"] == f"/authors/{author.id}"
 
     def test_self_link_many(self, authors):
         data = unpack(AuthorAutoSelfLinkSchema(many=True).dump(authors))

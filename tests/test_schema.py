@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 from marshmallow import ValidationError
 
@@ -76,7 +75,7 @@ class TestResponseFormatting:
     def test_self_link_single(self, author):
         data = unpack(AuthorSchema().dump(author))
         assert "links" in data
-        assert data["links"]["self"] == "/authors/{}".format(author.id)
+        assert data["links"]["self"] == f"/authors/{author.id}"
 
     def test_self_link_many(self, authors):
         data = unpack(AuthorSchema(many=True).dump(authors))
@@ -610,7 +609,7 @@ class TestErrorFormatting:
         assert id_err["detail"] == "Not a valid string."
 
 
-class TestMeta(object):
+class TestMeta:
     shape = {
         "id": 1,
         "sides": 3,
@@ -683,14 +682,14 @@ def assert_relationship_error(pointer, errors):
     """Walk through the dictionary and determine if a specific
     relationship pointer exists
     """
-    pointer = "/data/relationships/{}/data".format(pointer)
+    pointer = f"/data/relationships/{pointer}/data"
     for error in errors:
         if pointer == error["source"]["pointer"]:
             return True
     return False
 
 
-class TestRelationshipLoading(object):
+class TestRelationshipLoading:
     article = {
         "data": {
             "id": "1",

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 
 from hashlib import md5
@@ -6,13 +5,7 @@ from marshmallow import ValidationError, missing as missing_
 from marshmallow.fields import Int
 
 from marshmallow_jsonapi import Schema
-from marshmallow_jsonapi.fields import (
-    Str,
-    DocumentMeta,
-    Meta,
-    ResourceMeta,
-    Relationship,
-)
+from marshmallow_jsonapi.fields import Str, DocumentMeta, ResourceMeta, Relationship
 from marshmallow_jsonapi.utils import _MARSHMALLOW_VERSION_INFO
 
 
@@ -24,7 +17,7 @@ class TestGenericRelationshipField:
         result = field.serialize("comments", post)
         assert field.serialize("comments", post)
         related = result["links"]["related"]
-        assert related == "http://example.com/posts/{id}/comments".format(id=post.id)
+        assert related == f"http://example.com/posts/{post.id}/comments"
 
     def test_serialize_self_link(self, post):
         field = Relationship(
@@ -429,12 +422,6 @@ class TestGenericRelationshipField:
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize({"data": {"type": "authors", "id": "not_a_number"}})
         assert excinfo.value.args[0] == "Not a valid integer."
-
-
-class TestMetaField:
-    def test_deprecation(self):
-        with pytest.warns(DeprecationWarning, match="deprecated"):
-            Meta()
 
 
 class TestDocumentMetaField:
