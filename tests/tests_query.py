@@ -1,7 +1,15 @@
 import pytest
+from marshmallow import fields, Schema
 
 from marshmallow_jsonapi import query_fields as qf
-from marshmallow import fields
+
+
+class CompleteSchema(Schema):
+    sort = qf.Sort()
+    include = qf.Include()
+    fields = qf.Fields()
+    page = qf.PagePagination()
+    filter = qf.Filter()
 
 
 class MockRequest:
@@ -44,6 +52,7 @@ class TestQueryParser:
             (qf.PagePagination(), {'number': 3, 'size': 1}, {'number': 3, 'size': 1}),
             (qf.OffsetPagination(), {'offset': 3, 'limit': 1}, {'offset': 3, 'limit': 1}),
             (qf.CursorPagination(fields.Integer()), {'cursor': -1}, {'cursor': -1}),  # A Twitter-api style cursor
+            (qf.Filter(), {'post': '1,2', 'author': 12}, {'post': [1, 2], 'author': [12]}),
     )
 )
 def test_serialize_deserialize_field(field, serialized, deserialized):
@@ -75,4 +84,17 @@ class TestOffsetPagePaginationSchema:
             'limit': 1
         }) == {}
 
-# TODO: Add tests that use an entire schema, not just single fields
+
+class TestCompleteSchema:
+    def test_validate(self):
+        schema = CompleteSchema()
+
+        assert schema.validate({
+            'sort': '-created,title',
+            'include': 'author,comments.author',
+            'fields': {'articles': 'title,body', 'people': 'name'},
+            'page': {'number': 3, 'size': 1},
+            'filter': {'post': '1,2', 'author': '12'}
+        }) == {}
+
+# TODO: Add end-to-end tests that go from querystring to parsed dictionary
