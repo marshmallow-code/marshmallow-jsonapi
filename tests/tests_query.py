@@ -1,5 +1,6 @@
 import pytest
 from marshmallow import fields, Schema
+from typing import NamedTuple
 
 from marshmallow_jsonapi import query_fields as qf
 
@@ -12,13 +13,12 @@ class CompleteSchema(Schema):
     filter = qf.Filter()
 
 
-class MockRequest:
+class MockRequest(NamedTuple):
     """
     A fake request object that has only a query string
     """
 
-    def __init__(self, query):
-        self.query_string = query
+    query_string: str
 
 
 class TestQueryParser:
