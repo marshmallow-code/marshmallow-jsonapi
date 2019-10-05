@@ -74,7 +74,11 @@ class TestQueryParser:
             {"cursor": -1},
             {"cursor": -1},
         ),  # A Twitter-api style cursor
-        (qf.Filter(), {"post": "1,2", "author": 12}, {"post": [1, 2], "author": [12]}),
+        (
+            qf.Filter(),
+            {"post": "1,2", "author": "12"},
+            {"post": ["1", "2"], "author": ["12"]},
+        ),
     ),
 )
 def test_serialize_deserialize_field(field, serialized, deserialized):
