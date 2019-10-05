@@ -1,6 +1,8 @@
+from typing import NamedTuple
+
 import pytest
 from marshmallow import fields, Schema
-from typing import NamedTuple
+from webargs.core import Parser
 
 from marshmallow_jsonapi import query_fields as qf
 
@@ -117,4 +119,63 @@ class TestCompleteSchema:
         )
 
 
-# TODO: Add end-to-end tests that go from querystring to parsed dictionary
+@pytest.mark.parametrize(
+    ("query", "expected"),
+    (
+        ("include=author", {"include": ["author"]}),
+        (
+            "include=author&fields[articles]=title,body,author&fields[people]=name",
+            {
+                "fields": {"articles": ["title", "body", "author"], "people": ["name"]},
+                "include": ["author"],
+            },
+        ),
+        (
+            "include=author&fields[articles]=title,body&fields[people]=name",
+            {
+                "fields": {"articles": ["title", "body"], "people": ["name"]},
+                "include": ["author"],
+            },
+        ),
+        ("page[number]=3&page[size]=1", {"page": {"size": 1, "number": 3}}),
+        ("include=comments.author", {"include": ["comments.author"]}),
+        (
+            "sort=age",
+            {"sort": [qf.SortItem(field="age", direction=qf.SortDirection.ASCENDING)]},
+        ),
+        (
+            "sort=age,name",
+            {
+                "sort": [
+                    qf.SortItem(field="age", direction=qf.SortDirection.ASCENDING),
+                    qf.SortItem(field="name", direction=qf.SortDirection.ASCENDING),
+                ]
+            },
+        ),
+        (
+            "sort=-created,title",
+            {
+                "sort": [
+                    qf.SortItem(field="created", direction=qf.SortDirection.DESCENDING),
+                    qf.SortItem(field="title", direction=qf.SortDirection.ASCENDING),
+                ]
+            },
+        ),
+    ),
+)
+def test_jsonapi_examples(query, expected):
+    """
+    Tests example query strings from the JSON API specification
+    """
+    request = MockRequest(query)
+
+    class TestParser(qf.NestedQueryParserMixin, Parser):
+        pass
+
+    parser = TestParser()
+
+    @parser.use_args(CompleteSchema(), locations=("query",), req=request)
+    def handle(args):
+        return args
+
+    assert handle() == expected
