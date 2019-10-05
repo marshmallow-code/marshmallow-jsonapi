@@ -36,6 +36,7 @@ class SortDirection(Enum):
     """
     The direction to sort a field by
     """
+
     ASCENDING = 1
     DESCENDING = 2
 
@@ -44,6 +45,7 @@ class SortItem(typing.NamedTuple):
     """
     Represents a single entry in the list of fields to sort by
     """
+
     field: str
     direction: SortDirection
 
@@ -55,12 +57,12 @@ class SortField(fields.Field):
 
     def _serialize(self, value, attr, obj, **kwargs):
         if value.direction == SortDirection.DESCENDING:
-            return '-' + value.field
+            return "-" + value.field
         else:
             return value.field
 
     def _deserialize(self, value, attr, data, **kwargs):
-        if value.startswith('-'):
+        if value.startswith("-"):
             return SortItem(value[1:], SortDirection.DESCENDING)
         else:
             return SortItem(value, SortDirection.ASCENDING)
@@ -87,7 +89,7 @@ class Include(DelimitedList):
     """
 
     def __init__(self):
-        super().__init__(String(), data_key='include', delimiter=',', as_string=True)
+        super().__init__(String(), data_key="include", delimiter=",", as_string=True)
 
 
 class Fields(Dict):
@@ -101,8 +103,11 @@ class Fields(Dict):
     """
 
     def __init__(self):
-        super().__init__(keys=String(), values=DelimitedList(String(), delimiter=',', as_string=True),
-                         data_key='fields')
+        super().__init__(
+            keys=String(),
+            values=DelimitedList(String(), delimiter=",", as_string=True),
+            data_key="fields",
+        )
 
 
 class Sort(DelimitedList):
@@ -118,27 +123,28 @@ class Sort(DelimitedList):
     """
 
     def __init__(self):
-        super().__init__(SortField(), data_key='sort', delimiter=',', as_string=True)
+        super().__init__(SortField(), data_key="sort", delimiter=",", as_string=True)
 
 
 class Filter(Dict):
     def __init__(self):
-        super().__init__(keys=String(), values=DelimitedList(String(), delimiter=',', as_string=True),
-                         data_key='filter')
+        super().__init__(
+            keys=String(),
+            values=DelimitedList(String(), delimiter=",", as_string=True),
+            data_key="filter",
+        )
 
 
 class PagePagination(fields.Nested):
     def __init__(self):
-        super().__init__(PagePaginationSchema(), data_key='page')
+        super().__init__(PagePaginationSchema(), data_key="page")
 
 
 class OffsetPagination(fields.Nested):
     def __init__(self):
-        super().__init__(OffsetPaginationSchema(), data_key='page')
+        super().__init__(OffsetPaginationSchema(), data_key="page")
 
 
 class CursorPagination(fields.Nested):
     def __init__(self, cursor_field):
-        super().__init__(ma.Schema.from_dict({
-            'cursor': cursor_field
-        }), data_key='page')
+        super().__init__(ma.Schema.from_dict({"cursor": cursor_field}), data_key="page")
