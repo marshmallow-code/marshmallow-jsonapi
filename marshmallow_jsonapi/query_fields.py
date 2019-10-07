@@ -147,6 +147,4 @@ class OffsetPagination(fields.Nested):
 
 class CursorPagination(fields.Nested):
     def __init__(self, cursor_field):
-        super().__init__(core.dict2schema({
-            'cursor': cursor_field
-        }), data_key="page")
+        super().__init__(core.dict2schema({"cursor": cursor_field}), data_key="page")

@@ -126,7 +126,10 @@ class TestCompleteSchema:
         )
 
 
-@pytest.mark.skipif(MARSHMALLOW_VERSION_INFO[0] < 3, reason="Marshmallow<3 doesn't support dictionary deserialization")
+@pytest.mark.skipif(
+    MARSHMALLOW_VERSION_INFO[0] < 3,
+    reason="Marshmallow<3 doesn't support dictionary deserialization",
+)
 @pytest.mark.parametrize(
     ("query", "expected"),
     (
