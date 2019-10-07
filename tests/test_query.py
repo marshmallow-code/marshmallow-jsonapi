@@ -2,7 +2,7 @@ from typing import NamedTuple
 
 import pytest
 from marshmallow import fields, Schema
-from webargs.core import Parser
+from webargs.core import Parser, MARSHMALLOW_VERSION_INFO
 
 from marshmallow_jsonapi import query_fields as qf
 
@@ -89,6 +89,9 @@ def test_serialize_deserialize_field(field, serialized, deserialized):
     :param deserialized:
     :return:
     """
+    if isinstance(field, fields.Dict) and MARSHMALLOW_VERSION_INFO[0] < 3:
+        pytest.skip("Marshmallow<3 doesn't support dictionary deserialization")
+
     assert field.serialize("some_field", dict(some_field=deserialized)) == serialized
     assert field.deserialize(serialized) == deserialized
 
@@ -123,6 +126,7 @@ class TestCompleteSchema:
         )
 
 
+@pytest.mark.skipif(MARSHMALLOW_VERSION_INFO[0] < 3, reason="Marshmallow<3 doesn't support dictionary deserialization")
 @pytest.mark.parametrize(
     ("query", "expected"),
     (
