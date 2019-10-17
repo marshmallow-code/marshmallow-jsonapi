@@ -29,3 +29,4 @@ Contributors (chronological)
 - Grant Harris `@grantHarris <https://github.com/grantHarris>`_
 - Robert Sawicki `@ww3pl <https://github.com/ww3pl>`_
 - `@aberres <https://github.com/aberres>`_
+- George Alton `@georgealton <https://github.com/georgealton>`_
