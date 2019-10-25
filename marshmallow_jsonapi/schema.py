@@ -74,7 +74,10 @@ class Schema(ma.Schema):
     def __init__(self, *args, **kwargs):
         self.include_data = kwargs.pop("include_data", ())
         super().__init__(*args, **kwargs)
-        if self.include_data:
+
+        if self.include_data is True:
+            self.include_all_data()
+        elif self.include_data:
             self.check_relations(self.include_data)
 
         if not self.opts.type_:
@@ -92,6 +95,15 @@ class Schema(ma.Schema):
         self.document_meta = {}
 
     OPTIONS_CLASS = SchemaOpts
+
+    def include_all_data(self):
+        """
+        Recursively set include_data for all relationships to this schema
+        """
+        for field in self.fields.values():
+            if isinstance(field, BaseRelationship):
+                field.include_data = True
+                field.schema.include_all_data()
 
     def check_relations(self, relations):
         """Recursive function which checks if a relation is valid."""
