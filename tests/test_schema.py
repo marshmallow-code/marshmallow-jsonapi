@@ -391,9 +391,9 @@ class TestCompoundDocuments:
             ],
         }
         schema = CommentSchema()
-        data = schema.load(json_data)
+        data = unpack(schema.load(json_data))
         comment = Comment(**data)
-        out_json_data = schema.dump(comment)
+        out_json_data = unpack(schema.dump(comment))
         assert json_data["included"] == out_json_data["included"]
 
 
