@@ -4,13 +4,14 @@ from marshmallow import ValidationError
 from marshmallow_jsonapi import Schema, fields
 from marshmallow_jsonapi.exceptions import IncorrectTypeError
 from marshmallow_jsonapi.utils import _MARSHMALLOW_VERSION_INFO
-from tests.base import unpack
+from tests.base import unpack, fake
 from tests.base import (
     AuthorSchema,
     CommentSchema,
     PostSchema,
     PolygonSchema,
     ArticleSchema,
+    Comment,
 )
 
 
@@ -371,6 +372,29 @@ class TestCompoundDocuments:
             if included["type"] == "people":
                 assert "from_context" in included["attributes"]
                 assert included["attributes"]["from_context"] == "Hello World"
+
+    def test_load_n_dump_same_schema(self):
+        json_data = {
+            "data": {
+                "type": "comments",
+                "id": "1",
+                "attributes": {"body": fake.bs()},
+                "relationships": {"author": {"data": {"type": "people", "id": "1"}}},
+            },
+            "included": [
+                {
+                    "type": "people",
+                    "id": "1",
+                    "first_name": fake.first_name(),
+                    "last_name": fake.last_name(),
+                }
+            ],
+        }
+        schema = CommentSchema()
+        data = schema.load(json_data)
+        comment = Comment(**data)
+        out_json_data = schema.dump(comment)
+        assert json_data["included"] == out_json_data["included"]
 
 
 def get_error_by_field(errors, field):

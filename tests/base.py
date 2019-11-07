@@ -92,6 +92,7 @@ class CommentSchema(Schema):
         related_url_kwargs={"id": "<id>"},
         schema=AuthorSchema,
         many=False,
+        type_="people",
     )
 
     class Meta:
