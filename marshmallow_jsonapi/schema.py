@@ -270,14 +270,14 @@ class Schema(ma.Schema):
                         }
                     ]
                 )
-            included_data[(item["type"], str(item["id"]))] = item
+            included_data[(item["type"], item["id"])] = item
         return included_data
 
     def _extract_from_included(self, data):
         """Extract included data matching the item in ``data``.
         """
         return self.included_data.get(
-            (data["type"], str(data["id"])), {"type": data["type"], "id": data["id"]}
+            (data["type"], data["id"]), {"type": data["type"], "id": data["id"]}
         )
 
     def inflect(self, text):
