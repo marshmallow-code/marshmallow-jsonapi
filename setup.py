@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 INSTALL_REQUIRES = ("marshmallow>=2.15.2",)
 EXTRAS_REQUIRE = {
-    "tests": ["pytest", "mock", "faker==2.0.3", "Flask==1.1.1"],
+    "tests": ["pytest", "mock", "faker==2.0.4", "Flask==1.1.1"],
     "lint": ["flake8==3.7.9", "flake8-bugbear==19.8.0", "pre-commit~=1.18"],
 }
 EXTRAS_REQUIRE["dev"] = EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["lint"] + ["tox"]
