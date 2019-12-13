@@ -239,6 +239,11 @@ class Relationship(BaseRelationship):
             raise ValidationError("Relationship is not list-like")
         return self.extract_value(value)
 
+    def serialize(self, attr, obj, accessor=None):
+        if self.include_resource_linkage or self.include_data:
+            return super().serialize(attr, obj, accessor)
+        return self._serialize(None, attr, obj)
+    
     def _serialize(self, value, attr, obj):
         dict_class = self.parent.dict_class if self.parent else dict
 
