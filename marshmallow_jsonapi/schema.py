@@ -166,19 +166,18 @@ class Schema(ma.Schema):
             # Fold included data related to this relationship into the item, so
             # that we can deserialize the whole objects instead of just IDs.
             if self.included_data:
-                included_data = []
+                included_data = None
                 inner_data = value.get("data", [])
 
                 # Data may be ``None`` (for empty relationships), but we only
                 # need to process it when it's present.
                 if inner_data:
                     if not is_collection(inner_data):
-                        included_data = next(
-                            self._extract_from_included(inner_data), None
-                        )
+                        included_data = self._extract_from_included(inner_data)
                     else:
+                        included_data = []
                         for data in inner_data:
-                            included_data.extend(self._extract_from_included(data))
+                            included_data.append(self._extract_from_included(data))
 
                 if included_data:
                     value["data"] = included_data
@@ -235,7 +234,7 @@ class Schema(ma.Schema):
         # Store this on the instance so we have access to the included data
         # when processing relationships (``included`` is outside of the
         # ``data``).
-        self.included_data = data.get("included", {})
+        self.included_data = self._load_included_data(data.get("included", []))
         self.document_meta = data.get("meta", {})
 
         try:
@@ -257,16 +256,28 @@ class Schema(ma.Schema):
                 return data, formatted_messages
         return result
 
-    def _extract_from_included(self, data):
-        """Extract included data matching the items in ``data``.
-
-        For each item in ``data``, extract the full data from the included
-        data.
+    def _load_included_data(self, included):
+        """ Transform a list of resource object into a dict indexed by object type and id.
         """
-        return (
-            item
-            for item in self.included_data
-            if item["type"] == data["type"] and str(item["id"]) == str(data["id"])
+        included_data = {}
+        for item in included:
+            if "type" not in item.keys() or "id" not in item.keys():
+                raise ma.ValidationError(
+                    [
+                        {
+                            "detail": "`included` objects must include `type` and `id` keys.",
+                            "source": {"pointer": "/included"},
+                        }
+                    ]
+                )
+            included_data[(item["type"], item["id"])] = item
+        return included_data
+
+    def _extract_from_included(self, data):
+        """Extract included data matching the item in ``data``.
+        """
+        return self.included_data.get(
+            (data["type"], data["id"]), {"type": data["type"], "id": data["id"]}
         )
 
     def inflect(self, text):

@@ -201,7 +201,7 @@ class Relationship(BaseRelationship):
         # fall back below to old behaviour of only IDs.
         if "attributes" in data and self.__schema:
             result = self.schema.load(
-                {"data": data, "included": self.root.included_data}
+                {"data": data, "included": self.root.included_data.values()}
             )
             return result.data if _MARSHMALLOW_VERSION_INFO[0] < 3 else result
 
