@@ -2,12 +2,18 @@
 Changelog
 *********
 
+0.23.0 (unreleased)
+===================
+
+* Improve performance of link generation from `Relationship` (:issue:`277`).
+  Thanks :user:`iamareebjamal` for reporting and fixing.
+
 0.22.0 (2019-09-15)
 ===================
 
 Deprecation/Removals:
 
-* Drop support for Python 2.7 and 3.6.
+* Drop support for Python 2.7 and 3.5.
   Only Python>=3.6 is supported (:issue:`251`).
 * Drop support for marshmallow 3 pre-releases. Only stable versions >=2.15.2 are supported.
 * Remove ``fields.Meta``.

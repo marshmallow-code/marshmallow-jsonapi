@@ -30,3 +30,4 @@ Contributors (chronological)
 - Robert Sawicki `@ww3pl <https://github.com/ww3pl>`_
 - `@aberres <https://github.com/aberres>`_
 - George Alton `@georgealton <https://github.com/georgealton>`_
+- Areeb Jamal `@iamareebjamal <https://github.com/iamareebjamal>`_
