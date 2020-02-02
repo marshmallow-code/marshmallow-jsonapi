@@ -2,7 +2,7 @@
 Changelog
 *********
 
-0.23.0 (unreleased)
+0.23.0 (2020-02-02)
 ===================
 
 * Improve performance of link generation from `Relationship` (:issue:`277`).
