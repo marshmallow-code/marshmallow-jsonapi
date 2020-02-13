@@ -1,4 +1,5 @@
 import pytest
+import marshmallow as ma
 from marshmallow import ValidationError
 
 from marshmallow_jsonapi import Schema, fields
@@ -607,6 +608,77 @@ class TestErrorFormatting:
         assert id_err
         assert id_err["source"]["pointer"] == "/data/1/id"
         assert id_err["detail"] == "Not a valid string."
+
+    def test_nested_fields_error(self):
+
+        min_size = 10
+
+        class ThirdLevel(ma.Schema):
+            number = fields.Int(required=True, validate=ma.validate.Range(min=min_size))
+
+        class SecondLevel(ma.Schema):
+            foo = fields.Str(required=True)
+            third = fields.Nested(ThirdLevel)
+
+        class FirstLevel(Schema):
+            class Meta:
+                type_ = "first"
+
+            id = fields.Int()
+            second = fields.Nested(SecondLevel)
+
+        schema = FirstLevel()
+        result = schema.validate(
+            {
+                "data": {
+                    "type": "first",
+                    "attributes": {"second": {"third": {"number": 5}}},
+                },
+            }
+        )
+        """
+        # result loooks smth like this
+        {
+            'errors': [
+                {
+                    'detail': 'Must be greater than or equal to 10.',
+                    'source': {
+                        'pointer': '/data/attributes/second/third/number',
+                    },
+                },
+                {
+                    'detail': 'Missing data for required field.',
+                    'source': {
+                        'pointer': '/data/attributes/second/foo',
+                    },
+                },
+            ]
+        }
+        """
+
+        # but just because I'm not certain about the errors order, sorting
+        # (this list is result of processing a dict, so order is not guaranteed)
+        def sort_func(d):
+            return d["source"]["pointer"]
+
+        expected_errors = [
+            {
+                "source": {"pointer": "/data/attributes/second/third/number"},
+                "detail": "Must be greater than or equal to %s." % min_size
+                if _MARSHMALLOW_VERSION_INFO[0] >= 3
+                else "Must be at least %s." % min_size,
+            },
+            {
+                "source": {"pointer": "/data/attributes/second/foo"},
+                "detail": ma.fields.Field.default_error_messages["required"],
+            },
+        ]
+        expected_errors.sort(key=sort_func)
+
+        errors = result["errors"]
+        errors.sort(key=sort_func)
+
+        assert errors == expected_errors
 
 
 class TestMeta:
