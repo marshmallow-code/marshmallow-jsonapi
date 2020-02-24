@@ -636,25 +636,6 @@ class TestErrorFormatting:
                 },
             }
         )
-        """
-        # result loooks smth like this
-        {
-            'errors': [
-                {
-                    'detail': 'Must be greater than or equal to 10.',
-                    'source': {
-                        'pointer': '/data/attributes/second/third/number',
-                    },
-                },
-                {
-                    'detail': 'Missing data for required field.',
-                    'source': {
-                        'pointer': '/data/attributes/second/foo',
-                    },
-                },
-            ]
-        }
-        """
 
         # but just because I'm not certain about the errors order, sorting
         # (this list is result of processing a dict, so order is not guaranteed)
@@ -664,9 +645,9 @@ class TestErrorFormatting:
         expected_errors = [
             {
                 "source": {"pointer": "/data/attributes/second/third/number"},
-                "detail": "Must be greater than or equal to %s." % min_size
+                "detail": f"Must be greater than or equal to {min_size}."
                 if _MARSHMALLOW_VERSION_INFO[0] >= 3
-                else "Must be at least %s." % min_size,
+                else f"Must be at least {min_size}.",
             },
             {
                 "source": {"pointer": "/data/attributes/second/foo"},

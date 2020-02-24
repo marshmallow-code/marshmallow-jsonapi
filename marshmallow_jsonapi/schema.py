@@ -1,3 +1,5 @@
+import itertools
+
 import marshmallow as ma
 from marshmallow.exceptions import ValidationError
 from marshmallow.utils import is_collection
@@ -294,26 +296,34 @@ class Schema(ma.Schema):
         return {"errors": formatted_errors}
 
     def _get_formatted_errors(self, errors, index=None):
-        fmtd_errors = []
-        errors_storage = []
-        for k, v in errors.items():
-            errors_storage.extend(self._process_nested_errors(k, v))
-        for field_name, field_errors in errors_storage:
-            fmtd_errors.extend(
-                [
-                    self.format_error(field_name, message, index=index)
-                    for message in field_errors
-                ]
+        fmtd_errors = list(
+            itertools.chain(
+                *(
+                    [
+                        self.format_error(field_name, message, index=index)
+                        for message in field_errors
+                    ]
+                    for field_name, field_errors in itertools.chain(
+                        *(self._process_nested_errors(k, v) for k, v in errors.items())
+                    )
+                )
             )
+        )
+
         return fmtd_errors
 
     def _process_nested_errors(self, name, data):
         if not isinstance(data, dict):
             return [(name, data)]
 
-        errors = []
-        for k, v in data.items():
-            errors.extend(self._process_nested_errors(f"{name}/{k}", v))
+        errors = list(
+            itertools.chain(
+                *(
+                    self._process_nested_errors(f"{name}/{k}", v)
+                    for k, v in data.items()
+                )
+            )
+        )
         return errors
 
     def format_error(self, field_name, message, index=None):
