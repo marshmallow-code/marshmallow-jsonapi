@@ -296,35 +296,25 @@ class Schema(ma.Schema):
         return {"errors": formatted_errors}
 
     def _get_formatted_errors(self, errors, index=None):
-        fmtd_errors = list(
-            itertools.chain(
-                *(
-                    [
-                        self.format_error(field_name, message, index=index)
-                        for message in field_errors
-                    ]
-                    for field_name, field_errors in itertools.chain(
-                        *(self._process_nested_errors(k, v) for k, v in errors.items())
-                    )
+        return itertools.chain(
+            *(
+                [
+                    self.format_error(field_name, message, index=index)
+                    for message in field_errors
+                ]
+                for field_name, field_errors in itertools.chain(
+                    *(self._process_nested_errors(k, v) for k, v in errors.items())
                 )
             )
         )
-
-        return fmtd_errors
 
     def _process_nested_errors(self, name, data):
         if not isinstance(data, dict):
             return [(name, data)]
 
-        errors = list(
-            itertools.chain(
-                *(
-                    self._process_nested_errors(f"{name}/{k}", v)
-                    for k, v in data.items()
-                )
-            )
+        return itertools.chain(
+            *(self._process_nested_errors(f"{name}/{k}", v) for k, v in data.items())
         )
-        return errors
 
     def format_error(self, field_name, message, index=None):
         """Override-able hook to format a single error message as an Error object.
