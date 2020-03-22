@@ -610,7 +610,6 @@ class TestErrorFormatting:
         assert id_err["detail"] == "Not a valid string."
 
     def test_nested_fields_error(self):
-
         min_size = 10
 
         class ThirdLevel(ma.Schema):
@@ -633,31 +632,30 @@ class TestErrorFormatting:
                 "data": {
                     "type": "first",
                     "attributes": {"second": {"third": {"number": 5}}},
-                },
+                }
             }
         )
 
-        # but just because I'm not certain about the errors order, sorting
-        # (this list is result of processing a dict, so order is not guaranteed)
         def sort_func(d):
             return d["source"]["pointer"]
 
-        expected_errors = [
-            {
-                "source": {"pointer": "/data/attributes/second/third/number"},
-                "detail": f"Must be greater than or equal to {min_size}."
-                if _MARSHMALLOW_VERSION_INFO[0] >= 3
-                else f"Must be at least {min_size}.",
-            },
-            {
-                "source": {"pointer": "/data/attributes/second/foo"},
-                "detail": ma.fields.Field.default_error_messages["required"],
-            },
-        ]
-        expected_errors.sort(key=sort_func)
+        expected_errors = sorted(
+            [
+                {
+                    "source": {"pointer": "/data/attributes/second/third/number"},
+                    "detail": f"Must be greater than or equal to {min_size}."
+                    if _MARSHMALLOW_VERSION_INFO[0] >= 3
+                    else f"Must be at least {min_size}.",
+                },
+                {
+                    "source": {"pointer": "/data/attributes/second/foo"},
+                    "detail": ma.fields.Field.default_error_messages["required"],
+                },
+            ],
+            key=sort_func,
+        )
 
-        errors = result["errors"]
-        errors.sort(key=sort_func)
+        errors = sorted(result["errors"], key=sort_func)
 
         assert errors == expected_errors
 
