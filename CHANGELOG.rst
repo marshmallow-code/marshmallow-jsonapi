@@ -2,6 +2,14 @@
 Changelog
 *********
 
+0.23.1 (2020-03-22)
+===================
+
+Bug fixes:
+
+* Fix nested fields validation error formatting (:issue:`120`).
+  Thanks :user:`mahenzon` and :user:`debonzi` for the PRs.
+
 0.23.0 (2020-02-02)
 ===================
 
