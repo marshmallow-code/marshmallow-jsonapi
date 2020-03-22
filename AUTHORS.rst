@@ -31,3 +31,4 @@ Contributors (chronological)
 - `@aberres <https://github.com/aberres>`_
 - George Alton `@georgealton <https://github.com/georgealton>`_
 - Areeb Jamal `@iamareebjamal <https://github.com/iamareebjamal>`_
+- Suren Khorenyan `@mahenzon <https://github.com/mahenzon>`_
