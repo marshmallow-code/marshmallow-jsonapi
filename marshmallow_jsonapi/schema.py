@@ -1,5 +1,3 @@
-import itertools
-
 import marshmallow as ma
 from marshmallow.exceptions import ValidationError
 from marshmallow.utils import is_collection
@@ -259,6 +257,14 @@ class Schema(ma.Schema):
                 return data, formatted_messages
         return result
 
+    def _extract_id(self, item):
+        if "id" in item:
+            return str(item["id"])
+        elif "temp-id" in item:
+            return str(item["temp-id"])
+        else:
+            return None
+        
     def _extract_from_included(self, data):
         """Extract included data matching the items in ``data``.
 
@@ -268,7 +274,7 @@ class Schema(ma.Schema):
         return (
             item
             for item in self.included_data
-            if item["type"] == data["type"] and str(item["id"]) == str(data["id"])
+            if item["type"] == data["type"] and self._extract_id(item) == self._extract_id(data)
         )
 
     def inflect(self, text):

@@ -186,8 +186,8 @@ class Relationship(BaseRelationship):
     def extract_value(self, data):
         """Extract the id key and validate the request structure."""
         errors = []
-        if "id" not in data:
-            errors.append("Must have an `id` field")
+        if "id" not in data and "temp-id" not in data:
+            errors.append("Must have an `id` or `temp-id` field")
         if "type" not in data:
             errors.append("Must have a `type` field")
         elif data["type"] != self.type_:
