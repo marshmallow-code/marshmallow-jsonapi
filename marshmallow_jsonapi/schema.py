@@ -7,6 +7,8 @@ from .fields import _RESOURCE_META_LOAD_FROM, _DOCUMENT_META_LOAD_FROM
 from .exceptions import IncorrectTypeError
 from .utils import resolve_params, _MARSHMALLOW_VERSION_INFO, get_dump_key
 
+import itertools
+
 TYPE = "type"
 ID = "id"
 
