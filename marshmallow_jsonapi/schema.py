@@ -103,20 +103,29 @@ class Schema(ma.Schema):
             fields = rel.split(".", 1)
 
             local_field = fields[0]
-            if local_field not in self.fields:
-                raise ValueError(f'Unknown field "{local_field}"')
 
-            field = self.fields[local_field]
-            if not isinstance(field, BaseRelationship):
-                raise ValueError(
-                    'Can only include relationships. "{}" is a "{}"'.format(
-                        field.name, field.__class__.__name__
+            if local_field == '*':
+                #check for wildcard include
+                for key, value in self.fields.items():
+                    if isinstance(value, BaseRelationship):
+                        value.include_data = True
+                        if len(fields) > 1:
+                            value.schema.check_relations(fields[1:])
+            else:
+                if local_field not in self.fields:
+                    raise ValueError(f'Unknown field "{local_field}"')
+
+                field = self.fields[local_field]
+                if not isinstance(field, BaseRelationship):
+                    raise ValueError(
+                        'Can only include relationships. "{}" is a "{}"'.format(
+                            field.name, field.__class__.__name__
+                        )
                     )
-                )
 
-            field.include_data = True
-            if len(fields) > 1:
-                field.schema.check_relations(fields[1:])
+                field.include_data = True
+                if len(fields) > 1:
+                    field.schema.check_relations(fields[1:])
 
     @ma.post_dump(pass_many=True)
     def format_json_api_response(self, data, many, **kwargs):
