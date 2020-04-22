@@ -90,6 +90,7 @@ class Relationship(BaseRelationship):
         many=False,
         type_=None,
         id_field=None,
+        always_include=False,
         **kwargs
     ):
         self.related_url = related_url
@@ -106,6 +107,7 @@ class Relationship(BaseRelationship):
         self.type_ = type_
         self.__id_field = id_field
         self.__schema = schema
+        self.always_include = always_include
         super().__init__(**kwargs)
 
     @property
@@ -244,7 +246,7 @@ class Relationship(BaseRelationship):
     # in the request. And we don't have enough control in _serialize
     # to prevent their serialization
     def serialize(self, attr, obj, accessor=None):
-        if self.include_resource_linkage or self.include_data:
+        if self.include_resource_linkage and self.include_data:
             return super().serialize(attr, obj, accessor)
         return self._serialize(None, attr, obj)
 
@@ -262,7 +264,7 @@ class Relationship(BaseRelationship):
                 ret["links"]["related"] = related_url
 
         # resource linkage is required when including the data
-        if self.include_resource_linkage or self.include_data:
+        if self.include_resource_linkage and self.include_data:
             if value is None:
                 ret["data"] = [] if self.many else None
             else:
@@ -286,8 +288,10 @@ class Relationship(BaseRelationship):
 
         item = data["data"]
         self.root.included_data[(item["type"], item["id"])] = item
-        for key, value in self.schema.included_data.items():
-            self.root.included_data[key] = value
+        included = result.get('included', [])
+        for item in included:
+            key = (item.get('type'), item.get('id'))
+            self.root.included_data[key] = item
 
     def _get_id(self, value):
         if _MARSHMALLOW_VERSION_INFO[0] >= 3:

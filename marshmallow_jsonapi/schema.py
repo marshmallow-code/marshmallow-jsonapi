@@ -75,9 +75,13 @@ class Schema(ma.Schema):
 
     def __init__(self, *args, **kwargs):
         self.include_data = kwargs.pop("include_data", ())
+
         super().__init__(*args, **kwargs)
         if self.include_data:
             self.check_relations(self.include_data)
+
+        self.check_always_includes()
+        self.base_includes = self.include_data
 
         if not self.opts.type_:
             raise ValueError("Must specify type_ class Meta option")
@@ -94,6 +98,14 @@ class Schema(ma.Schema):
         self.document_meta = {}
 
     OPTIONS_CLASS = SchemaOpts
+
+    def check_always_includes(self):
+        for key, value in self.fields.items():
+            if isinstance(value, BaseRelationship):
+                if value.always_include:
+                    value.include_data = True
+                    if key not in self.include_data:
+                        self.include_data = self.include_data + (key,)
 
     def check_relations(self, relations):
         """Recursive function which checks if a relation is valid."""
@@ -137,6 +149,15 @@ class Schema(ma.Schema):
         ret = self.wrap_response(ret, many)
         ret = self.render_included_data(ret)
         ret = self.render_meta_document(ret)
+
+        # reset the include to the base includes so any changes to the schema
+        # and any included data from previous requests are wiped
+        if self.included_data:
+            self.included_data = {}
+        self.include_data = self.base_includes
+        for key, value in self.fields.items():
+            if isinstance(value, BaseRelationship) and not value.always_include:
+                value.include_data = False
         return ret
 
     def render_included_data(self, data):
