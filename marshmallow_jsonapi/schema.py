@@ -11,7 +11,7 @@ import itertools
 
 TYPE = "type"
 ID = "id"
-
+TEMP_ID = "temp-id"
 
 class SchemaOpts(ma.SchemaOpts):
     def __init__(self, meta, *args, **kwargs):
@@ -403,6 +403,8 @@ class Schema(ma.Schema):
             attribute = attributes[field_name]
             if attribute == ID:
                 ret[ID] = value
+            elif attribute == TEMP_ID:
+                ret[TEMP_ID] = value
             elif isinstance(self.fields[attribute], DocumentMeta):
                 if not self.document_meta:
                     self.document_meta = self.dict_class()
