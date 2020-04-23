@@ -1,3 +1,5 @@
+import itertools
+
 import marshmallow as ma
 from marshmallow.exceptions import ValidationError
 from marshmallow.utils import is_collection
@@ -7,7 +9,6 @@ from .fields import _RESOURCE_META_LOAD_FROM, _DOCUMENT_META_LOAD_FROM
 from .exceptions import IncorrectTypeError
 from .utils import resolve_params, _MARSHMALLOW_VERSION_INFO, get_dump_key
 
-import itertools
 
 TYPE = "type"
 ID = "id"
@@ -155,9 +156,6 @@ class Schema(ma.Schema):
         if self.included_data:
             self.included_data = {}
         self.include_data = self.base_includes
-        for key, value in self.fields.items():
-            if isinstance(value, BaseRelationship) and not value.always_include:
-                value.include_data = False
         return ret
 
     def render_included_data(self, data):
