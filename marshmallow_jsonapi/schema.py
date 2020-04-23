@@ -12,7 +12,7 @@ from .utils import resolve_params, _MARSHMALLOW_VERSION_INFO, get_dump_key
 
 TYPE = "type"
 ID = "id"
-TEMP_ID = "temp-id"
+TEMP_ID = "temp_id"
 
 class SchemaOpts(ma.SchemaOpts):
     def __init__(self, meta, *args, **kwargs):
@@ -186,6 +186,8 @@ class Schema(ma.Schema):
         payload = self.dict_class()
         if "id" in item:
             payload["id"] = item["id"]
+        if "temp-id" in item:
+            payload["temp-id"] = item["temp-id"]
         if "meta" in item:
             payload[_RESOURCE_META_LOAD_FROM] = item["meta"]
         if self.document_meta:
@@ -402,7 +404,8 @@ class Schema(ma.Schema):
             if attribute == ID:
                 ret[ID] = value
             elif attribute == TEMP_ID:
-                ret[TEMP_ID] = value
+                if value:
+                    ret[TEMP_ID] = value
             elif isinstance(self.fields[attribute], DocumentMeta):
                 if not self.document_meta:
                     self.document_meta = self.dict_class()
