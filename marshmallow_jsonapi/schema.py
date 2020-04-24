@@ -79,6 +79,9 @@ class Schema(ma.Schema):
 
         super().__init__(*args, **kwargs)
         if self.include_data:
+            if type(self.include_data) is not tuple:
+                self.include_data = tuple(self.include_data) 
+
             self.check_relations(self.include_data)
 
         self.check_always_includes()
