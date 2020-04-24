@@ -405,7 +405,7 @@ class Schema(ma.Schema):
                 ret[ID] = value
             elif attribute == TEMP_ID:
                 if value:
-                    ret[TEMP_ID] = value
+                    ret["temp-id"] = value
             elif isinstance(self.fields[attribute], DocumentMeta):
                 if not self.document_meta:
                     self.document_meta = self.dict_class()
