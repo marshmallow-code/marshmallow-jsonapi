@@ -221,6 +221,7 @@ class Schema(ma.Schema):
             payload[key] = value
         return payload
 
+
     @ma.pre_load(pass_many=True)
     def unwrap_request(self, data, many, **kwargs):
         if "data" not in data:
@@ -246,6 +247,31 @@ class Schema(ma.Schema):
                 )
             return [self.unwrap_item(each) for each in data]
         return self.unwrap_item(data)
+        
+    def _extract_fk(self, item):
+        def extract_key(key):
+            field = self.fields.get(key)
+            if isinstance(field, BaseRelationship) and field.foreign_key:
+                return field.foreign_key
+            return key
+
+        def extract_value(key, value):
+            field = self.fields.get(key)
+            if isinstance(field, BaseRelationship) and field.foreign_key:
+                return value.get('id')
+            return value
+
+        # add foreign key to attributes and remove nested item for any object w/ foreign key
+        x = {extract_key(k) : extract_value(k, v) for k, v in item.items()}
+        return x
+
+    @ma.post_load(pass_many=True)
+    def extract_foreign_keys(self, data, many, **kwargs):
+        # Check for foreign key field on relationship and populate it on schema if it exists
+        # if foreign key is sent then the nested object is NOT sent
+        if many:
+            return [self._extract_fk(each) for each in data]
+        return self._extract_fk(data)
 
     def on_bind_field(self, field_name, field_obj):
         """Schema hook override. When binding fields, set ``data_key`` (on marshmallow 3) or
@@ -408,7 +434,7 @@ class Schema(ma.Schema):
                 ret[ID] = value
             elif attribute == TEMP_ID:
                 if value:
-                    ret["temp-id"] = value
+                    ret[self.inflect(TEMP_ID)] = value
             elif isinstance(self.fields[attribute], DocumentMeta):
                 if not self.document_meta:
                     self.document_meta = self.dict_class()

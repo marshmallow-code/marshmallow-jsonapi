@@ -91,6 +91,7 @@ class Relationship(BaseRelationship):
         type_=None,
         id_field=None,
         always_include=False,
+        foreign_key=None,
         **kwargs
     ):
         self.related_url = related_url
@@ -108,6 +109,7 @@ class Relationship(BaseRelationship):
         self.__id_field = id_field
         self.__schema = schema
         self.always_include = always_include
+        self.foreign_key = foreign_key
         super().__init__(**kwargs)
 
     @property
@@ -210,7 +212,7 @@ class Relationship(BaseRelationship):
         id_value = data.get("id")
 
         if self.__schema:
-            id_value = self.schema.fields["id"].deserialize(id_value)
+            id_value = {self.id_field : self.schema.fields["id"].deserialize(id_value)}
 
         return id_value
 
