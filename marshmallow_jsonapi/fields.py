@@ -203,7 +203,9 @@ class Relationship(BaseRelationship):
         # If ``attributes`` is set, we've folded included data into this
         # relationship. Unserialize it if we have a schema set; otherwise we
         # fall back below to old behaviour of only IDs.
-        if "attributes" in data and self.__schema:
+        # ALSO include if relationships present -- attributes object not required
+        # on patch so may not be present
+        if ("attributes" in data or "relationships" in data) and self.__schema:
             result = self.schema.load(
                 {"data": data, "included": self.root.included_data}
             )
