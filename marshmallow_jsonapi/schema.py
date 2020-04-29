@@ -257,7 +257,7 @@ class Schema(ma.Schema):
 
         def extract_value(key, value):
             field = self.fields.get(key)
-            if isinstance(field, BaseRelationship) and field.foreign_key:
+            if value and isinstance(field, BaseRelationship) and field.foreign_key:
                 return value.get('id')
             return value
 
