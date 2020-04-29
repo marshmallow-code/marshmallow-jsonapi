@@ -92,6 +92,7 @@ class Relationship(BaseRelationship):
         id_field=None,
         always_include=False,
         foreign_key=None,
+        retain_nested=False,
         **kwargs
     ):
         self.related_url = related_url
@@ -110,6 +111,7 @@ class Relationship(BaseRelationship):
         self.__schema = schema
         self.always_include = always_include
         self.foreign_key = foreign_key
+        self.retain_nested = retain_nested if self.foreign_key else False
         super().__init__(**kwargs)
 
     @property

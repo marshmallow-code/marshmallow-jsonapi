@@ -249,21 +249,33 @@ class Schema(ma.Schema):
         return self.unwrap_item(data)
         
     def _extract_fk(self, item):
-        def extract_key(key):
+        retained = []
+        def extract_key(key, value):
             field = self.fields.get(key)
             if isinstance(field, BaseRelationship) and field.foreign_key:
+                if field.retain_nested:
+                    # retain the original key / value set for nested object
+                    # store so we know where to add additional foreign key field later
+                    retained.append((field.foreign_key, value))
+                    return key
                 return field.foreign_key
             return key
 
         def extract_value(key, value):
             field = self.fields.get(key)
-            if value and isinstance(field, BaseRelationship) and field.foreign_key:
+            if value and isinstance(field, BaseRelationship) and field.foreign_key and not field.retain_nested:
                 return value.get('id')
             return value
 
         # add foreign key to attributes and remove nested item for any object w/ foreign key
-        x = {extract_key(k) : extract_value(k, v) for k, v in item.items()}
-        return x
+        res = {extract_key(k, v) : extract_value(k, v) for k, v in item.items()}
+
+        #add foreign key for any fields that were retained
+        for r in retained:
+            #extract foreign key
+            if r[1]:
+                res[r[0]] = r[1].get('id')
+        return res
 
     @ma.post_load(pass_many=True)
     def extract_foreign_keys(self, data, many, **kwargs):
