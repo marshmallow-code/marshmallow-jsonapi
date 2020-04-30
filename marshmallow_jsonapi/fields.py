@@ -129,11 +129,13 @@ class Relationship(BaseRelationship):
         only = getattr(self, "only", None)
         exclude = getattr(self, "exclude", ())
         context = getattr(self, "context", {})
-
+        unknown = getattr(self, "unknown", "raise")
+        if hasattr(self, "parent"):
+            unknown = self.parent.unknown
         if isinstance(self.__schema, SchemaABC):
             return self.__schema
         if isinstance(self.__schema, type) and issubclass(self.__schema, SchemaABC):
-            self.__schema = self.__schema(only=only, exclude=exclude, context=context)
+            self.__schema = self.__schema(only=only, exclude=exclude, context=context, unknown=unknown)
             return self.__schema
         if isinstance(self.__schema, (str, bytes)):
             if self.__schema == _RECURSIVE_NESTED:
@@ -142,12 +144,13 @@ class Relationship(BaseRelationship):
                     only=only,
                     exclude=exclude,
                     context=context,
+                    unknown=self.parent.unknown,
                     include_data=self.parent.include_data,
                 )
             else:
                 schema_class = class_registry.get_class(self.__schema)
                 self.__schema = schema_class(
-                    only=only, exclude=exclude, context=context
+                    only=only, exclude=exclude, context=context, unknown=unknown
                 )
             return self.__schema
         else:
