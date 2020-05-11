@@ -144,7 +144,7 @@ class Relationship(BaseRelationship):
                     only=only,
                     exclude=exclude,
                     context=context,
-                    unknown=self.parent.unknown,
+                    unknown=unknown,
                     include_data=self.parent.include_data,
                 )
             else:
