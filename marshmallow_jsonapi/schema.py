@@ -125,6 +125,8 @@ class Schema(ma.Schema):
                 for key, value in self.fields.items():
                     if isinstance(value, BaseRelationship):
                         value.include_data = True
+                        if len(fields) > 1:
+                            value.schema.check_relations(fields[1:])
             else:
                 if local_field not in self.fields:
                     raise ValueError(f'Unknown field "{local_field}"')
@@ -136,7 +138,6 @@ class Schema(ma.Schema):
                             field.name, field.__class__.__name__
                         )
                     )
-
                 field.include_data = True
                 if len(fields) > 1:
                     field.schema.check_relations(fields[1:])
@@ -254,8 +255,6 @@ class Schema(ma.Schema):
         retained = []
         def extract_key(key, value):
             field = self.fields.get(key)
-            if field.name == "partner-address":
-                print("stop")
             if isinstance(field, BaseRelationship) and field.foreign_key:
                 if field.retain_nested:
                     # retain the original key / value set for nested object
@@ -287,8 +286,7 @@ class Schema(ma.Schema):
         # if foreign key is sent then the nested object is NOT sent
         if many:
             return [self._extract_fk(each) for each in data]
-        x = self._extract_fk(data)
-        return x
+        return self._extract_fk(data)
 
     def on_bind_field(self, field_name, field_obj):
         """Schema hook override. When binding fields, set ``data_key`` (on marshmallow 3) or

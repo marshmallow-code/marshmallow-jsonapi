@@ -144,8 +144,7 @@ class Relationship(BaseRelationship):
                     only=only,
                     exclude=exclude,
                     context=context,
-                    unknown=unknown,
-                    include_data=self.parent.include_data,
+                    unknown=unknown
                 )
             else:
                 schema_class = class_registry.get_class(self.__schema)
