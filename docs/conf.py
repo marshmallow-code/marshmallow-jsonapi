@@ -25,7 +25,7 @@ issues_github_path = "marshmallow-code/marshmallow-jsonapi"
 source_suffix = ".rst"
 master_doc = "index"
 project = "marshmallow-jsonapi"
-copyright = "Steven Loria {:%Y}".format(dt.datetime.utcnow())
+copyright = f"Steven Loria {dt.datetime.utcnow():%Y}"
 
 version = release = marshmallow_jsonapi.__version__
 
