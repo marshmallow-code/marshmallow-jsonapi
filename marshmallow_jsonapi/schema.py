@@ -159,9 +159,10 @@ class Schema(ma.Schema):
             self.included_data = {}
         self.include_data = self.base_includes
         #cleanup include data changed by query
-        for key, value in self.fields.items():
-            if isinstance(value, BaseRelationship) and not value.always_include:
-                value.include_data = False
+        #TODO fix this - breaking deeply nested includes in GET
+        #for key, value in self.fields.items():
+        #    if isinstance(value, BaseRelationship) and not value.always_include:
+        #        value.include_data = False
         return ret
 
     def render_included_data(self, data):
