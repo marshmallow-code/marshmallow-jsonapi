@@ -112,6 +112,7 @@ class Relationship(BaseRelationship):
         self.always_include = always_include
         self.foreign_key = foreign_key
         self.retain_nested = retain_nested if self.foreign_key else False
+        self.temp_include = False
         super().__init__(**kwargs)
 
     @property
@@ -254,7 +255,7 @@ class Relationship(BaseRelationship):
     # in the request. And we don't have enough control in _serialize
     # to prevent their serialization
     def serialize(self, attr, obj, accessor=None):
-        if self.include_resource_linkage and self.include_data:
+        if self.include_resource_linkage and (self.include_data or self.temp_include):
             return super().serialize(attr, obj, accessor)
         return self._serialize(None, attr, obj)
 
@@ -272,13 +273,13 @@ class Relationship(BaseRelationship):
                 ret["links"]["related"] = related_url
 
         # resource linkage is required when including the data
-        if self.include_resource_linkage and self.include_data:
+        if self.include_resource_linkage and (self.include_data or self.temp_include):
             if value is None:
                 ret["data"] = [] if self.many else None
             else:
                 ret["data"] = self.get_resource_linkage(value)
 
-        if self.include_data and value is not None:
+        if (self.include_data or self.temp_include) and value is not None:
             if self.many:
                 for item in value:
                     self._serialize_included(item)

@@ -85,7 +85,6 @@ class Schema(ma.Schema):
             self.check_relations(self.include_data)
 
         self.check_always_includes()
-        self.base_includes = self.include_data
 
         if not self.opts.type_:
             raise ValueError("Must specify type_ class Meta option")
@@ -111,8 +110,12 @@ class Schema(ma.Schema):
                     if key not in self.include_data:
                         self.include_data = self.include_data + (key,)
 
-    def check_relations(self, relations):
+    def check_relations(self, relations, temporary=False):
         """Recursive function which checks if a relation is valid."""
+        for key, value in self.fields.items():
+            if isinstance(value, BaseRelationship):
+                value.temp_include = False
+
         for rel in relations:
             if not rel:
                 continue
@@ -138,7 +141,10 @@ class Schema(ma.Schema):
                             field.name, field.__class__.__name__
                         )
                     )
-                field.include_data = True
+                if temporary:
+                    field.temp_include = True
+                else:
+                    field.include_data = True
                 if len(fields) > 1:
                     field.schema.check_relations(fields[1:])
 
@@ -157,12 +163,6 @@ class Schema(ma.Schema):
         # and any included data from previous requests are wiped
         if self.included_data:
             self.included_data = {}
-        self.include_data = self.base_includes
-        #cleanup include data changed by query
-        #TODO fix this - breaking deeply nested includes in GET
-        #for key, value in self.fields.items():
-        #    if isinstance(value, BaseRelationship) and not value.always_include:
-        #        value.include_data = False
         return ret
 
     def render_included_data(self, data):
@@ -446,6 +446,7 @@ class Schema(ma.Schema):
 
         for field_name, value in item.items():
             attribute = attributes[field_name]
+            field = self.fields[attribute]
             if attribute == ID:
                 ret[ID] = value
             elif attribute == TEMP_ID:
@@ -460,7 +461,7 @@ class Schema(ma.Schema):
                     ret["meta"] = self.dict_class()
                 ret["meta"].update(value)
             elif isinstance(self.fields[attribute], BaseRelationship):
-                if value:
+                if value and (field.include_data or field.temp_include or field.always_include):
                     if "relationships" not in ret:
                         ret["relationships"] = self.dict_class()
                     ret["relationships"][self.inflect(field_name)] = value
