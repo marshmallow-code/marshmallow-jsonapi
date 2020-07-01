@@ -1,4 +1,5 @@
 import itertools
+import re
 
 import marshmallow as ma
 from marshmallow.exceptions import ValidationError
@@ -13,6 +14,7 @@ from .utils import resolve_params, _MARSHMALLOW_VERSION_INFO, get_dump_key
 TYPE = "type"
 ID = "id"
 TEMP_ID = "temp_id"
+TEMP_ID_REGEX = r"^temp.*id$"
 
 class SchemaOpts(ma.SchemaOpts):
     def __init__(self, meta, *args, **kwargs):
@@ -178,6 +180,8 @@ class Schema(ma.Schema):
         return data
 
     def unwrap_item(self, item):
+        temp_id_key = self._get_temp_id(item)
+
         if "type" not in item:
             raise ma.ValidationError(
                 [
@@ -193,8 +197,8 @@ class Schema(ma.Schema):
         payload = self.dict_class()
         if "id" in item:
             payload["id"] = item["id"]
-        if "temp-id" in item:
-            payload["temp-id"] = item["temp-id"]
+        if temp_id_key in item:
+            payload[temp_id_key] = item[temp_id_key]
         if "meta" in item:
             payload[_RESOURCE_META_LOAD_FROM] = item["meta"]
         if self.document_meta:
@@ -334,11 +338,21 @@ class Schema(ma.Schema):
                 return data, formatted_messages
         return result
 
+    def _get_temp_id(self, item):
+        temp_id_key = TEMP_ID
+        for key in item.keys():
+            alt_temp_id_match = re.match(TEMP_ID_REGEX, key, re.IGNORECASE)
+            if alt_temp_id_match:
+                temp_id_key = alt_temp_id_match.group(0)
+                break
+        return temp_id_key
+
     def _extract_id(self, item):
+        temp_id_key = self._get_temp_id(item)
         if "id" in item:
             return str(item["id"])
-        elif "temp-id" in item:
-            return str(item["temp-id"])
+        elif temp_id_key in item:
+            return str(item[temp_id_key])
         else:
             return None
         
