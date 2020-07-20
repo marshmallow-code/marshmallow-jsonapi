@@ -1,7 +1,7 @@
 """Includes all the fields classes from `marshmallow.fields` as well as
 fields for serializing JSON API-formatted hyperlinks.
 """
-import collections
+import collections.abc
 
 from marshmallow import ValidationError, class_registry
 from marshmallow.fields import Field
@@ -329,7 +329,7 @@ class DocumentMeta(Field):
             self.data_key = _DOCUMENT_META_LOAD_FROM
 
     def _deserialize(self, value, attr, data, **kwargs):
-        if isinstance(value, collections.Mapping):
+        if isinstance(value, collections.abc.Mapping):
             return value
         else:
             if _MARSHMALLOW_VERSION_INFO[0] < 3:
@@ -338,7 +338,7 @@ class DocumentMeta(Field):
                 raise self.make_error("invalid")
 
     def _serialize(self, value, *args, **kwargs):
-        if isinstance(value, collections.Mapping):
+        if isinstance(value, collections.abc.Mapping):
             return super()._serialize(value, *args, **kwargs)
         else:
             if _MARSHMALLOW_VERSION_INFO[0] < 3:
@@ -374,7 +374,7 @@ class ResourceMeta(Field):
             self.data_key = _RESOURCE_META_LOAD_FROM
 
     def _deserialize(self, value, attr, data, **kwargs):
-        if isinstance(value, collections.Mapping):
+        if isinstance(value, collections.abc.Mapping):
             return value
         else:
             if _MARSHMALLOW_VERSION_INFO[0] < 3:
@@ -383,7 +383,7 @@ class ResourceMeta(Field):
                 raise self.make_error("invalid")
 
     def _serialize(self, value, *args, **kwargs):
-        if isinstance(value, collections.Mapping):
+        if isinstance(value, collections.abc.Mapping):
             return super()._serialize(value, *args, **kwargs)
         else:
             if _MARSHMALLOW_VERSION_INFO[0] < 3:
