@@ -2,6 +2,14 @@
 Changelog
 *********
 
+0.23.2 (unreleased)
+===================
+
+Bug fixes:
+
+* Import from `collections.abc` for forward-compatibility with Python 3.10 (:issue:`318`).
+  Thanks :user:`tirkarthi`.
+
 0.23.1 (2020-03-22)
 ===================
 
