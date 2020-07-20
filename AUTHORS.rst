@@ -32,3 +32,4 @@ Contributors (chronological)
 - George Alton `@georgealton <https://github.com/georgealton>`_
 - Areeb Jamal `@iamareebjamal <https://github.com/iamareebjamal>`_
 - Suren Khorenyan `@mahenzon <https://github.com/mahenzon>`_
+- Karthikeyan Singaravelan `@tirkarthi <https://github.com/tirkarthi>`_
