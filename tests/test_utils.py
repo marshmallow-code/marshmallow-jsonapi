@@ -1,11 +1,6 @@
 import pytest
 
-from marshmallow_jsonapi import fields, utils
-
-
-def test_get_dump_key():
-    field = fields.Integer(dump_to="new_key", data_key="new_key")  # 2.X vs 3.X
-    assert utils.get_dump_key(field) == "new_key"
+from marshmallow_jsonapi import utils
 
 
 @pytest.mark.parametrize(

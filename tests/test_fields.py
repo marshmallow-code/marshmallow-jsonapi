@@ -6,7 +6,6 @@ from marshmallow.fields import Int
 
 from marshmallow_jsonapi import Schema
 from marshmallow_jsonapi.fields import Str, DocumentMeta, ResourceMeta, Relationship
-from marshmallow_jsonapi.utils import _MARSHMALLOW_VERSION_INFO
 
 
 class TestGenericRelationshipField:
@@ -298,37 +297,6 @@ class TestGenericRelationshipField:
         with pytest.raises(ValidationError) as excinfo:
             field.deserialize({})
         assert excinfo.value.args[0] == "Must include a `data` key"
-
-    @pytest.mark.skipif(
-        _MARSHMALLOW_VERSION_INFO[0] < 3,
-        reason="deserialize does not handle missing skeleton",
-    )
-    def test_deserialize_missing(self):
-        field = Relationship(
-            related_url="/posts/{post_id}/comments",
-            related_url_kwargs={"post_id": "<id>"},
-            many=False,
-            include_resource_linkage=True,
-            type_="comments",
-        )
-        result = field.deserialize(missing_)
-        assert result is missing_
-
-    @pytest.mark.skipif(
-        _MARSHMALLOW_VERSION_INFO[0] < 3,
-        reason="deserialize does not handle missing skeleton",
-    )
-    def test_deserialize_missing_with_missing_param(self):
-        field = Relationship(
-            related_url="/posts/{post_id}/comments",
-            related_url_kwargs={"post_id": "<id>"},
-            missing="value",
-            many=False,
-            include_resource_linkage=True,
-            type_="comments",
-        )
-        result = field.deserialize(missing_)
-        assert result == "value"
 
     def test_deserialize_many_non_list_relationship(self):
         field = Relationship(many=True, include_resource_linkage=True, type_="comments")

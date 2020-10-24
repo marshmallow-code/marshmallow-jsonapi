@@ -9,9 +9,9 @@ from marshmallow.fields import Field
 # Make core fields importable from marshmallow_jsonapi
 from marshmallow.fields import *  # noqa
 from marshmallow.base import SchemaABC
-from marshmallow.utils import is_collection, missing as missing_
+from marshmallow.utils import is_collection, missing as missing_, get_value
 
-from .utils import get_value, resolve_params, _MARSHMALLOW_VERSION_INFO
+from .utils import resolve_params
 
 
 _RECURSIVE_NESTED = "self"
@@ -203,7 +203,7 @@ class Relationship(BaseRelationship):
             result = self.schema.load(
                 {"data": data, "included": self.root.included_data}
             )
-            return result.data if _MARSHMALLOW_VERSION_INFO[0] < 3 else result
+            return result
 
         id_value = data.get("id")
 
@@ -278,28 +278,16 @@ class Relationship(BaseRelationship):
 
     def _serialize_included(self, value):
         result = self.schema.dump(value)
-
-        if _MARSHMALLOW_VERSION_INFO[0] < 3:
-            data = result.data
-        else:
-            data = result
-
-        item = data["data"]
+        item = result["data"]
         self.root.included_data[(item["type"], item["id"])] = item
         for key, value in self.schema.included_data.items():
             self.root.included_data[key] = value
 
     def _get_id(self, value):
-        if _MARSHMALLOW_VERSION_INFO[0] >= 3:
-            if self.__schema:
-                return self.schema.get_attribute(value, self.id_field, value)
-            else:
-                return get_value(value, self.id_field, value)
+        if self.__schema:
+            return self.schema.get_attribute(value, self.id_field, value)
         else:
-            if self.__schema:
-                return self.schema.get_attribute(self.id_field, value, value)
-            else:
-                return get_value(value, self.id_field, value)
+            return get_value(value, self.id_field, value)
 
 
 class DocumentMeta(Field):
@@ -323,28 +311,19 @@ class DocumentMeta(Field):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if _MARSHMALLOW_VERSION_INFO[0] < 3:
-            self.load_from = _DOCUMENT_META_LOAD_FROM
-        else:
-            self.data_key = _DOCUMENT_META_LOAD_FROM
+        self.data_key = _DOCUMENT_META_LOAD_FROM
 
     def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, collections.abc.Mapping):
             return value
         else:
-            if _MARSHMALLOW_VERSION_INFO[0] < 3:
-                self.fail("invalid")
-            else:
-                raise self.make_error("invalid")
+            raise self.make_error("invalid")
 
     def _serialize(self, value, *args, **kwargs):
         if isinstance(value, collections.abc.Mapping):
             return super()._serialize(value, *args, **kwargs)
         else:
-            if _MARSHMALLOW_VERSION_INFO[0] < 3:
-                self.fail("invalid")
-            else:
-                raise self.make_error("invalid")
+            raise self.make_error("invalid")
 
 
 class ResourceMeta(Field):
@@ -368,25 +347,16 @@ class ResourceMeta(Field):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if _MARSHMALLOW_VERSION_INFO[0] < 3:
-            self.load_from = _RESOURCE_META_LOAD_FROM
-        else:
-            self.data_key = _RESOURCE_META_LOAD_FROM
+        self.data_key = _RESOURCE_META_LOAD_FROM
 
     def _deserialize(self, value, attr, data, **kwargs):
         if isinstance(value, collections.abc.Mapping):
             return value
         else:
-            if _MARSHMALLOW_VERSION_INFO[0] < 3:
-                self.fail("invalid")
-            else:
-                raise self.make_error("invalid")
+            raise self.make_error("invalid")
 
     def _serialize(self, value, *args, **kwargs):
         if isinstance(value, collections.abc.Mapping):
             return super()._serialize(value, *args, **kwargs)
         else:
-            if _MARSHMALLOW_VERSION_INFO[0] < 3:
-                self.fail("invalid")
-            else:
-                raise self.make_error("invalid")
+            raise self.make_error("invalid")
