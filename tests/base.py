@@ -4,13 +4,8 @@ from faker import Factory
 from marshmallow import validate
 
 from marshmallow_jsonapi import Schema, fields
-from marshmallow_jsonapi.utils import _MARSHMALLOW_VERSION_INFO
 
 fake = Factory.create()
-
-
-def unpack(return_value):
-    return return_value.data if _MARSHMALLOW_VERSION_INFO[0] < 3 else return_value
 
 
 class Bunch:
@@ -51,7 +46,6 @@ class AuthorSchema(Schema):
 
     class Meta:
         type_ = "people"
-        strict = True  # for marshmallow 2
 
 
 class KeywordSchema(Schema):
@@ -59,24 +53,14 @@ class KeywordSchema(Schema):
     keyword = fields.Str(required=True)
 
     def get_attribute(self, attr, obj, default):
-        if _MARSHMALLOW_VERSION_INFO[0] >= 3:
-            if obj == "id":
-                return md5(
-                    super(Schema, self)
-                    .get_attribute(attr, "keyword", default)
-                    .encode("utf-8")
-                ).hexdigest()
-            else:
-                return super(Schema, self).get_attribute(attr, obj, default)
+        if obj == "id":
+            return md5(
+                super(Schema, self)
+                .get_attribute(attr, "keyword", default)
+                .encode("utf-8")
+            ).hexdigest()
         else:
-            if attr == "id":
-                return md5(
-                    super(Schema, self)
-                    .get_attribute("keyword", obj, default)
-                    .encode("utf-8")
-                ).hexdigest()
-            else:
-                return super(Schema, self).get_attribute(attr, obj, default)
+            return super(Schema, self).get_attribute(attr, obj, default)
 
     class Meta:
         type_ = "keywords"

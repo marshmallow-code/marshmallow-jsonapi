@@ -4,10 +4,9 @@ from werkzeug.routing import BuildError
 
 from marshmallow_jsonapi import fields
 from marshmallow_jsonapi.flask import Relationship, Schema
-from tests.base import unpack
 
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def app():
     app_ = Flask("testapp")
     app_.config["DEBUG"] = True
@@ -86,12 +85,12 @@ class TestSchema:
             InvalidFlaskMetaSchema().dump(post)
 
     def test_self_link_single(self, app, post):
-        data = unpack(self.PostFlaskSchema().dump(post))
+        data = self.PostFlaskSchema().dump(post)
         assert "links" in data
         assert data["links"]["self"] == f"/posts/{post.id}/"
 
     def test_self_link_many(self, app, posts):
-        data = unpack(self.PostFlaskSchema(many=True).dump(posts))
+        data = self.PostFlaskSchema(many=True).dump(posts)
         assert "links" in data
         assert data["links"]["self"] == "/posts/"
 
@@ -99,7 +98,7 @@ class TestSchema:
         assert data["data"][0]["links"]["self"] == "/posts/{}/".format(posts[0].id)
 
     def test_schema_with_empty_relationship(self, app, post_with_null_author):
-        data = unpack(self.PostAuthorFlaskSchema().dump(post_with_null_author))
+        data = self.PostAuthorFlaskSchema().dump(post_with_null_author)
         assert "relationships" not in data
 
 
