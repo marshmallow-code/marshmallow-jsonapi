@@ -129,7 +129,7 @@ class Schema(ma.Schema):
                 #check for wildcard include
                 for key, value in self.fields.items():
                     if isinstance(value, BaseRelationship):
-                        value.include_data = True
+                        value.temp_include = True
                         if len(fields) > 1:
                             value.schema.check_relations(fields[1:])
             else:
