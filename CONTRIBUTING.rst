@@ -87,7 +87,7 @@ To run syntax checks: ::
 Documentation
 -------------
 
-Contributions to the documentation are welcome. Documentation is written in `reStructured Text`_ (rST). A quick rST reference can be found `here <http://docutils.sourceforge.net/docs/user/rst/quickref.html>`_. Builds are powered by Sphinx_.
+Contributions to the documentation are welcome. Documentation is written in `reStructuredText`_ (rST). A quick rST reference can be found `here <https://docutils.sourceforge.io/docs/user/rst/quickref.html>`_. Builds are powered by Sphinx_.
 
 To build the docs in "watch" mode: ::
 
@@ -96,5 +96,5 @@ To build the docs in "watch" mode: ::
 Changes in the `docs/` directory will automatically trigger a rebuild.
 
 .. _Sphinx: http://sphinx.pocoo.org/
-.. _`reStructured Text`: http://docutils.sourceforge.net/rst.html
+.. _`reStructuredText`: https://docutils.sourceforge.io/rst.html
 .. _marshmallow-jsonapi: https://github.com/marshmallow-code/marshmallow-jsonapi

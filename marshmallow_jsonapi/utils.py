@@ -4,27 +4,7 @@ This module should be considered private API.
 """
 import re
 
-import marshmallow
-from marshmallow.utils import get_value as _get_value, missing
-
-_MARSHMALLOW_VERSION_INFO = tuple(
-    [int(part) for part in marshmallow.__version__.split(".") if part.isdigit()]
-)
-
-
-def get_dump_key(field):
-    if _MARSHMALLOW_VERSION_INFO[0] < 3:
-        return field.dump_to
-    else:
-        return field.data_key
-
-
-if _MARSHMALLOW_VERSION_INFO[0] >= 3:
-    get_value = _get_value
-else:
-
-    def get_value(obj, attr, *args, **kwargs):
-        return _get_value(attr, obj, *args, **kwargs)
+from marshmallow.utils import get_value, missing
 
 
 _tpl_pattern = re.compile(r"\s*<\s*(\S*)\s*>\s*")

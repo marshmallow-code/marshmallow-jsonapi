@@ -7,7 +7,7 @@ from marshmallow.utils import is_collection
 from .fields import BaseRelationship, DocumentMeta, ResourceMeta
 from .fields import _RESOURCE_META_LOAD_FROM, _DOCUMENT_META_LOAD_FROM
 from .exceptions import IncorrectTypeError
-from .utils import resolve_params, _MARSHMALLOW_VERSION_INFO, get_dump_key
+from .utils import resolve_params
 
 TYPE = "type"
 ID = "id"
@@ -215,15 +215,9 @@ class Schema(ma.Schema):
         return self.unwrap_item(data)
 
     def on_bind_field(self, field_name, field_obj):
-        """Schema hook override. When binding fields, set ``data_key`` (on marshmallow 3) or
-        load_from (on marshmallow 2) to the inflected form of field_name.
-        """
-        if _MARSHMALLOW_VERSION_INFO[0] < 3:
-            if not field_obj.load_from:
-                field_obj.load_from = self.inflect(field_name)
-        else:
-            if not field_obj.data_key:
-                field_obj.data_key = self.inflect(field_name)
+        """Schema hook override. When binding fields, set ``data_key`` to the inflected form of field_name."""
+        if not field_obj.data_key:
+            field_obj.data_key = self.inflect(field_name)
         return None
 
     def _do_load(self, data, many=None, **kwargs):
@@ -249,14 +243,6 @@ class Schema(ma.Schema):
             formatted_messages = self.format_errors(error_messages, many=many)
             err.messages = formatted_messages
             raise err
-        else:
-            # On marshmallow 2, _do_load returns a tuple (load_data, errors)
-            if _MARSHMALLOW_VERSION_INFO[0] < 3:
-                data, error_messages = result
-                if "_schema" in error_messages:
-                    error_messages = error_messages["_schema"]
-                formatted_messages = self.format_errors(error_messages, many=many)
-                return data, formatted_messages
         return result
 
     def _extract_from_included(self, data):
@@ -358,7 +344,7 @@ class Schema(ma.Schema):
 
         # Get the schema attributes so we can confirm `dump-to` values exist
         attributes = {
-            (get_dump_key(self.fields[field]) or field): field for field in self.fields
+            (self.fields[field].data_key or field): field for field in self.fields
         }
 
         for field_name, value in item.items():

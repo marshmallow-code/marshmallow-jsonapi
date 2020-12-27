@@ -2,7 +2,7 @@ import pytest
 from marshmallow import validate, ValidationError
 
 from marshmallow_jsonapi import Schema, fields
-from tests.base import unpack, AuthorSchema, CommentSchema
+from tests.base import AuthorSchema, CommentSchema
 from tests.test_schema import make_serialized_author, get_error_by_field
 
 
@@ -39,7 +39,7 @@ class TestInflection:
         return AuthorSchemaWithInflection()
 
     def test_dump(self, schema, author):
-        data = unpack(schema.dump(author))
+        data = schema.dump(author)
 
         assert data["data"]["id"] == author.id
         assert data["data"]["type"] == "people"
@@ -52,10 +52,7 @@ class TestInflection:
         assert attribs["last-name"] == author.last_name
 
     def test_validate_with_inflection(self, schema):
-        try:
-            errors = schema.validate(make_serialized_author({"first-name": "d"}))
-        except ValidationError as err:  # marshmallow 2
-            errors = err.messages
+        errors = schema.validate(make_serialized_author({"first-name": "d"}))
         lname_err = get_error_by_field(errors, "last-name")
         assert lname_err
         assert lname_err["detail"] == "Missing data for required field."
@@ -74,29 +71,25 @@ class TestInflection:
         assert fname_err["detail"] == "Shorter than minimum length 2."
 
         # valid
-        data = unpack(
-            schema.load(
-                make_serialized_author(
-                    {"first-name": "Nevets", "last-name": "Longoria"}
-                )
-            )
+        data = schema.load(
+            make_serialized_author({"first-name": "Nevets", "last-name": "Longoria"})
         )
+
         assert data["first_name"] == "Nevets"
 
     def test_load_with_inflection_and_load_from_override(self):
         schema = AuthorSchemaWithOverrideInflection()
-        data = unpack(
-            schema.load(
-                make_serialized_author({"firstName": "Steve", "last-name": "Loria"})
-            )
+        data = schema.load(
+            make_serialized_author({"firstName": "Steve", "last-name": "Loria"})
         )
+
         assert data["first_name"] == "Steve"
         assert data["last_name"] == "Loria"
 
     def test_load_bulk_id_fields(self):
         request = {"data": [{"id": "1", "type": "people"}]}
 
-        result = unpack(AuthorSchema(only=("id",), many=True).load(request))
+        result = AuthorSchema(only=("id",), many=True).load(request)
         assert type(result) is list
 
         response = result[0]
@@ -118,7 +111,7 @@ class TestInflection:
                 inflect = dasherize
                 strict = True
 
-        data = unpack(PostSchema().dump(post))
+        data = PostSchema().dump(post)
         assert "post-title" in data["data"]["attributes"]
         assert "post-comments" in data["data"]["relationships"]
         related_href = data["data"]["relationships"]["post-comments"]["links"][
@@ -162,12 +155,12 @@ class TestAutoSelfUrls:
             InvalidSelfLinkSchema().dump(author)
 
     def test_self_link_single(self, author):
-        data = unpack(AuthorAutoSelfLinkSchema().dump(author))
+        data = AuthorAutoSelfLinkSchema().dump(author)
         assert "links" in data
         assert data["links"]["self"] == f"/authors/{author.id}"
 
     def test_self_link_many(self, authors):
-        data = unpack(AuthorAutoSelfLinkSchema(many=True).dump(authors))
+        data = AuthorAutoSelfLinkSchema(many=True).dump(authors)
         assert "links" in data
         assert data["links"]["self"] == "/authors/"
 
@@ -175,7 +168,7 @@ class TestAutoSelfUrls:
         assert data["data"][0]["links"]["self"] == "/authors/{}".format(authors[0].id)
 
     def test_without_self_link(self, comments):
-        data = unpack(CommentSchema(many=True).dump(comments))
+        data = CommentSchema(many=True).dump(comments)
 
         assert "data" in data
         assert type(data["data"]) is list

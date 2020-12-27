@@ -2,6 +2,25 @@
 Changelog
 *********
 
+0.24.0 (unreleased)
+===================
+
+Deprecations/Removals:
+
+* Drop support for marshmallow 2, which is now EOL (:pr:`332`).
+
+Other changes:
+
+* Test against Python 3.8 and 3.9 (:pr:`332`).
+
+0.23.2 (2020-07-20)
+===================
+
+Bug fixes:
+
+* Import from `collections.abc` for forward-compatibility with Python 3.10 (:issue:`318`).
+  Thanks :user:`tirkarthi`.
+
 0.23.1 (2020-03-22)
 ===================
 
