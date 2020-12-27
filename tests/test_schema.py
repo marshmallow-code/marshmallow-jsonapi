@@ -97,7 +97,7 @@ class TestResponseFormatting:
         assert "links" not in data
 
     def test_schema_with_relationship_processes_none(self):
-        data = unpack(CommentSchema().dump(None))
+        data = CommentSchema().dump(None)
         assert data == {"data": None}
 
     def test_dump_empty_list(self):
