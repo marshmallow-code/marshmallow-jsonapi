@@ -244,7 +244,7 @@ class Relationship(BaseRelationship):
     # in the request. And we don't have enough control in _serialize
     # to prevent their serialization
     def serialize(self, attr, obj, accessor=None):
-        if self.include_resource_linkage or self.include_data:
+        if obj is None or self.include_resource_linkage or self.include_data:
             return super().serialize(attr, obj, accessor)
         return self._serialize(None, attr, obj)
 

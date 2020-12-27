@@ -9,6 +9,10 @@ Deprecations/Removals:
 
 * Drop support for marshmallow 2, which is now EOL (:pr:`332`).
 
+Bug fixes:
+
+* Fix behavior when serializing ``None`` (:pr:`302`). Thanks :user:`mahenzon`.
+
 Other changes:
 
 * Test against Python 3.8 and 3.9 (:pr:`332`).
