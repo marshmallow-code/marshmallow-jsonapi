@@ -61,6 +61,9 @@ class Relationship(BaseRelationship):
 
     This field is read-only by default.
 
+    The type_ keyword argument will be ignored in favor of a type_ attribute on the serialized
+    resource. This allows support for polymorphic relationships.
+
     :param str related_url: Format string for related resource links.
     :param dict related_url_kwargs: Replacement fields for `related_url`. String arguments
         enclosed in `< >` will be interpreted as attributes to pull from the target object.

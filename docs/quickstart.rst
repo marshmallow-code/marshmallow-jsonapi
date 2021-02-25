@@ -135,9 +135,10 @@ To serialize links, pass a URL format string and a dictionary of keyword argumen
     #     }
     # }
 
-It is possible to create a polymorphic relationship by having the serialized model define type_. Polymorphic relationships are supported by json-api and by many front end frameworks that implement it like `ember <https://guides.emberjs.com/release/models/relationships/#toc_polymorphism>`
+It is possible to create a polymorphic relationship by having the serialized model define type_. Polymorphic relationships are supported by json-api and by many front end frameworks that implement it like `ember <https://guides.emberjs.com/release/models/relationships/#toc_polymorphism>`_.
 
 .. code-block:: python
+
     class PaymentMethod(Bunch):
         type_ = "payment-methods"
 
@@ -155,9 +156,11 @@ It is possible to create a polymorphic relationship by having the serialized mod
             self.id = id
             self.payment_methods = get_payment_methods(id)
 
-A polymorphic Schema can be created using `OneOfSchema <https://github.com/marshmallow-code/marshmallow-oneofschema>`. For example, a user may have multiple payment methods with slightly different attributes. Note that OneOfSchema must be separately installed and that there are other ways of creating a polymorphic Schema, this is merely an example. 
+A polymorphic Schema can be created using `OneOfSchema <https://github.com/marshmallow-code/marshmallow-oneofschema>`_. For example, a user may have multiple payment methods with slightly different attributes. Note that OneOfSchema must be separately installed and that there are other ways of creating a polymorphic Schema, this is merely an example. 
+
 
 .. code-block:: python
+
     class PaymentMethodCreditCardSchema(Schema):
         id = fields.Str()
         last_4 = fields.Str()
