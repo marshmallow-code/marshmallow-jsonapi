@@ -61,7 +61,7 @@ class Relationship(BaseRelationship):
 
     This field is read-only by default.
 
-    The type_ keyword argument will be ignored in favor of a type_ attribute on the serialized
+    The type_ keyword argument will be ignored in favor of a __jsonapi_type__ attribute on the serialized
     resource. This allows support for polymorphic relationships.
 
     :param str related_url: Format string for related resource links.
@@ -294,7 +294,7 @@ class Relationship(BaseRelationship):
 
     def _get_type(self, obj):
         try:
-            return obj.type_
+            return obj.__jsonapi_type__
         except AttributeError:
             return self.type_
 

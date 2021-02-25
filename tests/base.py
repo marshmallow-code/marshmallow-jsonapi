@@ -38,15 +38,15 @@ class User(Bunch):
 class PaymentMethod(Bunch):
     """Base Class for Payment Methods"""
 
-    type_ = "payment-methods"
+    __jsonapi_type__ = "payment-methods"
 
 
 class PaymentMethodCreditCard(PaymentMethod, Bunch):
-    type_ = "payment-methods-cc"
+    __jsonapi_type__ = "payment-methods-cc"
 
 
 class PaymentMethodPaypal(PaymentMethod, Bunch):
-    type_ = "payment-methods-paypal"
+    __jsonapi_type__ = "payment-methods-paypal"
 
 
 class PaymentMethodCreditCardSchema(Schema):
@@ -77,7 +77,7 @@ class PaymentMethodSchema(Schema, OneOfSchema):
 
     def get_obj_type(self, obj):
         if isinstance(obj, PaymentMethod):
-            return obj.type_
+            return obj.__jsonapi_type__
         else:
             raise Exception(f"Unknown object type: {obj.__class__.__name__}")
 

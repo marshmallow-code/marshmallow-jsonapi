@@ -81,13 +81,13 @@ class TestResponseFormatting:
             0
         ]
         assert first_payment_method["id"] == str(user.payment_methods[0].id)
-        assert first_payment_method["type"] == user.payment_methods[0].type_
+        assert first_payment_method["type"] == user.payment_methods[0].__jsonapi_type__
 
         second_payment_method = data["data"]["relationships"]["payment_methods"][
             "data"
         ][1]
         assert second_payment_method["id"] == str(user.payment_methods[1].id)
-        assert second_payment_method["type"] == user.payment_methods[1].type_
+        assert second_payment_method["type"] == user.payment_methods[1].__jsonapi_type__
 
         included_resources = data["included"]
         assert (
