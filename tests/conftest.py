@@ -1,6 +1,15 @@
 import pytest
 
-from tests.base import Author, Post, Comment, Keyword, fake
+from tests.base import (
+    Author,
+    Post,
+    Comment,
+    Keyword,
+    User,
+    PaymentMethodCreditCard,
+    PaymentMethodPaypal,
+    fake,
+)
 
 
 def make_author():
@@ -33,6 +42,32 @@ def make_comment(with_author=True):
 
 def make_keyword():
     return Keyword(keyword=fake.domain_word())
+
+
+def make_payment_methods():
+    return [
+        PaymentMethodCreditCard(id=fake.random_int(), last_4="1335"),
+        PaymentMethodPaypal(id=fake.random_int(), linked_email="gal@example.com"),
+    ]
+
+
+def make_user():
+    return User(
+        id=fake.random_int(),
+        first_name=fake.first_name(),
+        last_name=fake.last_name(),
+        payment_methods=make_payment_methods(),
+    )
+
+
+@pytest.fixture()
+def user():
+    return make_user()
+
+
+@pytest.fixture()
+def payment_methods():
+    return make_payment_methods()
 
 
 @pytest.fixture()

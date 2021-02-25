@@ -173,12 +173,12 @@ class Relationship(BaseRelationship):
     def get_resource_linkage(self, value):
         if self.many:
             resource_object = [
-                {"type": self.type_, "id": _stringify(self._get_id(each))}
+                {"type": self._get_type(each), "id": _stringify(self._get_id(each))}
                 for each in value
             ]
         else:
             resource_object = {
-                "type": self.type_,
+                "type": self._get_type(value),
                 "id": _stringify(self._get_id(value)),
             }
         return resource_object
@@ -288,6 +288,12 @@ class Relationship(BaseRelationship):
             return self.schema.get_attribute(value, self.id_field, value)
         else:
             return get_value(value, self.id_field, value)
+
+    def _get_type(self, obj):
+        try:
+            return obj.type_
+        except AttributeError:
+            return self.type_
 
 
 class DocumentMeta(Field):
