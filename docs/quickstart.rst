@@ -135,6 +135,64 @@ To serialize links, pass a URL format string and a dictionary of keyword argumen
     #     }
     # }
 
+It is possible to create a polymorphic relationship by having the serialized model define __jsonapi_type__. Polymorphic relationships are supported by json-api and by many front end frameworks that implement it like `ember <https://guides.emberjs.com/release/models/relationships/#toc_polymorphism>`_.
+
+.. code-block:: python
+
+    class PaymentMethod(Bunch):
+        __jsonapi_type__ = "payment-methods"
+
+
+    class PaymentMethodCreditCard(PaymentMethod, Bunch):
+        __jsonapi_type__ = "payment-methods-cc"
+
+
+    class PaymentMethodPaypal(PaymentMethod, Bunch):
+        __jsonapi_type__ = "payment-methods-paypal"
+
+
+    class User:
+        def __init__(self, id):
+            self.id = id
+            self.payment_methods = get_payment_methods(id)
+
+A polymorphic Schema can be created using `OneOfSchema <https://github.com/marshmallow-code/marshmallow-oneofschema>`_. For example, a user may have multiple payment methods with slightly different attributes. Note that OneOfSchema must be separately installed and that there are other ways of creating a polymorphic Schema, this is merely an example. 
+
+
+.. code-block:: python
+
+    class PaymentMethodCreditCardSchema(Schema):
+        id = fields.Str()
+        last_4 = fields.Str()
+
+        class Meta:
+            type_ = "payment-methods-cc"
+
+
+    class PaymentMethodPaypalSchema(Schema):
+        id = fields.Str()
+        linked_email = fields.Str()
+
+        class Meta:
+            type_ = "payment-methods-paypal"
+
+
+    class PaymentMethodSchema(Schema, OneOfSchema):
+        id = fields.Str()
+        type_schemas = {
+            "payment-methods-cc": PaymentMethodCreditCardSchema,
+            "payment-methods-paypal": PaymentMethodPaypalSchema,
+        }
+
+        def get_obj_type(self, obj):
+            if isinstance(obj, PaymentMethod):
+                return obj.__jsonapi_type__
+            else:
+                raise Exception("Unknown object type: {}".format(obj.__class__.__name__))
+
+        class Meta:
+            type_ = "payment-methods"
+
 Resource linkages
 -----------------
 

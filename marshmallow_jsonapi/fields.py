@@ -61,6 +61,9 @@ class Relationship(BaseRelationship):
 
     This field is read-only by default.
 
+    The type_ keyword argument will be ignored in favor of a __jsonapi_type__ attribute on the serialized
+    resource. This allows support for polymorphic relationships.
+
     :param str related_url: Format string for related resource links.
     :param dict related_url_kwargs: Replacement fields for `related_url`. String arguments
         enclosed in `< >` will be interpreted as attributes to pull from the target object.
@@ -173,12 +176,12 @@ class Relationship(BaseRelationship):
     def get_resource_linkage(self, value):
         if self.many:
             resource_object = [
-                {"type": self.type_, "id": _stringify(self._get_id(each))}
+                {"type": self._get_type(each), "id": _stringify(self._get_id(each))}
                 for each in value
             ]
         else:
             resource_object = {
-                "type": self.type_,
+                "type": self._get_type(value),
                 "id": _stringify(self._get_id(value)),
             }
         return resource_object
@@ -288,6 +291,12 @@ class Relationship(BaseRelationship):
             return self.schema.get_attribute(value, self.id_field, value)
         else:
             return get_value(value, self.id_field, value)
+
+    def _get_type(self, obj):
+        try:
+            return obj.__jsonapi_type__
+        except AttributeError:
+            return self.type_
 
 
 class DocumentMeta(Field):

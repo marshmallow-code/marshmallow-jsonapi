@@ -4,6 +4,7 @@ from faker import Factory
 from marshmallow import validate
 
 from marshmallow_jsonapi import Schema, fields
+from marshmallow_oneofschema import OneOfSchema
 
 fake = Factory.create()
 
@@ -28,6 +29,76 @@ class Comment(Bunch):
 
 class Keyword(Bunch):
     pass
+
+
+class User(Bunch):
+    pass
+
+
+class PaymentMethod(Bunch):
+    """Base Class for Payment Methods"""
+
+    __jsonapi_type__ = "payment-methods"
+
+
+class PaymentMethodCreditCard(PaymentMethod, Bunch):
+    __jsonapi_type__ = "payment-methods-cc"
+
+
+class PaymentMethodPaypal(PaymentMethod, Bunch):
+    __jsonapi_type__ = "payment-methods-paypal"
+
+
+class PaymentMethodCreditCardSchema(Schema):
+    id = fields.Str()
+    last_4 = fields.Str()
+
+    class Meta:
+        type_ = "payment-methods-cc"
+
+
+class PaymentMethodPaypalSchema(Schema):
+    id = fields.Str()
+    linked_email = fields.Str()
+
+    class Meta:
+        type_ = "payment-methods-paypal"
+
+
+class PaymentMethodSchema(Schema, OneOfSchema):
+    """Using https://github.com/marshmallow-code/marshmallow-oneofschema is one way to have a polymorphic schema"""
+
+    id = fields.Str()
+
+    type_schemas = {
+        "payment-methods-cc": PaymentMethodCreditCardSchema,
+        "payment-methods-paypal": PaymentMethodPaypalSchema,
+    }
+
+    def get_obj_type(self, obj):
+        if isinstance(obj, PaymentMethod):
+            return obj.__jsonapi_type__
+        else:
+            raise Exception(f"Unknown object type: {obj.__class__.__name__}")
+
+    class Meta:
+        type_ = "payment-methods"
+
+
+class UserSchema(Schema):
+    id = fields.Str()
+    first_name = fields.Str(required=True)
+    last_name = fields.Str(required=True)
+
+    payment_methods = fields.Relationship(
+        schema=PaymentMethodSchema,
+        include_resource_linkage=True,
+        many=True,
+        type_="payment-methods",
+    )
+
+    class Meta:
+        type_ = "users"
 
 
 class AuthorSchema(Schema):

@@ -10,6 +10,7 @@ from tests.base import (
     PostSchema,
     PolygonSchema,
     ArticleSchema,
+    UserSchema,
 )
 
 
@@ -70,6 +71,33 @@ class TestResponseFormatting:
 
         assert attribs["first_name"] == authors[0].first_name
         assert attribs["last_name"] == authors[0].last_name
+
+    def test_dump_single_with_polymorphic_relationship(self, user):
+        data = UserSchema(include_data=("payment_methods",)).dump(user)
+        assert "data" in data
+        assert type(data["data"]["relationships"]["payment_methods"]["data"]) is list
+
+        first_payment_method = data["data"]["relationships"]["payment_methods"]["data"][
+            0
+        ]
+        assert first_payment_method["id"] == str(user.payment_methods[0].id)
+        assert first_payment_method["type"] == user.payment_methods[0].__jsonapi_type__
+
+        second_payment_method = data["data"]["relationships"]["payment_methods"][
+            "data"
+        ][1]
+        assert second_payment_method["id"] == str(user.payment_methods[1].id)
+        assert second_payment_method["type"] == user.payment_methods[1].__jsonapi_type__
+
+        included_resources = data["included"]
+        assert (
+            included_resources[0]["attributes"]["last_4"]
+            == user.payment_methods[0].last_4
+        )
+        assert (
+            included_resources[1]["attributes"]["linked_email"]
+            == user.payment_methods[1].linked_email
+        )
 
     def test_self_link_single(self, author):
         data = AuthorSchema().dump(author)
@@ -149,6 +177,15 @@ class TestCompoundDocuments:
             if i["type"] == "people" and i["id"] != str(post.author.id)
         }
         assert included_comments_author_ids == expected_comments_author_ids
+
+    def test_include_data_with_polymorphic_relation(self, user):
+        data = UserSchema(include_data=("payment_methods",)).dump(user)
+
+        assert "included" in data
+        assert len(data["included"]) == 2
+        for included in data["included"]:
+            assert included["id"]
+            assert included["type"] in ("payment-methods-cc", "payment-methods-paypal")
 
     def test_include_no_data(self, post):
         data = PostSchema(include_data=()).dump(post)

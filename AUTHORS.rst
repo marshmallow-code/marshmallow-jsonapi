@@ -33,3 +33,4 @@ Contributors (chronological)
 - Areeb Jamal `@iamareebjamal <https://github.com/iamareebjamal>`_
 - Suren Khorenyan `@mahenzon <https://github.com/mahenzon>`_
 - Karthikeyan Singaravelan `@tirkarthi <https://github.com/tirkarthi>`_
+- Max Buck `@buckmaxwell <https://github.com/buckmaxwell>`_
