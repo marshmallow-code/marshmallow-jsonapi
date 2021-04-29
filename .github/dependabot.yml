@@ -1,0 +1,31 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: faker
+    versions:
+    - 5.8.0
+    - 6.0.0
+    - 6.1.1
+    - 6.3.0
+    - 6.4.1
+    - 6.5.0
+    - 6.5.2
+    - 6.6.0
+    - 6.6.1
+    - 6.6.2
+    - 6.6.3
+    - 7.0.1
+    - 8.0.0
+    - 8.1.0
+  - dependency-name: sphinx-rtd-theme
+    versions:
+    - 0.5.1
+  - dependency-name: flake8-bugbear
+    versions:
+    - 21.3.1
+    - 21.3.2
