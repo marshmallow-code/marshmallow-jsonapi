@@ -224,7 +224,7 @@ class TestCompoundDocuments:
                 "http://test.test/posts/{id}/comments/",
                 related_url_kwargs={"id": "<id>"},
                 attribute="comments",
-                dump_to="post-comments",
+                data_key="post-comments",
                 schema=CommentSchema,
                 many=True,
             )
@@ -306,7 +306,6 @@ class TestCompoundDocuments:
                 "http://test.test/posts/{id}/comments/",
                 related_url_kwargs={"id": "<id>"},
                 data_key="post-comments",
-                load_from="post-comments",
                 many=True,
                 type_="comments",
             )
@@ -834,14 +833,14 @@ class TestRelationshipLoading:
                 include_resource_linkage=True,
                 many=False,
                 type_="people",
-                missing="1",
+                load_default="1",
             )
             comments = fields.Relationship(
                 dump_only=False,
                 include_resource_linkage=True,
                 many=True,
                 type_="comments",
-                missing=["2", "3"],
+                load_default=["2", "3"],
             )
 
             class Meta:
