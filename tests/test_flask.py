@@ -95,7 +95,7 @@ class TestSchema:
         assert data["links"]["self"] == "/posts/"
 
         assert "links" in data["data"][0]
-        assert data["data"][0]["links"]["self"] == "/posts/{}/".format(posts[0].id)
+        assert data["data"][0]["links"]["self"] == f"/posts/{posts[0].id}/"
 
     def test_schema_with_empty_relationship(self, app, post_with_null_author):
         data = self.PostAuthorFlaskSchema().dump(post_with_null_author)

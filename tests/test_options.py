@@ -165,7 +165,7 @@ class TestAutoSelfUrls:
         assert data["links"]["self"] == "/authors/"
 
         assert "links" in data["data"][0]
-        assert data["data"][0]["links"]["self"] == "/authors/{}".format(authors[0].id)
+        assert data["data"][0]["links"]["self"] == f"/authors/{authors[0].id}"
 
     def test_without_self_link(self, comments):
         data = CommentSchema(many=True).dump(comments)

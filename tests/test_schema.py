@@ -452,7 +452,7 @@ class TestErrorFormatting:
         }
 
     def test_validate_id(self):
-        """ the pointer for id should be at the data object, not attributes """
+        """the pointer for id should be at the data object, not attributes"""
         author = {
             "data": {
                 "type": "people",
@@ -545,7 +545,7 @@ class TestErrorFormatting:
         assert err["detail"] == "`data` expected to be a collection."
 
     def test_many_id_errors(self):
-        """ the pointer for id should be at the data object, not attributes """
+        """the pointer for id should be at the data object, not attributes"""
         author = {
             "data": [
                 {

@@ -407,7 +407,7 @@ class Schema(ma.Schema):
         return None
 
     def wrap_response(self, data, many):
-        """Wrap data and links according to the JSON API """
+        """Wrap data and links according to the JSON API"""
         ret = {"data": data}
         # self_url_many is still valid when there isn't any data, but self_url
         # may only be included if there is data in the ret
