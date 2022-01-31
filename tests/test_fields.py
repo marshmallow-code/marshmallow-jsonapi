@@ -353,7 +353,7 @@ class TestGenericRelationshipField:
         field = Relationship(
             related_url="/authors/{author_id}",
             related_url_kwargs={"author_id": "<author.last_name>"},
-            default=None,
+            dump_default=None,
         )
         result = field.serialize("author", post_with_null_author)
 

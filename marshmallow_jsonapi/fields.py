@@ -152,7 +152,9 @@ class Relationship(BaseRelationship):
 
     def get_related_url(self, obj):
         if self.related_url:
-            params = resolve_params(obj, self.related_url_kwargs, default=self.default)
+            params = resolve_params(
+                obj, self.related_url_kwargs, default=self.dump_default
+            )
             non_null_params = {
                 key: value for key, value in params.items() if value is not None
             }
@@ -162,7 +164,9 @@ class Relationship(BaseRelationship):
 
     def get_self_url(self, obj):
         if self.self_url:
-            params = resolve_params(obj, self.self_url_kwargs, default=self.default)
+            params = resolve_params(
+                obj, self.self_url_kwargs, default=self.dump_default
+            )
             non_null_params = {
                 key: value for key, value in params.items() if value is not None
             }

@@ -24,7 +24,7 @@ class AuthorSchemaWithInflection(Schema):
 class AuthorSchemaWithOverrideInflection(Schema):
     id = fields.Str(dump_only=True)
     # data_key and load_from takes precedence over inflected attribute
-    first_name = fields.Str(data_key="firstName", load_from="firstName")
+    first_name = fields.Str(data_key="firstName")
     last_name = fields.Str()
 
     class Meta:

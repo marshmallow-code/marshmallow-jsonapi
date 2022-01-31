@@ -100,7 +100,7 @@ class ArticleSchema(Schema):
 
 class PostSchema(Schema):
     id = fields.Str()
-    post_title = fields.Str(attribute="title", dump_to="title", data_key="title")
+    post_title = fields.Str(attribute="title", data_key="title")
 
     author = fields.Relationship(
         "http://test.test/posts/{id}/author/",
@@ -114,8 +114,6 @@ class PostSchema(Schema):
         "http://test.test/posts/{id}/comments/",
         related_url_kwargs={"id": "<id>"},
         attribute="comments",
-        load_from="post-comments",
-        dump_to="post-comments",
         data_key="post-comments",
         schema="CommentSchema",
         many=True,
@@ -126,7 +124,6 @@ class PostSchema(Schema):
         "http://test.test/posts/{id}/keywords/",
         related_url_kwargs={"id": "<id>"},
         attribute="keywords",
-        dump_to="post-keywords",
         data_key="post-keywords",
         schema="KeywordSchema",
         many=True,
