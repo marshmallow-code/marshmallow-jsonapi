@@ -1,7 +1,11 @@
 import re
 from setuptools import setup, find_packages
 
-INSTALL_REQUIRES = ("marshmallow>=2.15.2",)
+INSTALL_REQUIRES = (
+    "marshmallow>=2.15.2",
+    "webargs>=5.5.1",
+    "querystring-parser>=1.2.4",
+)
 EXTRAS_REQUIRE = {
     "tests": ["pytest", "mock", "faker==4.18.0", "Flask==1.1.2"],
     "lint": ["flake8==3.9.0", "flake8-bugbear==20.11.1", "pre-commit~=2.0"],
