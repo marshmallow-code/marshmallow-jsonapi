@@ -299,13 +299,26 @@ class Relationship(BaseRelationship):
         else:
             data = result
 
-        item = data["data"]
-        self.root.included_data[(item["type"], item["id"])] = item
+        item = data["data"] 
+        original = self.root.included_data.get((item["type"], item["id"]))
+        self.root.included_data[(item["type"], item["id"])] = self._merge(original, item) if original else item
+            
         included = result.get('included', [])
         for item in included:
             key = (item.get('type'), item.get('id'))
-            self.root.included_data[key] = item
+            original = self.root.included_data.get(key)
+            self.root.included_data[key] = self._merge(original, item) if original else item
+        
+    def _merge(self, source, destination):
+        for key, value in source.items():
+            if isinstance(value, dict):
+                node = destination.setdefault(key, {})
+                self._merge(value, node)
+            else:
+                destination[key] = value
 
+        return destination
+    
     def _get_id(self, value):
         if _MARSHMALLOW_VERSION_INFO[0] >= 3:
             if self.__schema:
