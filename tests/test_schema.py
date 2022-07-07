@@ -150,6 +150,17 @@ class TestCompoundDocuments:
         }
         assert included_comments_author_ids == expected_comments_author_ids
 
+    def test_include_data_auto_all(self, post):
+        """
+        Test that we can use include_data=True to include all relations recursively
+        """
+        data = unpack(PostSchema(include_data=True).dump(post))
+        assert "included" in data
+        assert len(data["included"]) == 8
+        for included in data["included"]:
+            assert included["id"]
+            assert included["type"] in ("people", "comments", "keywords")
+
     def test_include_no_data(self, post):
         data = PostSchema(include_data=()).dump(post)
         assert "included" not in data
