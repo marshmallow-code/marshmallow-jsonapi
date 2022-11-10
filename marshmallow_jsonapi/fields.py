@@ -269,6 +269,7 @@ class Relationship(BaseRelationship):
                 ret["data"] = self.get_resource_linkage(value)
 
         if self.include_data and value is not None:
+            self.root.included_data = {}
             if self.many:
                 for item in value:
                     self._serialize_included(item)
