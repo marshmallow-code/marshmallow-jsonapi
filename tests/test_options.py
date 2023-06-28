@@ -6,6 +6,10 @@ from tests.base import AuthorSchema, CommentSchema
 from tests.test_schema import make_serialized_author, get_error_by_field
 
 
+def add_postfix_inflection(text):
+    return text + "_x"
+
+
 def dasherize(text):
     return text.replace("_", "-")
 
@@ -31,6 +35,15 @@ class AuthorSchemaWithOverrideInflection(Schema):
         type_ = "people"
         inflect = dasherize
         strict = True
+
+
+class PostfixInflectionSchema(Schema):
+    id = fields.Str()
+    test_attr = fields.Str(required=True, allow_none=False)
+
+    class Meta:
+        type_ = "postfix_inflection_type"
+        inflect = add_postfix_inflection
 
 
 class TestInflection:
@@ -118,6 +131,31 @@ class TestInflection:
             "related"
         ]
         assert related_href == f"http://test.test/posts/{post.id}/comments/"
+
+    def test_postfix_inflection(self):
+        schema = PostfixInflectionSchema()
+        data = schema.dump({"id": "5", "test_attr": None})
+        print(data)
+        assert "test_attr_x" in data["data"]["attributes"]
+
+    def test_postfix_inflection_errors(self):
+        schema = PostfixInflectionSchema()
+        errors = schema.validate(
+            {
+                "data": {
+                    "id": "5",
+                    "type": "postfix_inflection_type",
+                    "attributes": {"test_attr_x": None},
+                }
+            }
+        )
+
+        assert "errors" in errors
+        assert len(errors["errors"]) == 1
+
+        test_attr = get_error_by_field(errors, "test_attr_x")
+        assert test_attr
+        assert test_attr["source"]["pointer"] == "/data/attributes/test_attr_x"
 
 
 class AuthorAutoSelfLinkSchema(Schema):

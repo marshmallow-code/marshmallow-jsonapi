@@ -216,7 +216,7 @@ class Schema(ma.Schema):
 
     def on_bind_field(self, field_name, field_obj):
         """Schema hook override. When binding fields, set ``data_key`` to the inflected form of field_name."""
-        if not field_obj.data_key:
+        if not field_obj.data_key and not field_name == "id":
             field_obj.data_key = self.inflect(field_name)
         return None
 
@@ -321,7 +321,7 @@ class Schema(ma.Schema):
             # JSONAPI identifier is a special field that exists above the attribute object.
             pointer.append("attributes")
 
-        pointer.append(self.inflect(field_name))
+        pointer.append(field_name)
 
         if relationship:
             pointer.append("data")
@@ -363,11 +363,11 @@ class Schema(ma.Schema):
                 if value:
                     if "relationships" not in ret:
                         ret["relationships"] = self.dict_class()
-                    ret["relationships"][self.inflect(field_name)] = value
+                    ret["relationships"][field_name] = value
             else:
                 if "attributes" not in ret:
                     ret["attributes"] = self.dict_class()
-                ret["attributes"][self.inflect(field_name)] = value
+                ret["attributes"][field_name] = value
 
         links = self.get_resource_links(item)
         if links:
